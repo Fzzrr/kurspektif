@@ -34,6 +34,7 @@ export default function RootLayout({
   return (
     <html lang="id">
       <body
+        suppressHydrationWarning
         className={`${bricolage.variable} ${inter.variable} ${jetbrains.variable} font-sans antialiased`}
       >
         {children}
