@@ -1,17 +1,52 @@
 'use client';
 
 import { useState } from 'react';
-import AuthHeader from '../AuthHeader';
+import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
+import AuthHeader from './AuthHeader';
 import FormField from '../ui/FormField';
 import PasswordInput from '../ui/PasswordInput';
 import AuthDivider from '../ui/AuthDivider';
-import SocialAuthButtons from '../ui/SocialAuthButtons';
+import SocialAuthButtons from './SocialAuthButtons';
 import { primaryButtonClass } from '../ui/styles';
-import { strengthOf, strengthBarColor } from '../lib/passwordStrength';
+import { strengthOf, strengthBarColor } from '@/lib/passwordStrength';
+import { registerUser } from '@/app/(auth)/register/actions';
 
 export default function RegisterForm() {
+  const router = useRouter();
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [pending, setPending] = useState(false);
   const score = strengthOf(password);
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError('');
+    setPending(true);
+    const formData = new FormData(e.currentTarget);
+
+    // 1) Buat user di database lewat server action.
+    const res = await registerUser(undefined, formData);
+    if (res?.error) {
+      setError(res.error);
+      setPending(false);
+      return;
+    }
+
+    // 2) Langsung login otomatis dengan kredensial yang sama.
+    const login = await signIn('credentials', {
+      redirect: false,
+      email: String(formData.get('email')),
+      password,
+    });
+    setPending(false);
+    if (login?.error) {
+      setError('Akun dibuat, tapi gagal login otomatis. Silakan masuk manual.');
+      return;
+    }
+    router.push('/dashboard');
+    router.refresh();
+  }
 
   return (
     <div className="font-mono space-y-4">
@@ -57,7 +92,7 @@ export default function RegisterForm() {
           </p>
         </div>
 
-        <form className="space-y-3" action="#" method="POST">
+        <form className="space-y-3" onSubmit={onSubmit}>
           <FormField
             id="name"
             name="name"
@@ -113,8 +148,14 @@ export default function RegisterForm() {
             .
           </p>
 
-          <button type="submit" className={primaryButtonClass}>
-            Buat akun
+          {error && <p className="text-center text-sm text-down">{error}</p>}
+
+          <button
+            type="submit"
+            disabled={pending}
+            className={`${primaryButtonClass} disabled:opacity-60`}
+          >
+            {pending ? 'Memproses…' : 'Buat akun'}
           </button>
         </form>
 
