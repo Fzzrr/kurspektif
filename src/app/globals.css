@@ -16,9 +16,18 @@
   --font-sans: var(--font-inter);
   --font-display: var(--font-bricolage);
   --font-mono: var(--font-jetbrains);
+  --font-text: var(--font-inter);
 }
 
 body {
   background-color: var(--color-paper);
   color: var(--color-ink);
+}
+
+/* Auth: perkecil konten hanya di layar besar (desktop) agar muat tanpa scroll.
+   Di layar kecil (mobile/tablet) konten tetap ukuran penuh & mengalir normal. */
+@media (min-width: 1024px) {
+  .auth-zoom {
+    zoom: 0.9;
+  }
 }
