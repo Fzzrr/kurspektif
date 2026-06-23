@@ -1,4 +1,4 @@
-import Wordmark from './ui/Wordmark';
+import Wordmark from '../ui/Wordmark';
 
 type AuthHeaderProps = {
   /** Teks ajakan, mis. "Belum punya akun?". */
