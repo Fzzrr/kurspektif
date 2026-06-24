@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { AreaChart, Area, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
+import { useEffect, useRef, useState } from 'react';
+import { AreaChart, Area, YAxis, Tooltip } from 'recharts';
 import type { CurrencyPoint } from '@/types/currency';
 
 // Data mock statis untuk pratinjau grafik kurs USD → IDR (30 hari terakhir).
@@ -18,8 +18,23 @@ const MOCK_CHART_DATA: CurrencyPoint[] = [
 ];
 
 export default function LiveCurrencyChart() {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  // Ukur container sendiri dengan ResizeObserver, lalu beri AreaChart ukuran
+  // piksel konkret. Kita sengaja tidak memakai ResponsiveContainer karena ia
+  // melaporkan warning width(-1)/height(-1) saat panel masih `display:none`
+  // (mis. di bawah breakpoint lg) atau pada render pertama internalnya.
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [size, setSize] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      setSize({ width, height });
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   const chartData = MOCK_CHART_DATA;
   const firstRate = chartData[0].rate;
@@ -62,10 +77,14 @@ export default function LiveCurrencyChart() {
         </span>
       </div>
 
-      <div className="mt-4 h-28 w-full">
-        {mounted && (
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={chartData} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
+      <div ref={wrapRef} className="mt-4 h-28 w-full">
+        {size.width > 0 && size.height > 0 && (
+          <AreaChart
+            width={size.width}
+            height={size.height}
+            data={chartData}
+            margin={{ top: 5, right: 0, left: 0, bottom: 0 }}
+          >
             <defs>
               <linearGradient id="rateGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor={lineColor} stopOpacity={0.28} />
@@ -100,7 +119,6 @@ export default function LiveCurrencyChart() {
               activeDot={{ r: 5, fill: lineColor, stroke: 'var(--color-surface)', strokeWidth: 2 }}
             />
           </AreaChart>
-        </ResponsiveContainer>
         )}
       </div>
 
