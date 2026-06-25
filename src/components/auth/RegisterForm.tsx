@@ -9,7 +9,13 @@ import PasswordInput from '../ui/PasswordInput';
 import AuthDivider from '../ui/AuthDivider';
 import SocialAuthButtons from './SocialAuthButtons';
 import { primaryButtonClass } from '../ui/styles';
-import { strengthOf, strengthBarColor } from '@/lib/passwordStrength';
+import {
+  strengthOf,
+  strengthBarColor,
+  strengthColor,
+  strengthLabel,
+  strengthHint,
+} from '@/lib/passwordStrength';
 import { registerUser } from '@/app/(auth)/register/actions';
 
 export default function RegisterForm() {
@@ -130,9 +136,19 @@ export default function RegisterForm() {
                 />
               ))}
             </div>
-            <p className="mt-2 mb-5 text-xs text-muted">
-              Cukup kuat · gunakan 8+ karakter, kombinasi huruf &amp; angka.
-            </p>
+            {password ? (
+              <p className="mt-2 mb-5 text-xs">
+                <span style={{ color: strengthColor(score) }}>
+                  {strengthLabel(score)}
+                </span>
+                <span className="text-muted"> · {strengthHint(password)}</span>
+              </p>
+            ) : (
+              <p className="mt-2 mb-5 text-xs text-muted">
+                Gunakan 8+ karakter, kombinasi huruf besar &amp; kecil, angka,
+                dan simbol.
+              </p>
+            )}
           </div>
 
           {/* Persetujuan */}
