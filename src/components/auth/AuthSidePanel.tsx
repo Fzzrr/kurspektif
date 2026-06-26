@@ -1,6 +1,6 @@
 import React from 'react';
 // 1. Import komponen yang baru dibuat
-import LiveCurrencyChart from './LiveCurrencyChart';
+import LiveCurrencyChart from '../charts/LiveCurrencyChart';
 
 const features = [
   'Multi mata uang — pasangan apa pun',
