@@ -2,8 +2,8 @@
 
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
-import {headers} from 'next/headers';
-import {registerLimiter} from '@/lib/rateLimit';
+import { headers } from 'next/headers';
+import { registerLimiter } from '@/lib/rateLimit';
 
 export type RegisterState = { error?: string } | undefined;
 

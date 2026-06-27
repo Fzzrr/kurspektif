@@ -8,7 +8,7 @@ import FormField from '../ui/FormField';
 import PasswordInput from '../ui/PasswordInput';
 import AuthDivider from '../ui/AuthDivider';
 import SocialAuthButtons from './SocialAuthButtons';
-import { primaryButtonClass } from '../ui/styles';
+import { primaryButtonClass, authHeadingTextStyle } from '../ui/styles';
 
 export default function LoginForm() {
   const router = useRouter();
@@ -35,7 +35,7 @@ export default function LoginForm() {
   }
 
   return (
-    <div className="font-mono space-y-6">
+    <div className="font-sans space-y-6">
       <AuthHeader prompt="Don't have an account?" linkLabel="Sign up" linkHref="/register" />
 
       {/* Konten utama (hero + form) — kolom lebih sempit & ter-center */}
@@ -58,12 +58,7 @@ export default function LoginForm() {
                 textLength="1000"
                 lengthAdjust="spacingAndGlyphs"
                 xmlSpace="preserve"
-                style={{
-                  fontFamily: 'var(--font-bricolage), sans-serif',
-                  fontSize: '100px',
-                  fontWeight: 800,
-                  letterSpacing: '-2.5px',
-                }}
+                style={authHeadingTextStyle}
               >
                 <tspan fill="var(--color-ink)">Sign in to </tspan>
                 <tspan fill="var(--color-accent)">

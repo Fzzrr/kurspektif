@@ -10,7 +10,7 @@ export default function Hero() {
           Monitor kurs · konteks berita
         </p>
 
-        <h1 className="mt-4 font-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl">
+        <h1 className="mt-4 font-display text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl">
           Bukan sekadar angka kurs — tapi{" "}
           <span className="text-accent">alasan</span> di baliknya.
         </h1>
@@ -24,13 +24,13 @@ export default function Hero() {
         <div className="mt-7 flex flex-wrap gap-3">
           <Link
             href="/dashboard"
-            className="rounded-full bg-ink px-6 py-3 text-sm font-medium text-paper transition-opacity hover:opacity-90"
+            className="rounded-xl bg-ink px-6 py-3 text-sm font-medium text-paper transition-opacity hover:opacity-90"
           >
             Coba sekarang
           </Link>
           <Link
             href="#cara"
-            className="rounded-full border border-line px-6 py-3 text-sm font-medium transition-colors hover:border-ink"
+            className="rounded-xl border border-line px-6 py-3 text-sm font-medium transition-colors hover:border-ink"
           >
             Lihat cara kerja
           </Link>

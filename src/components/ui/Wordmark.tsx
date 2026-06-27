@@ -16,7 +16,7 @@ export default function Wordmark({ className }: { className?: string }) {
       >
         Kurspektif
       </text>
-      <circle cx="620" cy="124" r="10" fill="var(--color-accent)" />
+      <circle cx="535" cy="124" r="10" fill="var(--color-accent)" />
     </svg>
   );
 }

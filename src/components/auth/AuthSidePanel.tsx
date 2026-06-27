@@ -1,6 +1,5 @@
-import React from 'react';
-// 1. Import komponen yang baru dibuat
 import LiveCurrencyChart from '../charts/LiveCurrencyChart';
+import { authHeadingTextStyle } from '../ui/styles';
 
 const features = [
   'Multi-currency — any pair you want',
@@ -38,12 +37,7 @@ export default function AuthSidePanel() {
               y="100"
               fill="var(--color-paper)"
               xmlSpace="preserve"
-              style={{
-                fontFamily: 'var(--font-bricolage), sans-serif',
-                fontSize: '100px',
-                fontWeight: 800,
-                letterSpacing: '-2.5px',
-              }}
+              style={authHeadingTextStyle}
             >
               <tspan x="0">
                 See <tspan fill="var(--color-accent)">why</tspan> the rate
@@ -59,7 +53,6 @@ export default function AuthSidePanel() {
           summaries explained in plain language.
         </p>
 
-        {/* 2. Panggil komponen grafik dinamis di sini */}
         <LiveCurrencyChart />
 
         {/* Checklist fitur */}
