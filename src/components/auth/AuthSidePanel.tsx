@@ -3,9 +3,9 @@ import React from 'react';
 import LiveCurrencyChart from '../charts/LiveCurrencyChart';
 
 const features = [
-  'Multi mata uang — pasangan apa pun',
-  'Berita lokal & global ditandai sentimen',
-  'Alert membawa alasan, bukan cuma angka',
+  'Multi-currency — any pair you want',
+  'Local & global news tagged with sentiment',
+  'Alerts carry the reason, not just the number',
 ];
 
 export default function AuthSidePanel() {
@@ -20,12 +20,12 @@ export default function AuthSidePanel() {
 
       <div className="auth-zoom relative mx-auto max-h-full w-full max-w-lg overflow-y-auto overflow-x-hidden">
         <p className="font-mono text-xs uppercase tracking-[0.18em] text-accent">
-          ✦ Konteks di balik angka
+          ✦ The context behind the numbers
         </p>
 
         <h2
           className="mt-4 leading-none"
-          aria-label="Lihat kenapa kurs bergerak — bukan cuma seberapa."
+          aria-label="See why the rate moves — not just how much."
         >
           <svg
             viewBox="0 0 1230 345"
@@ -46,17 +46,17 @@ export default function AuthSidePanel() {
               }}
             >
               <tspan x="0">
-                Lihat <tspan fill="var(--color-accent)">kenapa</tspan> kurs
+                See <tspan fill="var(--color-accent)">why</tspan> the rate
               </tspan>
-              <tspan x="0" dy="105">bergerak — bukan cuma</tspan>
-              <tspan x="0" dy="105">seberapa.</tspan>
+              <tspan x="0" dy="105">moves — not just</tspan>
+              <tspan x="0" dy="105">how much.</tspan>
             </text>
           </svg>
         </h2>
 
         <p className="mt-4 max-w-md text-paper/70">
-          Berita ditandai sentimen, grafik membawa konteks, rangkuman mingguan
-          menjelaskan dalam bahasa manusia.
+          News tagged with sentiment, charts that carry context, and weekly
+          summaries explained in plain language.
         </p>
 
         {/* 2. Panggil komponen grafik dinamis di sini */}
