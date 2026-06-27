@@ -37,6 +37,14 @@ export default function RootLayout({
         suppressHydrationWarning
         className="font-sans antialiased"
       >
+        {/* Tanpa JS, paksa konten reveal tetap terlihat (progressive enhancement). */}
+        <noscript>
+          <style
+            dangerouslySetInnerHTML={{
+              __html: ".reveal{opacity:1!important;transform:none!important}",
+            }}
+          />
+        </noscript>
         {children}
       </body>
     </html>
