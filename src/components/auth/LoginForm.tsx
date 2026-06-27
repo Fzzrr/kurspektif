@@ -27,7 +27,7 @@ export default function LoginForm() {
     });
     setPending(false);
     if (res?.error) {
-      setError('Email atau password salah.');
+      setError('Incorrect email or password.');
       return;
     }
     router.push('/dashboard');
@@ -36,16 +36,16 @@ export default function LoginForm() {
 
   return (
     <div className="font-mono space-y-6">
-      <AuthHeader prompt="Belum punya akun?" linkLabel="Daftar" linkHref="/register" />
+      <AuthHeader prompt="Don't have an account?" linkLabel="Sign up" linkHref="/register" />
 
       {/* Konten utama (hero + form) — kolom lebih sempit & ter-center */}
       <div className="mx-auto w-full max-w-md space-y-5">
         {/* Hero text */}
         <div className="space-y-2">
           <p className="font-mono text-xs uppercase tracking-[0.18em] text-accent">
-            Selamat Datang Kembali
+            Welcome Back
           </p>
-          <h2 className="leading-none" aria-label="Masuk ke Kurspektif.">
+          <h2 className="leading-none" aria-label="Sign in to Kurspektif.">
             <svg
               viewBox="0 15 1000 113"
               className="block h-auto w-full"
@@ -65,7 +65,7 @@ export default function LoginForm() {
                   letterSpacing: '-2.5px',
                 }}
               >
-                <tspan fill="var(--color-ink)">Masuk ke </tspan>
+                <tspan fill="var(--color-ink)">Sign in to </tspan>
                 <tspan fill="var(--color-accent)">
                   Kurspektif<tspan fill="var(--color-ink)">.</tspan>
                 </tspan>
@@ -73,8 +73,8 @@ export default function LoginForm() {
             </svg>
           </h2>
           <p className="text-[#888780] text-sm">
-            Lanjutkan memantau kurs favoritmu dan baca rangkuman terbaru yang
-            sudah menunggu.
+            Keep tracking your favorite rates and read the latest summaries
+            waiting for you.
           </p>
         </div>
 
@@ -84,7 +84,7 @@ export default function LoginForm() {
             name="email"
             type="email"
             label="Email"
-            placeholder="kamu@email.com"
+            placeholder="you@email.com"
             required
           />
 
@@ -94,7 +94,7 @@ export default function LoginForm() {
             label="Password"
             labelAction={
               <a href="#" className="text-xs text-accent hover:underline">
-                Lupa password?
+                Forgot password?
               </a>
             }
           />
@@ -102,7 +102,7 @@ export default function LoginForm() {
           {error && <p className="text-sm text-down">{error}</p>}
 
           <button type="submit" disabled={pending} className={`${primaryButtonClass} disabled:opacity-60`}>
-            {pending ? 'Memproses…' : 'Masuk'}
+            {pending ? 'Processing…' : 'Sign in'}
           </button>
         </form>
 
