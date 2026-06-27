@@ -26,12 +26,9 @@ export default function Navbar() {
               </Link>
             ))}
           </div>
-          <Link href="/login" className="hidden text-sm text-muted transition-colors hover:text-ink sm:block">
-            Masuk
-          </Link>
           <Link
             href="/dashboard"
-            className="rounded-full bg-ink px-4 py-2 text-sm font-medium text-paper transition-opacity hover:opacity-90"
+            className="rounded-xl bg-ink px-4 py-2 text-sm font-medium text-paper transition-opacity hover:opacity-90"
           >
             Coba sekarang
           </Link>

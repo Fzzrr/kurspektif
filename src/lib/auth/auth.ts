@@ -4,7 +4,7 @@ import Credentials from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { authConfig } from './config';
-import {loginLimiter, loginIpLimiter} from '@/lib/rateLimit';
+import { loginLimiter, loginIpLimiter } from '@/lib/rateLimit';
 
 const DUMMY_HASH = bcrypt.hashSync('dummy-password-for-timing', 12);
 

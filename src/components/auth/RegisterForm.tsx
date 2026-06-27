@@ -8,7 +8,7 @@ import FormField from '../ui/FormField';
 import PasswordInput from '../ui/PasswordInput';
 import AuthDivider from '../ui/AuthDivider';
 import SocialAuthButtons from './SocialAuthButtons';
-import { primaryButtonClass } from '../ui/styles';
+import { primaryButtonClass, authHeadingTextStyle } from '../ui/styles';
 import {
   strengthOf,
   strengthBarColor,
@@ -55,7 +55,7 @@ export default function RegisterForm() {
   }
 
   return (
-    <div className="font-mono space-y-4">
+    <div className="font-sans space-y-4">
       <AuthHeader prompt="Already have an account?" linkLabel="Sign in" linkHref="/login" />
 
       {/* Konten utama (hero + form) — kolom lebih sempit, ter-center, & diperkecil */}
@@ -78,12 +78,7 @@ export default function RegisterForm() {
                 textLength="1000"
                 lengthAdjust="spacingAndGlyphs"
                 xmlSpace="preserve"
-                style={{
-                  fontFamily: 'var(--font-bricolage), sans-serif',
-                  fontSize: '100px',
-                  fontWeight: 800,
-                  letterSpacing: '-2.5px',
-                }}
+                style={authHeadingTextStyle}
               >
                 <tspan fill="var(--color-ink)">Understand </tspan>
                 <tspan fill="var(--color-accent)">
@@ -92,7 +87,7 @@ export default function RegisterForm() {
               </text>
             </svg>
           </h2>
-          <p className="text-[#888780] font-text">
+          <p className="text-[#888780]">
             Create an account to save favorite pairs, set alerts, and receive
             weekly summaries.
           </p>
@@ -169,7 +164,7 @@ export default function RegisterForm() {
           <button
             type="submit"
             disabled={pending}
-            className={`${primaryButtonClass} disabled:opacity-60`}
+            className= {`${primaryButtonClass} disabled:opacity-60`}
           >
             {pending ? 'Processing…' : 'Create account'}
           </button>

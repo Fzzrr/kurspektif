@@ -57,16 +57,15 @@ export default function LiveCurrencyChart() {
     return () => ro.disconnect();
   }, []);
 
-  const chartData = MOCK_CHART_DATA;
-  const firstRate = chartData[0].rate;
-  const lastRate = chartData[chartData.length - 1].rate;
+  const firstRate = MOCK_CHART_DATA[0].rate;
+  const lastRate = MOCK_CHART_DATA[MOCK_CHART_DATA.length - 1].rate;
 
   const currentRate = new Intl.NumberFormat('en-US').format(lastRate);
   const diff = lastRate - firstRate;
   const diffPercent = ((diff / firstRate) * 100).toFixed(2);
   const isUp = diff >= 0;
 
-  const ratesArray = chartData.map(d => d.rate);
+  const ratesArray = MOCK_CHART_DATA.map((d) => d.rate);
   const minRate = Math.min(...ratesArray) - 30;
   const maxRate = Math.max(...ratesArray) + 30;
 
@@ -103,7 +102,7 @@ export default function LiveCurrencyChart() {
           <AreaChart
             width={size.width}
             height={size.height}
-            data={chartData}
+            data={MOCK_CHART_DATA}
             margin={{ top: 5, right: 8, left: 0, bottom: 0 }}
           >
             <defs>
@@ -144,8 +143,8 @@ export default function LiveCurrencyChart() {
       </div>
 
       <div className="mt-2 flex justify-between font-mono text-[9px] text-muted">
-        <span>{chartData[0].date}</span>
-        <span>{chartData[chartData.length - 1].date}</span>
+        <span>{MOCK_CHART_DATA[0].date}</span>
+        <span>{MOCK_CHART_DATA[MOCK_CHART_DATA.length - 1].date}</span>
       </div>
 
       <div className="mt-4 rounded-lg bg-accent-soft px-4 py-3 text-xs leading-relaxed text-ink">

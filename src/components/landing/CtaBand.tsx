@@ -9,7 +9,7 @@ export default function CtaBand() {
         </h2>
         <Link
           href="/dashboard"
-          className="rounded-full bg-accent px-6 py-3 text-sm font-medium text-ink transition-opacity hover:opacity-90"
+          className="rounded-xl bg-accent px-6 py-3 text-sm font-medium text-ink transition-opacity hover:opacity-90"
         >
           Coba sekarang →
         </Link>
