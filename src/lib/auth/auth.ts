@@ -4,6 +4,9 @@ import Credentials from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { authConfig } from './config';
+import {loginLimiter, loginIpLimiter} from '@/lib/rateLimit';
+
+const DUMMY_HASH = bcrypt.hashSync('dummy-password-for-timing', 12);
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
@@ -13,12 +16,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     ...authConfig.providers,
     Credentials({
       credentials: { email: {}, password: {} },
-      async authorize(creds) {
+      async authorize(creds, request) {
         const email = String(creds?.email ?? '').toLowerCase();
         const password = String(creds?.password ?? '');
         if (!email || !password) return null;
+
+        const ip = request?.headers?.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+
+        // Batasi per IP (lintas email) DAN per IP+email.
+        if (!(await loginIpLimiter.check(`login-ip:${ip}`)).success) return null;
+        if (!(await loginLimiter.check(`login:${ip}:${email}`)).success) return null;
+
         const user = await prisma.user.findUnique({ where: { email } });
-        if (!user?.password) return null; // user OAuth-only atau tidak ada
+        if (!user?.password) {
+          await bcrypt.compare(password, DUMMY_HASH); // dummy compare untuk timing attack
+          return null;
+        }
+
         const ok = await bcrypt.compare(password, user.password);
         if (!ok) return null;
         return { id: user.id, name: user.name, email: user.email, image: user.image };
@@ -27,6 +41,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
   callbacks: {
     ...authConfig.callbacks,
+    async signIn({ account, profile }) {
+      if (account?.provider === 'google'){
+        return Boolean((profile as {email_verified?: boolean})?.email_verified); // hanya izinkan jika email terverifikasi
+      }
+      return true;
+    },
     jwt({ token, user }) { if (user) token.id = user.id; return token; },
     session({ session, token }) {
       if (token.id && session.user) session.user.id = token.id as string;
