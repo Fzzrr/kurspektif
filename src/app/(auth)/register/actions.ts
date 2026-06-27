@@ -2,6 +2,8 @@
 
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
+import {headers} from 'next/headers';
+import {registerLimiter} from '@/lib/rateLimit';
 
 export type RegisterState = { error?: string } | undefined;
 
@@ -10,6 +12,12 @@ export async function registerUser(
   _prev: RegisterState,
   formData: FormData,
 ): Promise<RegisterState> {
+  // Server Action = endpoint publik, jadi tetap perlu rate limit.
+  const ip = (await headers()).get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+  if (!(await registerLimiter.check(`register:${ip}`)).success) {
+    return { error: 'Terlalu banyak percobaan. Coba lagi nanti.' };
+  }
+  
   const name = String(formData.get('name') ?? '').trim();
   const email = String(formData.get('email') ?? '').toLowerCase().trim();
   const password = String(formData.get('password') ?? '');
