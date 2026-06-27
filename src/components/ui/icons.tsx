@@ -3,6 +3,25 @@
 
 type IconProps = { className?: string };
 
+// Panah kanan untuk tombol CTA. Ukuran diatur via className (pakai satuan `em`
+// agar selalu menyamai ukuran teks tombol). Dipakai bersama di Hero & CtaBand.
+export function ArrowRight({ className }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M5 12h14M13 6l6 6-6 6" />
+    </svg>
+  );
+}
+
 // Mata terbuka — ditampilkan saat password tersembunyi (klik untuk menampilkan).
 export function EyeIcon({ className }: IconProps) {
   return (
