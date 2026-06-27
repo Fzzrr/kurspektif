@@ -77,13 +77,13 @@ export default function LiveCurrencyChart() {
         </span>
       </div>
 
-      <div ref={wrapRef} className="mt-4 h-28 w-full">
+      <div ref={wrapRef} className="mt-4 h-28 w-full overflow-x-clip">
         {size.width > 0 && size.height > 0 && (
           <AreaChart
             width={size.width}
             height={size.height}
             data={chartData}
-            margin={{ top: 5, right: 0, left: 0, bottom: 0 }}
+            margin={{ top: 5, right: 8, left: 0, bottom: 0 }}
           >
             <defs>
               <linearGradient id="rateGradient" x1="0" y1="0" x2="0" y2="1">
