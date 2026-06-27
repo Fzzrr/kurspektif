@@ -1,3 +1,5 @@
+import Reveal from "./Reveal";
+
 // Penomoran 01/02/03 dipakai karena ini benar-benar urutan langkah,
 // bukan sekadar hiasan.
 const steps = [
@@ -25,22 +27,28 @@ export default function HowItWorks() {
       className="border-y border-line bg-surface"
     >
       <div className="mx-auto max-w-6xl px-6 py-16">
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-accent">
-          Cara kerja
-        </p>
-        <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight">
-          Tiga langkah, lalu kamu yang menyimpulkan
-        </h2>
+        <Reveal>
+          <p className="font-mono text-xs uppercase tracking-[0.18em] text-accent">
+            Cara kerja
+          </p>
+          <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight">
+            Tiga langkah, lalu kamu yang menyimpulkan
+          </h2>
+        </Reveal>
 
         <div className="mt-10 grid gap-7 md:grid-cols-3">
-          {steps.map((step) => (
-            <div key={step.num} className="border-t-2 border-ink pt-4">
-              <p className="font-mono text-sm text-accent">{step.num}</p>
-              <h3 className="mt-2 font-display text-lg font-semibold">
-                {step.title}
-              </h3>
-              <p className="mt-2 text-sm text-muted">{step.desc}</p>
-            </div>
+          {steps.map((step, i) => (
+            <Reveal key={step.num} delay={i * 110}>
+              <div className="group border-t-2 border-ink pt-4 transition-colors duration-300 hover:border-accent">
+                <p className="font-mono text-sm text-accent transition-transform duration-300 group-hover:translate-x-1">
+                  {step.num}
+                </p>
+                <h3 className="mt-2 font-display text-lg font-semibold">
+                  {step.title}
+                </h3>
+                <p className="mt-2 text-sm text-muted">{step.desc}</p>
+              </div>
+            </Reveal>
           ))}
         </div>
       </div>
