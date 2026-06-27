@@ -4,17 +4,38 @@ import { useEffect, useRef, useState } from 'react';
 import { AreaChart, Area, YAxis, Tooltip } from 'recharts';
 import type { CurrencyPoint } from '@/types/currency';
 
-// Data mock statis untuk pratinjau grafik kurs USD → IDR (30 hari terakhir).
+// Static mock data for the USD → IDR rate preview (last 30 days).
 const MOCK_CHART_DATA: CurrencyPoint[] = [
-  { date: '26 Mei', fullDate: '26 Mei 2026', rate: 16180 },
-  { date: '29 Mei', fullDate: '29 Mei 2026', rate: 16165 },
-  { date: '02 Jun', fullDate: '02 Jun 2026', rate: 16210 },
-  { date: '06 Jun', fullDate: '06 Jun 2026', rate: 16195 },
-  { date: '10 Jun', fullDate: '10 Jun 2026', rate: 16240 },
-  { date: '14 Jun', fullDate: '14 Jun 2026', rate: 16225 },
-  { date: '18 Jun', fullDate: '18 Jun 2026', rate: 16268 },
-  { date: '21 Jun', fullDate: '21 Jun 2026', rate: 16242 },
-  { date: 'Hari Ini', fullDate: '23 Jun 2026', rate: 16290 },
+  { date: '29 May', fullDate: '29 May 2026', rate: 16050 },
+  { date: '30 May', fullDate: '30 May 2026', rate: 16092 },
+  { date: '31 May', fullDate: '31 May 2026', rate: 16038 },
+  { date: '01 Jun', fullDate: '01 Jun 2026', rate: 16135 },
+  { date: '02 Jun', fullDate: '02 Jun 2026', rate: 16088 },
+  { date: '03 Jun', fullDate: '03 Jun 2026', rate: 16210 },
+  { date: '04 Jun', fullDate: '04 Jun 2026', rate: 16168 },
+  { date: '05 Jun', fullDate: '05 Jun 2026', rate: 16255 },
+  { date: '06 Jun', fullDate: '06 Jun 2026', rate: 16302 },
+  { date: '07 Jun', fullDate: '07 Jun 2026', rate: 16224 },
+  { date: '08 Jun', fullDate: '08 Jun 2026', rate: 16175 },
+  { date: '09 Jun', fullDate: '09 Jun 2026', rate: 16268 },
+  { date: '10 Jun', fullDate: '10 Jun 2026', rate: 16341 },
+  { date: '11 Jun', fullDate: '11 Jun 2026', rate: 16279 },
+  { date: '12 Jun', fullDate: '12 Jun 2026', rate: 16358 },
+  { date: '13 Jun', fullDate: '13 Jun 2026', rate: 16295 },
+  { date: '14 Jun', fullDate: '14 Jun 2026', rate: 16232 },
+  { date: '15 Jun', fullDate: '15 Jun 2026', rate: 16330 },
+  { date: '16 Jun', fullDate: '16 Jun 2026', rate: 16402 },
+  { date: '17 Jun', fullDate: '17 Jun 2026', rate: 16338 },
+  { date: '18 Jun', fullDate: '18 Jun 2026', rate: 16264 },
+  { date: '19 Jun', fullDate: '19 Jun 2026', rate: 16210 },
+  { date: '20 Jun', fullDate: '20 Jun 2026', rate: 16305 },
+  { date: '21 Jun', fullDate: '21 Jun 2026', rate: 16372 },
+  { date: '22 Jun', fullDate: '22 Jun 2026', rate: 16308 },
+  { date: '23 Jun', fullDate: '23 Jun 2026', rate: 16248 },
+  { date: '24 Jun', fullDate: '24 Jun 2026', rate: 16336 },
+  { date: '25 Jun', fullDate: '25 Jun 2026', rate: 16408 },
+  { date: '26 Jun', fullDate: '26 Jun 2026', rate: 16352 },
+  { date: 'Today', fullDate: '27 Jun 2026', rate: 16421 },
 ];
 
 export default function LiveCurrencyChart() {
@@ -40,7 +61,7 @@ export default function LiveCurrencyChart() {
   const firstRate = chartData[0].rate;
   const lastRate = chartData[chartData.length - 1].rate;
 
-  const currentRate = new Intl.NumberFormat('id-ID').format(lastRate);
+  const currentRate = new Intl.NumberFormat('en-US').format(lastRate);
   const diff = lastRate - firstRate;
   const diffPercent = ((diff / firstRate) * 100).toFixed(2);
   const isUp = diff >= 0;
@@ -106,11 +127,11 @@ export default function LiveCurrencyChart() {
                 boxShadow: '0 10px 30px -12px rgba(0,0,0,0.35)',
               }}
               labelFormatter={(label, items) => items[0]?.payload.fullDate || label}
-              formatter={(value) => [`Rp ${new Intl.NumberFormat('id-ID').format(Number(value))}`, 'Kurs']}
+              formatter={(value) => [`Rp ${new Intl.NumberFormat('en-US').format(Number(value))}`, 'Rate']}
             />
 
             <Area
-              type="monotone"
+              type="linear"
               dataKey="rate"
               stroke={lineColor}
               strokeWidth={2.4}
@@ -128,7 +149,7 @@ export default function LiveCurrencyChart() {
       </div>
 
       <div className="mt-4 rounded-lg bg-accent-soft px-4 py-3 text-xs leading-relaxed text-ink">
-        <span className="font-semibold text-accent">✦ Pekan ini:</span> Nilai tukar bergerak {isUp ? 'menguat' : 'melemah'} {isUp ? '+' : ''}{diffPercent}% dalam 30 hari terakhir.
+        <span className="font-semibold text-accent">✦ This week:</span> The exchange rate {isUp ? 'strengthened' : 'weakened'} {isUp ? '+' : ''}{diffPercent}% over the last 30 days.
       </div>
     </div>
   );
