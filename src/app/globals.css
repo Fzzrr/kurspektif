@@ -10,16 +10,14 @@
   --color-up: #2f8f5b;
   --color-down: #c0492f;
   --color-muted: #5c665f;
+  --color-neutral: #888780;
   --color-line: #d9d6cc;
 
   /* Token font untuk utility Tailwind (font-sans / font-display / font-mono).
-     --font-inter diisi next/font di <html>; Bricolage Grotesque & JetBrains Mono
-     dimuat via <link> Google Fonts di layout.tsx (literal di bawah). */
+     --font-inter / --font-bricolage / --font-jetbrains diisi next/font di <html>. */
   --font-sans: var(--font-inter);
   --font-display: var(--font-bricolage);
   --font-mono: var(--font-jetbrains);
-  --font-bricolage: "Bricolage Grotesque", sans-serif;
-  --font-jetbrains: "JetBrains Mono", monospace;
 }
 
 body {
