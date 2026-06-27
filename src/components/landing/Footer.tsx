@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Reveal from "./Reveal";
 
 const columns = [
   {
@@ -22,7 +23,7 @@ const columns = [
 export default function Footer() {
   return (
     <footer className="border-t border-line">
-      <div className="mx-auto max-w-6xl px-6 py-12">
+      <Reveal className="mx-auto max-w-6xl px-6 py-12">
         <div className="flex flex-wrap justify-between gap-8">
           <div className="max-w-xs">
             <p className="font-display text-xl font-bold tracking-tight">
@@ -61,7 +62,7 @@ export default function Footer() {
           </span>
           <span>© 2026 Kurspektif</span>
         </div>
-      </div>
+      </Reveal>
     </footer>
   );
 }
