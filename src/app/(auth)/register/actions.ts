@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { headers } from 'next/headers';
 import { registerLimiter } from '@/lib/rateLimit';
+import { BCRYPT_COST } from '@/lib/auth/auth';
 
 export type RegisterState = { error?: string } | undefined;
 
@@ -28,7 +29,7 @@ export async function registerUser(
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) return { error: 'Email is already registered.' };
 
-  const hashed = await bcrypt.hash(password, 10);
+  const hashed = await bcrypt.hash(password, BCRYPT_COST);
   await prisma.user.create({ data: { name, email, password: hashed } });
 
   return undefined; // sukses; client lanjut signIn
