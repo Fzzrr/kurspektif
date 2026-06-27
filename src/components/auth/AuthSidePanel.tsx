@@ -18,7 +18,7 @@ export default function AuthSidePanel() {
         aria-hidden="true"
       />
 
-      <div className="auth-zoom relative mx-auto max-h-full w-full max-w-lg overflow-y-auto">
+      <div className="auth-zoom relative mx-auto max-h-full w-full max-w-lg overflow-y-auto overflow-x-hidden">
         <p className="font-mono text-xs uppercase tracking-[0.18em] text-accent">
           ✦ Konteks di balik angka
         </p>
