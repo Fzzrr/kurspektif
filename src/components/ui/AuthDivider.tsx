@@ -1,6 +1,6 @@
 // Pemisah horizontal dengan label di tengah (mis. "Atau").
 
-export default function AuthDivider({ label = 'Atau' }: { label?: string }) {
+export default function AuthDivider({ label = 'Or' }: { label?: string }) {
   return (
     <div className="relative">
       <div className="absolute inset-0 flex items-center" aria-hidden="true">

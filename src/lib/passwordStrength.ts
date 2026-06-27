@@ -30,24 +30,24 @@ export function strengthBarColor(index: number, score: number): string {
 export function strengthLabel(score: number): string {
   switch (score) {
     case 0:
-      return 'Terlalu lemah';
+      return 'Too weak';
     case 1:
-      return 'Lemah';
+      return 'Weak';
     case 2:
-      return 'Sedang';
+      return 'Fair';
     case 3:
-      return 'Kuat';
+      return 'Strong';
     default:
-      return 'Sangat kuat';
+      return 'Very strong';
   }
 }
 
 /** Saran perbaikan berikutnya berdasarkan apa yang belum dipenuhi password. */
 export function strengthHint(password: string): string {
-  if (password.length < 8) return 'tambah hingga 8+ karakter';
+  if (password.length < 8) return 'use at least 8 characters';
   if (!(/[a-z]/.test(password) && /[A-Z]/.test(password)))
-    return 'campur huruf besar & kecil';
-  if (!/\d/.test(password)) return 'tambahkan angka';
-  if (!/[^A-Za-z0-9]/.test(password)) return 'tambahkan simbol (!@#$)';
-  return 'mantap, password sudah kuat';
+    return 'mix uppercase & lowercase';
+  if (!/\d/.test(password)) return 'add a number';
+  if (!/[^A-Za-z0-9]/.test(password)) return 'add a symbol (!@#$)';
+  return 'great, your password is strong';
 }

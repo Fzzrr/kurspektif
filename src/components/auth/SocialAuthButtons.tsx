@@ -19,7 +19,7 @@ export default function SocialAuthButtons() {
       <button
         type="button"
         disabled
-        title="Segera hadir"
+        title="Coming soon"
         className={`${socialButtonClass} cursor-not-allowed opacity-50`}
       >
         <AppleIcon className="h-5 w-5" />
