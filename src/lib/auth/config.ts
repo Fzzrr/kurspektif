@@ -3,7 +3,7 @@ import Google from 'next-auth/providers/google';
 
 export const authConfig = {
   pages: { signIn: '/login' },
-  providers: [Google], // Credentials ditambahkan di auth.ts (butuh Node)
+  providers: [Google({ allowDangerousEmailAccountLinking: true })], // Credentials ditambahkan di auth.ts (butuh Node)
   callbacks: {
     // Dipakai middleware untuk memproteksi route.
     authorized({ auth, request: { nextUrl } }) {
