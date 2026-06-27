@@ -8,7 +8,8 @@ import FormField from '../ui/FormField';
 import PasswordInput from '../ui/PasswordInput';
 import AuthDivider from '../ui/AuthDivider';
 import SocialAuthButtons from './SocialAuthButtons';
-import { primaryButtonClass, authHeadingTextStyle } from '../ui/styles';
+import AuthHeroHeading from './AuthHeroHeading';
+import { primaryButtonClass } from '../ui/styles';
 import {
   strengthOf,
   strengthBarColor,
@@ -65,29 +66,13 @@ export default function RegisterForm() {
           <p className="font-mono font-normal text-xs uppercase tracking-[0.18em] text-accent">
             Join for Free
           </p>
-          <h2 className="leading-none" aria-label="Understand your rates.">
-            <svg
-              viewBox="0 15 1000 113"
-              className="block h-auto w-full"
-              role="img"
-              aria-hidden="true"
-            >
-              <text
-                x="0"
-                y="100"
-                textLength="1000"
-                lengthAdjust="spacingAndGlyphs"
-                xmlSpace="preserve"
-                style={authHeadingTextStyle}
-              >
-                <tspan fill="var(--color-ink)">Understand </tspan>
-                <tspan fill="var(--color-accent)">
-                  your rates<tspan fill="var(--color-ink)">.</tspan>
-                </tspan>
-              </text>
-            </svg>
-          </h2>
-          <p className="text-[#888780]">
+          <AuthHeroHeading ariaLabel="Understand your rates.">
+            <tspan fill="var(--color-ink)">Understand </tspan>
+            <tspan fill="var(--color-accent)">
+              your rates<tspan fill="var(--color-ink)">.</tspan>
+            </tspan>
+          </AuthHeroHeading>
+          <p className="text-neutral">
             Create an account to save favorite pairs, set alerts, and receive
             weekly summaries.
           </p>

@@ -24,9 +24,9 @@ export default function Hero() {
         <div className="mt-7 flex flex-wrap gap-3">
           <Link
             href="/dashboard"
-            className="rounded-xl bg-ink px-6 py-3 text-sm font-medium text-paper transition-opacity hover:opacity-90"
+            className="inline-flex items-center gap-2 rounded-xl bg-ink px-6 py-3 text-sm font-medium text-paper transition-opacity hover:opacity-90"
           >
-            Coba sekarang
+            Coba sekarang <span aria-hidden="true">→</span>
           </Link>
           <Link
             href="#cara"
