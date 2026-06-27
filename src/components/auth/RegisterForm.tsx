@@ -47,7 +47,7 @@ export default function RegisterForm() {
     });
     setPending(false);
     if (login?.error) {
-      setError('Akun dibuat, tapi gagal login otomatis. Silakan masuk manual.');
+      setError('Account created, but automatic sign-in failed. Please sign in manually.');
       return;
     }
     router.push('/dashboard');
@@ -56,16 +56,16 @@ export default function RegisterForm() {
 
   return (
     <div className="font-mono space-y-4">
-      <AuthHeader prompt="Sudah punya akun?" linkLabel="Masuk" linkHref="/login" />
+      <AuthHeader prompt="Already have an account?" linkLabel="Sign in" linkHref="/login" />
 
       {/* Konten utama (hero + form) — kolom lebih sempit, ter-center, & diperkecil */}
       <div className="auth-zoom mx-auto w-full max-w-md space-y-4">
         {/* Hero text */}
         <div className="space-y-2">
           <p className="font-mono font-normal text-xs uppercase tracking-[0.18em] text-accent">
-            Bergabung Gratis
+            Join for Free
           </p>
-          <h2 className="leading-none" aria-label="Mulai pahami kursmu.">
+          <h2 className="leading-none" aria-label="Understand your rates.">
             <svg
               viewBox="0 15 1000 113"
               className="block h-auto w-full"
@@ -85,16 +85,16 @@ export default function RegisterForm() {
                   letterSpacing: '-2.5px',
                 }}
               >
-                <tspan fill="var(--color-ink)">Mulai pahami </tspan>
+                <tspan fill="var(--color-ink)">Understand </tspan>
                 <tspan fill="var(--color-accent)">
-                  kursmu<tspan fill="var(--color-ink)">.</tspan>
+                  your rates<tspan fill="var(--color-ink)">.</tspan>
                 </tspan>
               </text>
             </svg>
           </h2>
           <p className="text-[#888780] font-text">
-            Buat akun untuk menyimpan pasangan favorit, mengatur alert, dan
-            menerima rangkuman mingguan.
+            Create an account to save favorite pairs, set alerts, and receive
+            weekly summaries.
           </p>
         </div>
 
@@ -103,8 +103,8 @@ export default function RegisterForm() {
             id="name"
             name="name"
             type="text"
-            label="Nama Lengkap"
-            placeholder="Ardi Rahmadan"
+            label="Full Name"
+            placeholder="John Doe"
             required
           />
 
@@ -145,21 +145,21 @@ export default function RegisterForm() {
               </p>
             ) : (
               <p className="mt-2 mb-5 text-xs text-muted">
-                Gunakan 8+ karakter, kombinasi huruf besar &amp; kecil, angka,
-                dan simbol.
+                Use 8+ characters with a mix of uppercase &amp; lowercase
+                letters, numbers, and symbols.
               </p>
             )}
           </div>
 
           {/* Persetujuan */}
           <p className="text-center text-xs text-muted">
-            Saya setuju dengan{' '}
+            I agree to the{' '}
             <a href="#" className="text-accent hover:underline">
-              Syarat Layanan
+              Terms of Service
             </a>{' '}
-            dan{' '}
+            and{' '}
             <a href="#" className="text-accent hover:underline">
-              Kebijakan Privasi
+              Privacy Policy
             </a>
             .
           </p>
@@ -171,7 +171,7 @@ export default function RegisterForm() {
             disabled={pending}
             className={`${primaryButtonClass} disabled:opacity-60`}
           >
-            {pending ? 'Memproses…' : 'Buat akun'}
+            {pending ? 'Processing…' : 'Create account'}
           </button>
         </form>
 
