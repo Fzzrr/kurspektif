@@ -7,7 +7,7 @@ export default function CtaBand() {
     <section className="mx-auto max-w-6xl px-6 py-10">
       <Reveal>
         <div
-          className="relative flex flex-col items-start justify-between gap-6 overflow-hidden rounded-3xl px-10 py-14 text-paper sm:flex-row sm:items-center"
+          className="relative flex flex-col items-start justify-between gap-6 overflow-hidden rounded-3xl px-6 py-10 text-paper sm:flex-row sm:items-center sm:px-10 sm:py-14"
           style={{ background: "linear-gradient(135deg, var(--color-ink), #13322a)" }}
         >
           {/* Sapuan shimmer + glow dekoratif */}

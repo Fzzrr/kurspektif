@@ -34,7 +34,7 @@ export default function Footer() {
             </p>
           </div>
 
-          <div className="flex gap-12">
+          <div className="flex gap-8 sm:gap-12">
             {columns.map((col) => (
               <div key={col.title}>
                 <h4 className="text-sm font-medium">{col.title}</h4>

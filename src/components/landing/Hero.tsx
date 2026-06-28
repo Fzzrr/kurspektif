@@ -13,7 +13,7 @@ export default function Hero() {
       />
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 hero-grid" />
 
-      <div className="mx-auto grid max-w-6xl items-center gap-14 px-6 py-20 md:grid-cols-2">
+      <div className="mx-auto grid max-w-6xl items-center gap-10 px-6 py-14 sm:py-20 md:grid-cols-2 md:gap-14">
         {/* Kolom kiri — pesan utama */}
         <div>
           <p className="animate-fade-up flex items-center gap-2 font-mono text-xs uppercase tracking-[0.18em] text-accent">
@@ -21,7 +21,7 @@ export default function Hero() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-70" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
             </span>
-            Monitor kurs · konteks berita
+            Monitor kurs & konteks berita
           </p>
 
           <h1
@@ -64,7 +64,7 @@ export default function Hero() {
             className="animate-fade-up mt-6 font-mono text-xs text-muted"
             style={{ animationDelay: ".32s" }}
           >
-            Multi mata uang <span className="text-accent">·</span>{" "} Berita lokal &amp;
+            Multi mata uang <span className="text-accent">·</span> Berita lokal &amp;
             global <span className="text-accent">·</span> Gratis
           </p>
         </div>

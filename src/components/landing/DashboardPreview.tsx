@@ -20,7 +20,7 @@ export default function DashboardPreview() {
           <span className="h-2.5 w-2.5 rounded-full bg-line" />
           <span className="h-2.5 w-2.5 rounded-full bg-line" />
           <span className="h-2.5 w-2.5 rounded-full bg-line" />
-          <span className="ml-2 font-mono text-xs text-muted">
+          <span className="ml-2 min-w-0 flex-1 truncate font-mono text-xs text-muted">
             app.kurspektif.id/dashboard
           </span>
           <span className="ml-auto flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wide text-up">
