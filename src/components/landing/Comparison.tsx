@@ -22,7 +22,7 @@ export default function Comparison() {
       <Reveal>
         <div className="grid overflow-hidden rounded-2xl border border-line md:grid-cols-2">
           {/* Konverter biasa */}
-          <div className="bg-surface p-8">
+          <div className="bg-surface p-6 sm:p-8">
             <p className="font-mono text-xs uppercase tracking-wider text-muted">
               Konverter biasa
             </p>
@@ -43,7 +43,7 @@ export default function Comparison() {
           </div>
 
           {/* Kurspektif */}
-          <div className="relative overflow-hidden bg-ink p-8 text-paper">
+          <div className="relative overflow-hidden bg-ink p-6 text-paper sm:p-8">
             <div
               aria-hidden
               className="animate-glow pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-accent/20 blur-3xl"
