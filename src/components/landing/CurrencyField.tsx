@@ -55,7 +55,7 @@ export default function CurrencyField() {
 
     const rand = (min: number, max: number) => min + Math.random() * (max - min);
 
-    function makeParticle(): Particle {
+    const makeParticle = (): Particle => {
       const depth = rand(0.3, 1);
       return {
         x: rand(0, width),
@@ -70,13 +70,13 @@ export default function CurrencyField() {
       };
     }
 
-    function build() {
+    const build = () => {
       // Kepadatan mengikuti luas viewport, dibatasi agar mobile tetap ringan.
       const target = Math.min(28, Math.round((width * height) / 45000));
       particles = Array.from({ length: target }, () => makeParticle());
-    }
+    };
 
-    function resize() {
+    const resize = () => {
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       width = window.innerWidth;
       height = window.innerHeight;
@@ -86,9 +86,9 @@ export default function CurrencyField() {
       canvas.style.height = `${height}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       build();
-    }
+    };
 
-    function draw() {
+    const draw = () => {
       ctx.clearRect(0, 0, width, height);
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -133,32 +133,32 @@ export default function CurrencyField() {
         ctx.fillStyle = `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, ${p.alpha})`;
         ctx.fillText(p.glyph, p.x + ox, p.y + oy);
       }
-    }
+    };
 
     let raf = 0;
-    function loop() {
+    const loop = () => {
       draw();
       raf = requestAnimationFrame(loop);
-    }
+    };
 
-    function onPointerMove(e: PointerEvent) {
+    const onPointerMove = (e: PointerEvent) => {
       pointer.x = e.clientX;
       pointer.y = e.clientY;
       pointer.active = true;
-    }
-    function onPointerLeave() {
+    };
+    const onPointerLeave = () => {
       pointer.active = false;
       pointer.x = -9999;
       pointer.y = -9999;
-    }
-    function onVisibility() {
+    };
+    const onVisibility = () => {
       if (document.hidden) {
         cancelAnimationFrame(raf);
         raf = 0;
       } else if (!reduceMotion && raf === 0) {
         raf = requestAnimationFrame(loop);
       }
-    }
+    };
 
     resize();
 
