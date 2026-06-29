@@ -1,5 +1,5 @@
-import RateLineChart from "./RateLineChart";
-import Reveal from "./Reveal";
+import RateLineChart from "../rate/RateLineChart";
+import Reveal from "../motion/Reveal";
 
 export default function DashboardPreview() {
   return (

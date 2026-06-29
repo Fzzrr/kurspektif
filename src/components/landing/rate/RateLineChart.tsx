@@ -91,10 +91,18 @@ type Props = {
   className?: string;
 };
 
+// Durasi garis "menggambar diri". Titik sentimen muncul setelahnya.
+const DRAW_MS = 1100;
+
 export default function RateLineChart({ data = DEFAULT_RATE_SERIES, className }: Props) {
   // Ukur container sendiri lalu beri LineChart ukuran piksel konkret.
   const wrapRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
+
+  // Animasi: garis tergambar dulu, lalu titik sentimen "pop". Saat reduced
+  // motion semuanya tampil langsung tanpa gerak.
+  const [reduce, setReduce] = useState(false);
+  const [drawn, setDrawn] = useState(false);
 
   const yDomain = useMemo<[number, number]>(() => {
     const rates = data.map((d) => d.rate);
@@ -118,6 +126,19 @@ export default function RateLineChart({ data = DEFAULT_RATE_SERIES, className }:
     });
     ro.observe(el);
     return () => ro.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const prefersReduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    if (prefersReduce) {
+      setReduce(true);
+      setDrawn(true);
+      return;
+    }
+    const t = setTimeout(() => setDrawn(true), DRAW_MS);
+    return () => clearTimeout(t);
   }, []);
 
   return (
@@ -162,27 +183,33 @@ export default function RateLineChart({ data = DEFAULT_RATE_SERIES, className }:
           />
 
           <Line
-            type="monotone"
+            type="linear"
             dataKey="rate"
             stroke="var(--color-ink)"
             strokeWidth={2.4}
             dot={false}
+            isAnimationActive={!reduce}
+            animationDuration={DRAW_MS}
+            animationEasing="ease-out"
             activeDot={{ r: 5, fill: "var(--color-ink)", stroke: "var(--color-surface)", strokeWidth: 2 }}
           />
 
-          {/* Titik sentimen berita */}
-          {markers.map((m) => (
-            <ReferenceDot
-              key={m.day}
-              x={m.day}
-              y={m.rate}
-              r={5.5}
-              fill={SENTIMENT[m.sentiment].color}
-              stroke="var(--color-surface)"
-              strokeWidth={2.5}
-              ifOverflow="extendDomain"
-            />
-          ))}
+          {/* Titik sentimen berita — muncul "pop" setelah garis tergambar. */}
+          {drawn &&
+            markers.map((m, i) => (
+              <ReferenceDot
+                key={m.day}
+                x={m.day}
+                y={m.rate}
+                r={5.5}
+                fill={SENTIMENT[m.sentiment].color}
+                stroke="var(--color-surface)"
+                strokeWidth={2.5}
+                ifOverflow="extendDomain"
+                className={reduce ? undefined : "sentiment-dot"}
+                style={reduce ? undefined : { animationDelay: `${i * 130}ms` }}
+              />
+            ))}
         </LineChart>
       )}
     </div>

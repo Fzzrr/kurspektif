@@ -1,7 +1,43 @@
 import Link from "next/link";
-import RateCard from "./RateCard";
-import ScrollCue from "./ScrollCue";
-import { ArrowRight } from "../ui/icons";
+import RateCard from "../rate/RateCard";
+import ScrollCue from "../visuals/ScrollCue";
+import Coin from "../visuals/Coin";
+import Tilt from "../motion/Tilt";
+import { ArrowRight } from "@/components/ui/icons";
+
+// Koin emas yang melayang di sekitar kartu hero. `rotate` memberi tiap koin
+// kemiringan tetap (di elemen dalam) sementara animasi float menggerakkan
+// elemen luar — jadi rotate & translateY tidak saling menimpa transform.
+function FloatingCoin({
+  glyph,
+  code,
+  className,
+  rotate = 0,
+  delay = 0,
+  duration = 6,
+}: {
+  glyph: string;
+  code?: string;
+  className: string;
+  rotate?: number;
+  delay?: number;
+  duration?: number;
+}) {
+  return (
+    <div
+      aria-hidden
+      className={`coin-float pointer-events-none absolute ${className}`}
+      style={{ animationDelay: `${delay}s`, animationDuration: `${duration}s` }}
+    >
+      <div
+        style={{ transform: `rotate(${rotate}deg)` }}
+        className="drop-shadow-[0_12px_22px_rgba(184,144,42,0.35)]"
+      >
+        <Coin glyph={glyph} code={code} />
+      </div>
+    </div>
+  );
+}
 
 export default function Hero() {
   return (
@@ -64,20 +100,54 @@ export default function Hero() {
             className="animate-fade-up mt-6 font-mono text-xs text-muted"
             style={{ animationDelay: ".32s" }}
           >
-            Multi mata uang <span className="text-accent">·</span> Berita lokal &amp;
+            Multi mata uang <span className="text-accent">·</span> {" "}Berita lokal &amp;
             global <span className="text-accent">·</span> Gratis
           </p>
         </div>
 
-        {/* Kolom kanan — kartu signature */}
+        {/* Kolom kanan — kartu signature dikelilingi koin emas melayang */}
         <div className="animate-fade-up relative" style={{ animationDelay: ".2s" }}>
           <div
             aria-hidden
-            className="animate-glow pointer-events-none absolute -inset-5 -z-10 rounded-[2rem] bg-accent/15 blur-2xl"
+            className="animate-glow pointer-events-none absolute -inset-6 -z-10 rounded-[2.5rem] bg-accent/15 blur-2xl"
           />
-          <div className="transition-transform duration-300 hover:-translate-y-1.5">
+
+          {/* Motif uang: koin melayang di tepi kartu (di belakang & di depan). */}
+          <FloatingCoin
+            glyph="$"
+            code="USD"
+            rotate={-14}
+            delay={-0.6}
+            duration={6.5}
+            className="-right-6 -top-12 z-20 w-16 sm:w-[4.75rem]"
+          />
+          <FloatingCoin
+            glyph="€"
+            code="EUR"
+            rotate={11}
+            delay={-2.4}
+            duration={7.5}
+            className="-left-7 top-12 z-20 w-12 sm:w-14"
+          />
+          <FloatingCoin
+            glyph="¥"
+            rotate={-9}
+            delay={-1.3}
+            duration={6.8}
+            className="-bottom-8 left-12 z-20 w-12 sm:w-16"
+          />
+          <FloatingCoin
+            glyph="£"
+            rotate={17}
+            delay={-3.2}
+            duration={8}
+            className="-right-8 bottom-16 -z-10 hidden w-12 sm:block"
+          />
+
+          {/* Kartu — miring 3D mengikuti kursor (mati di sentuh/reduced motion). */}
+          <Tilt className="rounded-2xl">
             <RateCard />
-          </div>
+          </Tilt>
         </div>
       </div>
 

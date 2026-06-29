@@ -1,4 +1,5 @@
 import RateLineChart, { SENTIMENT, type ChartPoint } from "./RateLineChart";
+import CountUp from "../motion/CountUp";
 
 // Kartu "signature" — elemen visual khas Kurspektif.
 // Menampilkan kurs, perubahan, badge posisi historis, grafik, dan legenda.
@@ -39,12 +40,14 @@ export default function RateCard({
         <p className="font-mono text-xs text-muted">{pair}</p>
         <span className="flex items-center gap-1.5 rounded-full border border-line px-2.5 py-1 font-mono text-[11px] uppercase tracking-wide text-muted">
           <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-up" />
-          Live · {asOf}
+          Live 
         </span>
       </div>
 
       {/* Angka utama + perubahan */}
-      <p className="mt-3 font-mono text-3xl font-medium tracking-tight">{rate}</p>
+      <p className="mt-3 font-mono text-3xl font-medium tracking-tight">
+        <CountUp value={rate} />
+      </p>
       <p className={`font-mono text-sm ${isUp ? "text-up" : "text-down"}`}>
         {isUp ? "↑" : "↓"} {changePercent} hari ini
       </p>
