@@ -1,4 +1,4 @@
-import Reveal from "./Reveal";
+import Reveal from "../motion/Reveal";
 
 // Penomoran 01/02/03 dipakai karena ini benar-benar urutan langkah,
 // bukan sekadar hiasan.

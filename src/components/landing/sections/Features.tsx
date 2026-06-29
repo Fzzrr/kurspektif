@@ -1,5 +1,5 @@
-import Reveal from "./Reveal";
-import FeatureSwiper from "./FeatureSwiper";
+import Reveal from "../motion/Reveal";
+import FeatureSwiper from "../rate/FeatureSwiper";
 
 export default function Features() {
   return (

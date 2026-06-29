@@ -1,6 +1,6 @@
 import Link from "next/link";
-import Reveal from "./Reveal";
-import { ArrowRight } from "../ui/icons";
+import Reveal from "../motion/Reveal";
+import { ArrowRight } from "@/components/ui/icons";
 
 export default function CtaBand() {
   return (
@@ -16,13 +16,22 @@ export default function CtaBand() {
             aria-hidden
             className="animate-glow pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-accent/20 blur-3xl"
           />
+          {/* Tipografi mata uang raksasa (outline) sebagai latar */}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center overflow-hidden"
+          >
+            <span className="animate-drift select-none whitespace-nowrap font-display text-[20vw] font-bold leading-none text-paper/[0.07] sm:text-[11rem]">
+              $ € ¥ £
+            </span>
+          </span>
 
-          <h2 className="relative font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+          <h2 className="relative z-10 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
             Mulai pahami kursmu.
           </h2>
           <Link
             href="/dashboard"
-            className="group relative inline-flex items-center gap-2 rounded-xl bg-accent px-6 py-3 text-sm font-medium text-ink transition-all hover:shadow-[0_14px_30px_-10px_rgba(184,144,42,0.7)]"
+            className="group relative z-10 inline-flex items-center gap-2 rounded-xl bg-accent px-6 py-3 text-sm font-medium text-ink transition-all hover:shadow-[0_14px_30px_-10px_rgba(184,144,42,0.7)]"
           >
             Coba sekarang
             <ArrowRight className="size-[1.1em] transition-transform duration-200 group-hover:translate-x-1" />

@@ -1,13 +1,14 @@
-import Navbar from "@/components/landing/Navbar";
-import CurrencyField from "@/components/landing/CurrencyField";
-import Hero from "@/components/landing/Hero";
-import RateTicker from "@/components/landing/RateTicker";
-import Comparison from "@/components/landing/Comparison";
-import Features from "@/components/landing/Features";
-import HowItWorks from "@/components/landing/HowItWorks";
-import DashboardPreview from "@/components/landing/DashboardPreview";
-import CtaBand from "@/components/landing/CtaBand";
-import Footer from "@/components/landing/Footer";
+import CurrencyField from "@/components/landing/visuals/CurrencyField";
+import Navbar from "@/components/landing/sections/Navbar";
+import Hero from "@/components/landing/sections/Hero";
+import RateTicker from "@/components/landing/sections/RateTicker";
+import CurrencyShowcase from "@/components/landing/sections/CurrencyShowcase";
+import Comparison from "@/components/landing/sections/Comparison";
+import Features from "@/components/landing/sections/Features";
+import HowItWorks from "@/components/landing/sections/HowItWorks";
+import DashboardPreview from "@/components/landing/sections/DashboardPreview";
+import CtaBand from "@/components/landing/sections/CtaBand";
+import Footer from "@/components/landing/sections/Footer";
 
 export default function Home() {
   return (
@@ -17,6 +18,7 @@ export default function Home() {
       <main>
         <Hero />
         <RateTicker />
+        <CurrencyShowcase />
         <Comparison />
         <Features />
         <HowItWorks />

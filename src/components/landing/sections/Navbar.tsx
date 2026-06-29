@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { MenuIcon, CloseIcon } from "../ui/icons";
+import { MenuIcon, CloseIcon } from "@/components/ui/icons";
 
 const links = [
   { label: "Fitur", href: "#fitur", id: "fitur" },

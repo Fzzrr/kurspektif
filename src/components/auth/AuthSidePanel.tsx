@@ -1,5 +1,5 @@
-import RateCard from '../landing/RateCard';
-import type { ChartPoint } from '../landing/RateLineChart';
+import RateCard from '../landing/rate/RateCard';
+import type { ChartPoint } from '../landing/rate/RateLineChart';
 import { authHeadingTextStyle } from '../ui/styles';
 
 const features = [
