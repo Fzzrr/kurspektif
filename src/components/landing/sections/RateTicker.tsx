@@ -32,14 +32,17 @@ export default function RateTicker() {
       />
 
       <div className="ticker-track flex w-max items-center will-change-transform">
-        {row.map((r, i) => {
-          const up = r.dir === "up";
+        {row.map((rate, i) => {
+          const up = rate.dir === "up";
           return (
-            <span key={i} className="flex items-center gap-2 pr-8 font-mono text-sm">
-              <span className="text-paper/70">{r.pair}</span>
-              <span className="text-paper">{r.value}</span>
+            <span
+              key={`${rate.pair}-${i}`}
+              className="flex items-center gap-2 pr-8 font-mono text-sm"
+            >
+              <span className="text-paper/70">{rate.pair}</span>
+              <span className="text-paper">{rate.value}</span>
               <span className={up ? "text-up" : "text-down"}>
-                {up ? "▲" : "▼"} {r.delta}
+                {up ? "▲" : "▼"} {rate.delta}
               </span>
             </span>
           );

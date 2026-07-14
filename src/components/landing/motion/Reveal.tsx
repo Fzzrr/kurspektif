@@ -2,10 +2,11 @@
 
 // Reveal: memunculkan anak elemen dengan fade-up saat masuk viewport.
 // Dipakai untuk menghidupkan section landing page. Aman terhadap
-// prefers-reduced-motion (langsung tampil tanpa animasi) dan no-JS
-// (lihat <noscript> di layout.tsx yang memaksa .reveal terlihat).
+// prefers-reduced-motion (CSS memaksa .reveal langsung terlihat tanpa
+// transisi) dan no-JS (lihat <noscript> di layout.tsx).
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
+import { useInViewOnce } from "@/lib/motion";
 
 type Props = {
   children: ReactNode;
@@ -15,27 +16,10 @@ type Props = {
 };
 
 export default function Reveal({ children, delay = 0, className = "" }: Props) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    // Preferensi reduce motion ditangani penuh oleh CSS (globals.css):
-    // .reveal dipaksa terlihat tanpa transisi, jadi tak perlu cek di JS sini.
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          io.disconnect();
-        }
-      },
-      { threshold: 0.15, rootMargin: "0px 0px -10% 0px" },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
+  const [ref, visible] = useInViewOnce<HTMLDivElement>({
+    threshold: 0.15,
+    rootMargin: "0px 0px -10% 0px",
+  });
 
   return (
     <div

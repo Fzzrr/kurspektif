@@ -1,23 +1,43 @@
-// Kumpulan ikon SVG yang dipakai pada form auth.
-// Sebelumnya di-inline & diduplikasi di LoginForm/RegisterForm.
+// Kumpulan ikon SVG yang dipakai di form auth & landing page.
+// Ukuran selalu diatur pemanggil lewat `className` (mis. `size-5`, `size-[1.1em]`).
 
 type IconProps = { className?: string };
 
-// Panah kanan untuk tombol CTA. Ukuran diatur via className (pakai satuan `em`
-// agar selalu menyamai ukuran teks tombol). Dipakai bersama di Hero & CtaBand.
+// Props bersama ikon garis 24×24 — supaya bobot & ujung garis konsisten.
+const strokeIcon = {
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 2,
+  strokeLinecap: "round",
+  strokeLinejoin: "round",
+  "aria-hidden": true,
+} as const;
+
+// Panah kanan untuk tombol CTA & kontrol carousel (putar 180° untuk "prev").
 export function ArrowRight({ className }: IconProps) {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden="true"
-    >
+    <svg {...strokeIcon} className={className}>
       <path d="M5 12h14M13 6l6 6-6 6" />
+    </svg>
+  );
+}
+
+// Chevron bawah — petunjuk "gulir ke bawah" di hero.
+export function ChevronDown({ className }: IconProps) {
+  return (
+    <svg {...strokeIcon} className={className}>
+      <path d="M6 9l6 6 6-6" />
+    </svg>
+  );
+}
+
+// Lonceng — menandai contoh notifikasi/alert.
+export function BellIcon({ className }: IconProps) {
+  return (
+    <svg {...strokeIcon} className={className}>
+      <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+      <path d="M13.7 21a2 2 0 0 1-3.4 0" />
     </svg>
   );
 }
@@ -25,16 +45,7 @@ export function ArrowRight({ className }: IconProps) {
 // Ikon hamburger — membuka menu navigasi di layar kecil (mobile).
 export function MenuIcon({ className }: IconProps) {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden="true"
-    >
+    <svg {...strokeIcon} className={className}>
       <path d="M4 7h16M4 12h16M4 17h16" />
     </svg>
   );
@@ -43,16 +54,7 @@ export function MenuIcon({ className }: IconProps) {
 // Ikon silang — menutup menu navigasi mobile.
 export function CloseIcon({ className }: IconProps) {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden="true"
-    >
+    <svg {...strokeIcon} className={className}>
       <path d="M6 6l12 12M18 6L6 18" />
     </svg>
   );

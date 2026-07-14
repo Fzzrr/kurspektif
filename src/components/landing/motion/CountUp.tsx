@@ -8,7 +8,8 @@
 // hasil format (mis. "16.234" atau "104,2") agar pemakaian tetap deklaratif;
 // jumlah desimal disimpulkan dari koma pada string.
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { prefersReducedMotion, useInViewOnce } from "@/lib/motion";
 
 type Props = {
   /** Nilai akhir dalam format id-ID, mis. "16.234" atau "104,2". */
@@ -37,18 +38,13 @@ export default function CountUp({
 }: Props) {
   const target = parseId(value);
   const decimals = value.includes(",") ? value.split(",")[1].length : 0;
-  const ref = useRef<HTMLSpanElement>(null);
+  const [ref, inView] = useInViewOnce<HTMLSpanElement>({ threshold: 0.4 });
+
+  // Nilai awal = nilai akhir, jadi hasil SSR (dan reduced motion) sudah benar.
   const [display, setDisplay] = useState(value);
 
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) {
-      setDisplay(value);
-      return;
-    }
+    if (!inView || prefersReducedMotion()) return;
 
     const fmt = new Intl.NumberFormat("id-ID", {
       minimumFractionDigits: decimals,
@@ -56,37 +52,17 @@ export default function CountUp({
     });
 
     let raf = 0;
-    let started = false;
-
-    const run = () => {
-      const start = performance.now();
-      const tick = (now: number) => {
-        const t = Math.min((now - start) / duration, 1);
-        const current = target * easeOutCubic(t);
-        setDisplay(fmt.format(current));
-        if (t < 1) raf = requestAnimationFrame(tick);
-      };
-      raf = requestAnimationFrame(tick);
+    const start = performance.now();
+    const tick = (now: number) => {
+      const t = Math.min((now - start) / duration, 1);
+      setDisplay(fmt.format(target * easeOutCubic(t)));
+      if (t < 1) raf = requestAnimationFrame(tick);
     };
+    raf = requestAnimationFrame(tick);
 
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !started) {
-          started = true;
-          run();
-          io.disconnect();
-        }
-      },
-      { threshold: 0.4 },
-    );
-    io.observe(el);
-
-    return () => {
-      cancelAnimationFrame(raf);
-      io.disconnect();
-    };
+    return () => cancelAnimationFrame(raf);
     // value menentukan target & format; perubahan value memulai ulang.
-  }, [value, target, decimals, duration]);
+  }, [inView, value, target, decimals, duration]);
 
   return (
     <span ref={ref} className={className}>
