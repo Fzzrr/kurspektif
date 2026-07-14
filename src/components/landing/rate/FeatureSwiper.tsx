@@ -5,9 +5,10 @@
 // Dibangun dengan Embla — geser manual/drag + tombol prev/next + dots.
 // Tanpa autoplay agar ramah prefers-reduced-motion & konsisten dgn proyek.
 
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import RateLineChart from "./RateLineChart";
+import { ArrowRight, BellIcon } from "@/components/ui/icons";
 
 // Frame "kartu cuplikan" bergaya DashboardPreview: eyebrow + judul + visual.
 function SlideCard({
@@ -115,19 +116,7 @@ function AlertMock() {
     <div className="w-full rounded-xl border border-line bg-surface p-4">
       <div className="flex items-start gap-3">
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent">
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
-            <path d="M13.7 21a2 2 0 0 1-3.4 0" />
-          </svg>
+          <BellIcon className="size-[18px]" />
         </span>
         <div className="min-w-0">
           <p className="text-sm font-medium">
@@ -175,34 +164,12 @@ const slides: { eyebrow: string; title: string; desc: string; visual: ReactNode 
   },
 ];
 
-function Arrow({ dir }: { dir: "prev" | "next" }) {
-  return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={dir === "prev" ? "rotate-180" : ""}
-    >
-      <path d="M5 12h14M13 6l6 6-6 6" />
-    </svg>
-  );
-}
+const navButtonClass =
+  "flex h-10 w-10 items-center justify-center rounded-full border border-line bg-surface text-ink transition-colors duration-200 hover:border-accent hover:text-accent";
 
 export default function FeatureSwiper() {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" });
   const [selectedIndex, setSelectedIndex] = useState(0);
-
-  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
-  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
-  const scrollTo = useCallback(
-    (i: number) => emblaApi?.scrollTo(i),
-    [emblaApi],
-  );
 
   useEffect(() => {
     if (!emblaApi) return;
@@ -249,7 +216,7 @@ export default function FeatureSwiper() {
             <button
               key={slide.title}
               type="button"
-              onClick={() => scrollTo(i)}
+              onClick={() => emblaApi?.scrollTo(i)}
               aria-label={`Ke slide ${i + 1}: ${slide.title}`}
               aria-current={i === selectedIndex}
               className={`h-2 rounded-full transition-all duration-300 ${
@@ -262,19 +229,19 @@ export default function FeatureSwiper() {
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={scrollPrev}
+            onClick={() => emblaApi?.scrollPrev()}
             aria-label="Slide sebelumnya"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-line bg-surface text-ink transition-colors duration-200 hover:border-accent hover:text-accent"
+            className={navButtonClass}
           >
-            <Arrow dir="prev" />
+            <ArrowRight className="size-[18px] rotate-180" />
           </button>
           <button
             type="button"
-            onClick={scrollNext}
+            onClick={() => emblaApi?.scrollNext()}
             aria-label="Slide berikutnya"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-line bg-surface text-ink transition-colors duration-200 hover:border-accent hover:text-accent"
+            className={navButtonClass}
           >
-            <Arrow dir="next" />
+            <ArrowRight className="size-[18px]" />
           </button>
         </div>
       </div>

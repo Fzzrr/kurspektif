@@ -1,43 +1,20 @@
-import Link from "next/link";
 import RateCard from "../rate/RateCard";
 import ScrollCue from "../visuals/ScrollCue";
 import Coin from "../visuals/Coin";
 import Tilt from "../motion/Tilt";
-import { ArrowRight } from "@/components/ui/icons";
+import CtaLink from "../ui/CtaLink";
+import { PulseDot } from "../ui/decor";
 
-// Koin emas yang melayang di sekitar kartu hero. `rotate` memberi tiap koin
-// kemiringan tetap (di elemen dalam) sementara animasi float menggerakkan
-// elemen luar — jadi rotate & translateY tidak saling menimpa transform.
-function FloatingCoin({
-  glyph,
-  code,
-  className,
-  rotate = 0,
-  delay = 0,
-  duration = 6,
-}: {
-  glyph: string;
-  code?: string;
-  className: string;
-  rotate?: number;
-  delay?: number;
-  duration?: number;
-}) {
-  return (
-    <div
-      aria-hidden
-      className={`coin-float pointer-events-none absolute ${className}`}
-      style={{ animationDelay: `${delay}s`, animationDuration: `${duration}s` }}
-    >
-      <div
-        style={{ transform: `rotate(${rotate}deg)` }}
-        className="drop-shadow-[0_12px_22px_rgba(184,144,42,0.35)]"
-      >
-        <Coin glyph={glyph} code={code} />
-      </div>
-    </div>
-  );
-}
+// Koin emas yang melayang di sekitar kartu hero. `rotate` diterapkan pada
+// elemen dalam sementara animasi float menggerakkan elemen luar — jadi rotate
+// & translateY tidak saling menimpa transform. Delay negatif membuat tiap koin
+// mulai di fase berbeda, sehingga tidak mengambang serempak.
+const floatingCoins = [
+  { glyph: "$", code: "USD", rotate: -14, delay: -0.6, duration: 6.5, position: "-right-6 -top-12 z-20 w-16 sm:w-[4.75rem]" },
+  { glyph: "€", code: "EUR", rotate: 11, delay: -2.4, duration: 7.5, position: "-left-7 top-12 z-20 w-12 sm:w-14" },
+  { glyph: "¥", rotate: -9, delay: -1.3, duration: 6.8, position: "-bottom-8 left-12 z-20 w-12 sm:w-16" },
+  { glyph: "£", rotate: 17, delay: -3.2, duration: 8, position: "-right-8 bottom-16 -z-10 hidden w-12 sm:block" },
+];
 
 export default function Hero() {
   return (
@@ -47,17 +24,14 @@ export default function Hero() {
         aria-hidden
         className="pointer-events-none absolute -top-24 right-[-6rem] -z-10 h-80 w-80 rounded-full bg-accent/15 blur-[90px]"
       />
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 hero-grid" />
+      <div aria-hidden className="hero-grid pointer-events-none absolute inset-0 -z-10" />
 
       <div className="mx-auto grid max-w-6xl items-center gap-10 px-6 py-14 sm:py-20 md:grid-cols-2 md:gap-14">
         {/* Kolom kiri — pesan utama */}
         <div>
           <p className="animate-fade-up flex items-center gap-2 font-mono text-xs uppercase tracking-[0.18em] text-accent">
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-70" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
-            </span>
-            Monitor kurs & konteks berita
+            <PulseDot />
+            Monitor kurs &amp; konteks berita
           </p>
 
           <h1
@@ -81,13 +55,7 @@ export default function Hero() {
             className="animate-fade-up mt-7 flex flex-wrap gap-3"
             style={{ animationDelay: ".24s" }}
           >
-            <Link
-              href="/dashboard"
-              className="group inline-flex items-center gap-2 rounded-xl bg-ink px-6 py-3 text-sm font-medium text-paper transition-all hover:opacity-90 hover:shadow-[0_14px_30px_-12px_rgba(14,31,26,0.6)]"
-            >
-              Coba sekarang
-              <ArrowRight className="size-[1.1em] transition-transform duration-200 group-hover:translate-x-1" />
-            </Link>
+            <CtaLink href="/dashboard">Coba sekarang</CtaLink>
             <a
               href="#cara"
               className="rounded-xl border border-line px-6 py-3 text-sm font-medium transition-colors hover:border-ink hover:bg-surface"
@@ -100,8 +68,9 @@ export default function Hero() {
             className="animate-fade-up mt-6 font-mono text-xs text-muted"
             style={{ animationDelay: ".32s" }}
           >
-            Multi mata uang <span className="text-accent">·</span> {" "}Berita lokal &amp;
-            global <span className="text-accent">·</span> Gratis
+            {/* {" "} wajib: spasi di ujung baris akan dipangkas JSX. */}
+            Multi mata uang <span className="text-accent">·</span>{" "}
+            Berita lokal &amp; global <span className="text-accent">·</span> Gratis
           </p>
         </div>
 
@@ -112,37 +81,24 @@ export default function Hero() {
             className="animate-glow pointer-events-none absolute -inset-6 -z-10 rounded-[2.5rem] bg-accent/15 blur-2xl"
           />
 
-          {/* Motif uang: koin melayang di tepi kartu (di belakang & di depan). */}
-          <FloatingCoin
-            glyph="$"
-            code="USD"
-            rotate={-14}
-            delay={-0.6}
-            duration={6.5}
-            className="-right-6 -top-12 z-20 w-16 sm:w-[4.75rem]"
-          />
-          <FloatingCoin
-            glyph="€"
-            code="EUR"
-            rotate={11}
-            delay={-2.4}
-            duration={7.5}
-            className="-left-7 top-12 z-20 w-12 sm:w-14"
-          />
-          <FloatingCoin
-            glyph="¥"
-            rotate={-9}
-            delay={-1.3}
-            duration={6.8}
-            className="-bottom-8 left-12 z-20 w-12 sm:w-16"
-          />
-          <FloatingCoin
-            glyph="£"
-            rotate={17}
-            delay={-3.2}
-            duration={8}
-            className="-right-8 bottom-16 -z-10 hidden w-12 sm:block"
-          />
+          {floatingCoins.map((coin) => (
+            <div
+              key={coin.code ?? coin.glyph}
+              aria-hidden
+              className={`coin-float pointer-events-none absolute ${coin.position}`}
+              style={{
+                animationDelay: `${coin.delay}s`,
+                animationDuration: `${coin.duration}s`,
+              }}
+            >
+              <div
+                style={{ transform: `rotate(${coin.rotate}deg)` }}
+                className="drop-shadow-[0_12px_22px_rgba(184,144,42,0.35)]"
+              >
+                <Coin glyph={coin.glyph} code={coin.code} />
+              </div>
+            </div>
+          ))}
 
           {/* Kartu — miring 3D mengikuti kursor (mati di sentuh/reduced motion). */}
           <Tilt className="rounded-2xl">

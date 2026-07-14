@@ -12,6 +12,7 @@ import {
   type MouseEvent,
   type ReactNode,
 } from "react";
+import { prefersReducedMotion } from "@/lib/motion";
 
 type Props = {
   children: ReactNode;
@@ -25,10 +26,9 @@ export default function Tilt({ children, max = 9, className = "" }: Props) {
   const [style, setStyle] = useState<CSSProperties>({});
   const [glare, setGlare] = useState<CSSProperties>({ opacity: 0 });
 
+  // Hanya aktif di perangkat berkursor & saat pengguna tidak menolak gerak.
   const enabled = () =>
-    typeof window !== "undefined" &&
-    window.matchMedia("(hover: hover)").matches &&
-    !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.matchMedia("(hover: hover)").matches && !prefersReducedMotion();
 
   const onMove = (e: MouseEvent<HTMLDivElement>) => {
     const el = ref.current;
@@ -50,8 +50,7 @@ export default function Tilt({ children, max = 9, className = "" }: Props) {
 
   const onLeave = () => {
     setStyle({
-      transform:
-        "perspective(900px) rotateX(0deg) rotateY(0deg) scale(1)",
+      transform: "perspective(900px) rotateX(0deg) rotateY(0deg) scale(1)",
       transition: "transform 500ms cubic-bezier(.22,1,.36,1)",
     });
     setGlare({ opacity: 0 });

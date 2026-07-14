@@ -11,6 +11,7 @@
 //   agar teks di atasnya tetap terbaca.
 
 import { useEffect, useRef } from "react";
+import { prefersReducedMotion } from "@/lib/motion";
 
 const GLYPHS = ["$", "€", "£", "¥", "₹", "₽", "¢", "₩"] as const;
 
@@ -39,9 +40,7 @@ export default function CurrencyField() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const reduceMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    const reduceMotion = prefersReducedMotion();
 
     let width = 0;
     let height = 0;
@@ -68,7 +67,7 @@ export default function CurrencyField() {
         alpha: rand(0.06, 0.16) * depth,
         color: Math.random() < 0.7 ? ACCENT : INK,
       };
-    }
+    };
 
     const build = () => {
       // Kepadatan mengikuti luas viewport, dibatasi agar mobile tetap ringan.

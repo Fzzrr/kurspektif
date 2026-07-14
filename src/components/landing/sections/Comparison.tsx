@@ -1,4 +1,5 @@
 import Reveal from "../motion/Reveal";
+import { GlowBlob } from "../ui/decor";
 
 const before = [
   "Menampilkan kurs hari ini",
@@ -44,10 +45,7 @@ export default function Comparison() {
 
           {/* Kurspektif */}
           <div className="relative overflow-hidden bg-ink p-6 text-paper sm:p-8">
-            <div
-              aria-hidden
-              className="animate-glow pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-accent/20 blur-3xl"
-            />
+            <GlowBlob className="-right-12 -top-12 h-40 w-40" />
             <p className="relative font-mono text-xs uppercase tracking-wider text-accent">
               Kurspektif
             </p>

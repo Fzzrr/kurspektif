@@ -13,7 +13,6 @@ type RateCardProps = {
   rate?: string;
   changePercent?: string;
   changeDir?: "up" | "down";
-  asOf?: string;
   historical?: string;
   data?: ChartPoint[];
   className?: string;
@@ -24,7 +23,6 @@ export default function RateCard({
   rate = "16.234",
   changePercent = "0,8%",
   changeDir = "up",
-  asOf = "15 Jun",
   historical = "Lebih tinggi dari 82% (90 hari terakhir)",
   data,
   className = "",
@@ -40,7 +38,7 @@ export default function RateCard({
         <p className="font-mono text-xs text-muted">{pair}</p>
         <span className="flex items-center gap-1.5 rounded-full border border-line px-2.5 py-1 font-mono text-[11px] uppercase tracking-wide text-muted">
           <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-up" />
-          Live 
+          Live
         </span>
       </div>
 

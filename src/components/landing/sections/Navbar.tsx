@@ -10,6 +10,11 @@ const links = [
   { label: "Pratinjau", href: "#pratinjau", id: "pratinjau" },
 ];
 
+// Tombol "Coba sekarang" muncul dua kali (desktop & di dalam menu mobile);
+// warna & bentuknya sama, hanya ukuran + aturan tampil/sembunyi yang beda.
+const ctaClass =
+  "rounded-xl bg-ink text-sm font-medium text-paper transition-opacity hover:opacity-90";
+
 export default function Navbar() {
   const [progress, setProgress] = useState(0);
   const [elevated, setElevated] = useState(false);
@@ -105,7 +110,7 @@ export default function Navbar() {
           </div>
           <Link
             href="/dashboard"
-            className="group hidden items-center gap-1.5 rounded-xl bg-ink px-4 py-2 text-sm font-medium text-paper transition-opacity hover:opacity-90 sm:inline-flex"
+            className={`hidden items-center gap-1.5 px-4 py-2 sm:inline-flex ${ctaClass}`}
           >
             Coba sekarang
           </Link>
@@ -158,7 +163,7 @@ export default function Navbar() {
           <Link
             href="/dashboard"
             onClick={() => setMenuOpen(false)}
-            className="mt-1 inline-flex items-center justify-center rounded-xl bg-ink px-4 py-3 text-sm font-medium text-paper transition-opacity hover:opacity-90 sm:hidden"
+            className={`mt-1 inline-flex items-center justify-center px-4 py-3 sm:hidden ${ctaClass}`}
           >
             Coba sekarang
           </Link>

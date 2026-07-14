@@ -55,10 +55,6 @@ body {
   from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: none; }
 }
-@keyframes float-soft {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-8px); }
-}
 @keyframes glow-pulse {
   0%, 100% { opacity: .35; transform: scale(1); }
   50%      { opacity: .6;  transform: scale(1.06); }
@@ -74,9 +70,13 @@ body {
   from { background-position: -150% 0; }
   to   { background-position: 250% 0; }
 }
-@keyframes bob {
+
+/* Semua gerakan "mengambang" (koin, latar hanyut, chevron memantul) memakai
+   satu keyframe; tiap pemakai cukup mengatur amplitudo lewat --float-y dan
+   tempo lewat animation-duration. Durasi/fase per elemen boleh ditimpa inline. */
+@keyframes float-y {
   0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(6px); }
+  50%      { transform: translateY(var(--float-y)); }
 }
 
 /* Reveal saat masuk viewport (di-trigger oleh Reveal.tsx) */
@@ -93,7 +93,6 @@ body {
 /* fill-mode both → elemen tetap tersembunyi selama delay, lalu muncul.
    Tanpa animasi (reduced motion) elemen memakai state istirahat = terlihat. */
 .animate-fade-up { animation: fade-up .7s cubic-bezier(.22, 1, .36, 1) both; }
-.animate-float   { animation: float-soft 6s ease-in-out infinite; }
 .animate-glow    { animation: glow-pulse 5s ease-in-out infinite; }
 
 /* Ticker kurs berjalan; jeda saat hover */
@@ -131,35 +130,33 @@ body {
   animation: shimmer 6s linear infinite;
 }
 
-/* Chevron "scroll cue" di hero yang memantul lembut mengajak menggulir */
-.scroll-cue { animation: bob 1.6s ease-in-out infinite; }
-
 /* =========================================================================
-   Motif "uang": koin emas melayang, putaran koin, & tipografi outline besar.
+   Motif "uang": koin emas melayang & tipografi outline besar.
    ========================================================================= */
 
 /* Koin melayang naik-turun. Durasi & fase (delay) diatur inline per koin. */
-@keyframes coin-float {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-14px); }
+.coin-float {
+  --float-y: -14px;
+  animation: float-y 6s ease-in-out infinite;
 }
-.coin-float { animation: coin-float 6s ease-in-out infinite; }
 
-/* Hanyut perlahan untuk latar dekoratif (simbol/heading). */
-@keyframes drift {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-10px); }
+/* Hanyut perlahan untuk latar dekoratif (simbol mata uang raksasa). */
+.animate-drift {
+  --float-y: -10px;
+  animation: float-y 9s ease-in-out infinite;
 }
-.animate-drift { animation: drift 9s ease-in-out infinite; }
 
-/* Tipografi outline besar: angka/simbol mata uang sebagai latar editorial. */
+/* Chevron "scroll cue" di hero yang memantul lembut mengajak menggulir.
+   Satu-satunya yang mengambang ke bawah (nilai positif). */
+.scroll-cue {
+  --float-y: 6px;
+  animation: float-y 1.6s ease-in-out infinite;
+}
+
+/* Tipografi outline besar: simbol mata uang sebagai latar editorial. */
 .text-stroke {
   color: transparent;
   -webkit-text-stroke: 1.5px var(--color-line);
-}
-.text-stroke-accent {
-  color: transparent;
-  -webkit-text-stroke: 1.5px color-mix(in srgb, var(--color-accent) 50%, transparent);
 }
 
 /* Titik sentimen grafik yang "pop" muncul (delay diatur inline agar setelah
@@ -175,16 +172,16 @@ body {
   animation: dot-pop .5s cubic-bezier(.22, 1, .36, 1) both;
 }
 
+/* Aksesibilitas: hentikan semua gerak dekoratif, sisakan state akhirnya. */
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
   .animate-fade-up,
-  .animate-float,
   .animate-glow,
   .animate-drift,
   .coin-float,
+  .scroll-cue,
   .sentiment-dot,
   .ticker-track,
-  .scroll-cue,
   .shimmer-sweep { animation: none !important; }
   .draw-underline::after { animation: none; transform: scaleX(1); }
 }

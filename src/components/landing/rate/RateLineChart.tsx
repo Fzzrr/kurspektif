@@ -16,6 +16,7 @@ import {
   ReferenceDot,
 } from "recharts";
 import type { TooltipContentProps } from "recharts";
+import { usePrefersReducedMotion } from "@/lib/motion";
 
 export type Sentiment = "positif" | "netral" | "negatif";
 
@@ -32,7 +33,7 @@ export const SENTIMENT: Record<Sentiment, { color: string; label: string }> = {
 };
 
 // Data ilustrasi default (USD → IDR) 30 hari terakhir (H-30 = terlama, H-1 = terbaru).
-export const DEFAULT_RATE_SERIES: ChartPoint[] = [
+const DEFAULT_RATE_SERIES: ChartPoint[] = [
   { day: "H-30", rate: 16190 },
   { day: "H-29", rate: 16175 },
   { day: "H-28", rate: 16140 },
@@ -100,9 +101,10 @@ export default function RateLineChart({ data = DEFAULT_RATE_SERIES, className }:
   const [size, setSize] = useState({ width: 0, height: 0 });
 
   // Animasi: garis tergambar dulu, lalu titik sentimen "pop". Saat reduced
-  // motion semuanya tampil langsung tanpa gerak.
-  const [reduce, setReduce] = useState(false);
+  // motion semuanya tampil langsung tanpa gerak — titik tak perlu menunggu.
+  const reduce = usePrefersReducedMotion();
   const [drawn, setDrawn] = useState(false);
+  const showMarkers = reduce || drawn;
 
   const yDomain = useMemo<[number, number]>(() => {
     const rates = data.map((d) => d.rate);
@@ -129,17 +131,10 @@ export default function RateLineChart({ data = DEFAULT_RATE_SERIES, className }:
   }, []);
 
   useEffect(() => {
-    const prefersReduce = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-    if (prefersReduce) {
-      setReduce(true);
-      setDrawn(true);
-      return;
-    }
+    if (reduce) return;
     const t = setTimeout(() => setDrawn(true), DRAW_MS);
     return () => clearTimeout(t);
-  }, []);
+  }, [reduce]);
 
   return (
     <div
@@ -195,7 +190,7 @@ export default function RateLineChart({ data = DEFAULT_RATE_SERIES, className }:
           />
 
           {/* Titik sentimen berita — muncul "pop" setelah garis tergambar. */}
-          {drawn &&
+          {showMarkers &&
             markers.map((m, i) => (
               <ReferenceDot
                 key={m.day}

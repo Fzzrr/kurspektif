@@ -1,4 +1,5 @@
 import Reveal from "../motion/Reveal";
+import SectionHeading from "../ui/SectionHeading";
 
 // Penomoran 01/02/03 dipakai karena ini benar-benar urutan langkah,
 // bukan sekadar hiasan.
@@ -22,18 +23,13 @@ const steps = [
 
 export default function HowItWorks() {
   return (
-    <section
-      id="cara"
-      className="border-y border-line bg-surface"
-    >
+    <section id="cara" className="border-y border-line bg-surface">
       <div className="mx-auto max-w-6xl px-6 py-16">
         <Reveal>
-          <p className="font-mono text-xs uppercase tracking-[0.18em] text-accent">
-            Cara kerja
-          </p>
-          <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight">
-            Tiga langkah, lalu kamu yang menyimpulkan
-          </h2>
+          <SectionHeading
+            eyebrow="Cara kerja"
+            title="Tiga langkah, lalu kamu yang menyimpulkan"
+          />
         </Reveal>
 
         <div className="mt-10 grid gap-7 md:grid-cols-3">
