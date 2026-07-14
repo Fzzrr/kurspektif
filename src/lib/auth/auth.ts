@@ -6,7 +6,10 @@ import { prisma } from '@/lib/prisma';
 import { authConfig } from './config';
 import { loginLimiter, loginIpLimiter } from '@/lib/rateLimit';
 
-const DUMMY_HASH = bcrypt.hashSync('dummy-password-for-timing', 12);
+// Cost factor bcrypt — dipakai bersama register (actions.ts) agar dummy-compare
+// di bawah punya timing setara compare asli (pertahanan timing-attack).
+export const BCRYPT_COST = 12;
+const DUMMY_HASH = bcrypt.hashSync('dummy-password-for-timing', BCRYPT_COST);
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,

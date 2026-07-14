@@ -1,10 +1,20 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Bricolage_Grotesque, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
+});
+
+const bricolage = Bricolage_Grotesque({
+  subsets: ["latin"],
+  variable: "--font-bricolage",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jetbrains",
 });
 
 export const metadata: Metadata = {
@@ -19,19 +29,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="id" className={inter.variable}>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap"
-          rel="stylesheet"
-        />
-      </head>
+    <html
+      lang="id"
+      className={`${inter.variable} ${bricolage.variable} ${jetbrainsMono.variable}`}
+    >
       <body
         suppressHydrationWarning
         className="font-sans antialiased"
       >
+        {/* Tanpa JS, paksa konten reveal tetap terlihat (progressive enhancement). */}
+        <noscript>
+          <style
+            dangerouslySetInnerHTML={{
+              __html: ".reveal{opacity:1!important;transform:none!important}",
+            }}
+          />
+        </noscript>
         {children}
       </body>
     </html>
