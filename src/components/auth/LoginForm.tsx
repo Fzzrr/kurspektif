@@ -8,7 +8,8 @@ import FormField from '../ui/FormField';
 import PasswordInput from '../ui/PasswordInput';
 import AuthDivider from '../ui/AuthDivider';
 import SocialAuthButtons from './SocialAuthButtons';
-import { primaryButtonClass, authHeadingTextStyle } from '../ui/styles';
+import AuthHeroHeading from './AuthHeroHeading';
+import { primaryButtonClass } from '../ui/styles';
 
 export default function LoginForm() {
   const router = useRouter();
@@ -45,29 +46,13 @@ export default function LoginForm() {
           <p className="font-mono text-xs uppercase tracking-[0.18em] text-accent">
             Welcome Back
           </p>
-          <h2 className="leading-none" aria-label="Sign in to Kurspektif.">
-            <svg
-              viewBox="0 15 1000 113"
-              className="block h-auto w-full"
-              role="img"
-              aria-hidden="true"
-            >
-              <text
-                x="0"
-                y="100"
-                textLength="1000"
-                lengthAdjust="spacingAndGlyphs"
-                xmlSpace="preserve"
-                style={authHeadingTextStyle}
-              >
-                <tspan fill="var(--color-ink)">Sign in to </tspan>
-                <tspan fill="var(--color-accent)">
-                  Kurspektif<tspan fill="var(--color-ink)">.</tspan>
-                </tspan>
-              </text>
-            </svg>
-          </h2>
-          <p className="text-[#888780] text-sm">
+          <AuthHeroHeading ariaLabel="Sign in to Kurspektif.">
+            <tspan fill="var(--color-ink)">Sign in to </tspan>
+            <tspan fill="var(--color-accent)">
+              Kurspektif<tspan fill="var(--color-ink)">.</tspan>
+            </tspan>
+          </AuthHeroHeading>
+          <p className="text-neutral text-sm">
             Keep tracking your favorite rates and read the latest summaries
             waiting for you.
           </p>
