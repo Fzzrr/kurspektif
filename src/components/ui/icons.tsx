@@ -80,6 +80,59 @@ export function EyeOffIcon({ className }: IconProps) {
   );
 }
 
+// Dua panah horizontal berlawanan arah — tombol "tukar" pasangan mata uang.
+export function SwapIcon({ className }: IconProps) {
+  return (
+    <svg {...strokeIcon} className={className}>
+      <path d="M3 7h13M13 3l4 4-4 4" />
+      <path d="M21 17H8M8 21l-4-4 4-4" />
+    </svg>
+  );
+}
+
+// Koran terlipat — menandai item navigasi "Berita".
+export function NewspaperIcon({ className }: IconProps) {
+  return (
+    <svg {...strokeIcon} className={className}>
+      <path d="M4 4h12v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4Z" />
+      <path d="M16 8h4v10a2 2 0 0 1-2 2h-2" />
+      <path d="M7 8h6M7 11h6M7 14h4" />
+    </svg>
+  );
+}
+
+// Hati — menandai item navigasi "Pasangan saya" (pasangan kurs favorit).
+export function HeartHandshakeIcon({ className }: IconProps) {
+  return (
+    <svg {...strokeIcon} className={className}>
+      <path d="M12 21s-7-4.35-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6C19 16.65 12 21 12 21Z" />
+    </svg>
+  );
+}
+
+// Lingkaran "i" — menandai item navigasi "Tentang sentimen".
+export function InfoIcon({ className }: IconProps) {
+  return (
+    <svg {...strokeIcon} className={className}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 8h.01" />
+      <path d="M11 12h1v5h1" />
+    </svg>
+  );
+}
+
+// Grid 4 kotak — menandai item navigasi "Dashboard".
+export function LayoutDashboardIcon({ className }: IconProps) {
+  return (
+    <svg {...strokeIcon} className={className}>
+      <rect x="3" y="3" width="7" height="9" rx="1" />
+      <rect x="14" y="3" width="7" height="5" rx="1" />
+      <rect x="14" y="12" width="7" height="9" rx="1" />
+      <rect x="3" y="16" width="7" height="5" rx="1" />
+    </svg>
+  );
+}
+
 export function GoogleIcon({ className }: IconProps) {
   return (
     <svg viewBox="0 0 48 48" className={className} aria-hidden="true">
