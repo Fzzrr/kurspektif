@@ -1,15 +1,10 @@
 'use client';
 
-// Kartu grafik kurs. Membungkus RateLineChart (dari landing page) TANPA
-// mengubahnya sama sekali — hanya menambahkan header, toggle rentang waktu,
-// dan legenda di sekitarnya. Client Component karena toggle rentang waktu
-// (`timeframe`) adalah state lokal.
-
-import { useState } from 'react';
-import RateLineChart, { SENTIMENT } from '@/components/landing/rate/RateLineChart';
+import { useMemo, useState } from 'react';
+import RateLineChart from '@/components/landing/rate/RateLineChart';
 import DashboardCard from './DashboardCard';
 import PillTabs from './PillTabs';
-import { RATE_SERIES_7D, RATE_SERIES_30D, RATE_SERIES_90D, RATE_SERIES_1Y } from '@/lib/mock/dashboard';
+import type { RatePoint } from '@/lib/frankfurter';
 
 const TIMEFRAMES = [
   { value: '7H', label: '7H' },
@@ -17,19 +12,9 @@ const TIMEFRAMES = [
   { value: '90H', label: '90H' },
   { value: '1T', label: '1T' },
 ] as const;
-
 type Timeframe = (typeof TIMEFRAMES)[number]['value'];
 
-// Peta timeframe -> deret data. Mengganti tab cukup mengganti `data` yang
-// dikirim ke RateLineChart; komponen grafiknya sendiri tidak perlu tahu
-// apa-apa soal timeframe.
-const SERIES_BY_TIMEFRAME: Record<Timeframe, typeof RATE_SERIES_30D> = {
-  '7H': RATE_SERIES_7D,
-  '30H': RATE_SERIES_30D,
-  '90H': RATE_SERIES_90D,
-  '1T': RATE_SERIES_1Y,
-};
-
+const DAYS_BY_TIMEFRAME: Record<Timeframe, number> = { '7H': 7, '30H': 30, '90H': 90, '1T': 365 };
 const TIMEFRAME_DESCRIPTIONS: Record<Timeframe, string> = {
   '7H': '7 hari terakhir',
   '30H': '30 hari terakhir',
@@ -37,12 +22,32 @@ const TIMEFRAME_DESCRIPTIONS: Record<Timeframe, string> = {
   '1T': '1 tahun terakhir',
 };
 
-// Legenda diturunkan dari SENTIMENT (sumber tunggal warna+label di
-// RateLineChart.tsx) — sama seperti cara RateCard.tsx merender legendanya.
-const legend = Object.values(SENTIMENT);
+const dayLabelFormatter = new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'short' });
+const MAX_CHART_POINTS = 30;
 
-export default function RateChartCard() {
+function sampleSeries(points: RatePoint[], maxPoints: number): RatePoint[] {
+  if (points.length <= maxPoints) return points;
+  const step = (points.length - 1) / (maxPoints - 1);
+  return Array.from({ length: maxPoints }, (_, i) => points[Math.round(i * step)]);
+}
+
+type Props = {
+  series: RatePoint[];
+  pair: string;
+  isLoading?: boolean;
+};
+
+export default function RateChartCard({ series, pair, isLoading = false }: Props) {
   const [timeframe, setTimeframe] = useState<Timeframe>('30H');
+
+  const chartData = useMemo(() => {
+    const windowed = series.slice(-DAYS_BY_TIMEFRAME[timeframe]);
+    const sampled = sampleSeries(windowed, MAX_CHART_POINTS);
+    return sampled.map((point) => ({
+      day: dayLabelFormatter.format(new Date(point.date)),
+      rate: point.rate,
+    }));
+  }, [series, timeframe]);
 
   return (
     <DashboardCard>
@@ -50,25 +55,19 @@ export default function RateChartCard() {
         <div>
           <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted">Grafik kurs</p>
           <p className="mt-1 font-mono text-sm text-ink">
-            USD/IDR · {TIMEFRAME_DESCRIPTIONS[timeframe]}
+            {pair} · {TIMEFRAME_DESCRIPTIONS[timeframe]}
           </p>
         </div>
         <PillTabs options={TIMEFRAMES} value={timeframe} onChange={setTimeframe} />
       </div>
 
-      <RateLineChart data={SERIES_BY_TIMEFRAME[timeframe]} className="mt-4 h-56" />
-
-      <div className="mt-2 flex gap-4 font-mono text-[11px] text-muted">
-        {legend.map((item) => (
-          <span key={item.label} className="flex items-center gap-1.5">
-            <span
-              className="inline-block h-2 w-2 rounded-full"
-              style={{ backgroundColor: item.color }}
-            />
-            {item.label}
-          </span>
-        ))}
-      </div>
+      {isLoading || chartData.length === 0 ? (
+        <div className="mt-4 flex h-56 items-center justify-center font-mono text-xs text-muted">
+          Memuat data kurs…
+        </div>
+      ) : (
+        <RateLineChart data={chartData} className="mt-4 h-56" />
+      )}
     </DashboardCard>
   );
 }

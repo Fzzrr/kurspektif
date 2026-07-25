@@ -45,7 +45,7 @@ export default function DashboardSidebar({ userName }: Props) {
   return (
     <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-line bg-white text-ink md:flex">
       <div className="px-6 pt-8">
-        <Wordmark className="h-5 w-auto text-ink" />
+        <Wordmark className="h-6 w-auto text-ink" />
       </div>
 
       <nav className="mt-10 flex-1 space-y-1 px-4">

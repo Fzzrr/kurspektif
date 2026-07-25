@@ -1,21 +1,14 @@
-import DashboardHeader from '@/components/dashboard/DashboardHeader';
-import PairSelector from '@/components/dashboard/PairSelector';
-import StatCardsRow from '@/components/dashboard/StatCardsRow';
-import RateChartCard from '@/components/dashboard/RateChartCard';
+import { fetchSupportedCurrencies } from '@/lib/frankfurter';
+import DashboardLiveSection from '@/components/dashboard/DashboardLiveSection';
 import InsightRow from '@/components/dashboard/InsightRow';
 import AlertCard from '@/components/dashboard/AlertCard';
-import { UPDATED_AT } from '@/lib/mock/dashboard';
 
-// Server Component: tidak ada state/efek di level halaman ini sendiri —
-// semua interaktivitas hidup di komponen anak yang butuh ('use client').
-// Menyusun (compose) section demi section persis urutan di desain PDF.
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const currencies = await fetchSupportedCurrencies();
+
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <DashboardHeader title="Pantau kurs USD/IDR" updatedAt={UPDATED_AT} />
-      <PairSelector />
-      <StatCardsRow />
-      <RateChartCard />
+      <DashboardLiveSection title="Pantau kurs Anda Saat Ini" currencies={currencies} />
       <InsightRow />
       <AlertCard />
     </div>

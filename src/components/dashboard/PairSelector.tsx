@@ -1,57 +1,35 @@
 'use client';
 
-// Baris pemilih pasangan mata uang: dua dropdown + tombol tukar + tab cepat.
-// Client Component karena semuanya digerakkan oleh useState lokal (belum
-// terhubung ke data asli — lihat catatan cakupan "mock data" di plan).
-
-import { useState } from 'react';
 import { SwapIcon } from '@/components/ui/icons';
 import PillTabs from './PillTabs';
 
-const CURRENCIES = [
-  { code: 'USD', label: 'US Dollar', flag: '🇺🇸' },
-  { code: 'IDR', label: 'Indonesian Rupiah', flag: '🇮🇩' },
-  { code: 'EUR', label: 'Euro', flag: '🇪🇺' },
-  { code: 'JPY', label: 'Japanese Yen', flag: '🇯🇵' },
-  { code: 'SGD', label: 'Singapore Dollar', flag: '🇸🇬' },
-] as const;
+type Currency = { code: string; name: string };
 
-// `(typeof CURRENCIES)[number]['code']` menurunkan union type
-// "USD" | "IDR" | "EUR" | "JPY" | "SGD" langsung dari data di atas,
-// jadi kalau daftar mata uang berubah, tipenya ikut berubah otomatis.
-type CurrencyCode = (typeof CURRENCIES)[number]['code'];
+type Props = {
+  from: string;
+  to: string;
+  currencies: Currency[];
+  recentPairs: string[];
+  onChange: (next: { from: string; to: string }) => void;
+};
 
-const QUICK_PAIRS = [
-  { value: 'USD/IDR', label: 'USD/IDR' },
-  { value: 'EUR/IDR', label: 'EUR/IDR' },
-  { value: 'JPY/IDR', label: 'JPY/IDR' },
-  { value: 'SGD/IDR', label: 'SGD/IDR' },
-  { value: 'USD/EUR', label: 'USD/EUR' },
-] as const;
+export default function PairSelector({ from, to, currencies, recentPairs, onChange }: Props) {
+  const activePair = `${from}/${to}`;
 
-type QuickPair = (typeof QUICK_PAIRS)[number]['value'];
-
-function findCurrency(code: CurrencyCode) {
-  return CURRENCIES.find((currency) => currency.code === code) ?? CURRENCIES[0];
-}
-
-export default function PairSelector() {
-  const [from, setFrom] = useState<CurrencyCode>('USD');
-  const [to, setTo] = useState<CurrencyCode>('IDR');
-  const [quickPair, setQuickPair] = useState<QuickPair>('USD/IDR');
-
-  // Tukar isi kedua dropdown. Karena setFrom/setTo tidak langsung mengubah
-  // `from`/`to` sebelum render berikutnya, kita simpan nilai lama ke variabel
-  // dulu alih-alih membaca ulang state yang sudah "basi" di baris kedua.
   function handleSwap() {
-    const previousFrom = from;
-    setFrom(to);
-    setTo(previousFrom);
+    onChange({ from: to, to: from });
   }
 
+  function handleQuickPair(value: string) {
+    const [nextFrom, nextTo] = value.split('/');
+    onChange({ from: nextFrom, to: nextTo });
+  }
+
+  const quickPairOptions = recentPairs.map((pair) => ({ value: pair, label: pair }));
+
   return (
-    <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-surface p-3">
-      <CurrencySelect value={from} onChange={setFrom} />
+    <div className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3">
+      <CurrencySelect value={from} currencies={currencies} onChange={(code) => onChange({ from: code, to })} />
 
       <button
         type="button"
@@ -62,36 +40,50 @@ export default function PairSelector() {
         <SwapIcon className="size-4" />
       </button>
 
-      <CurrencySelect value={to} onChange={setTo} />
+      <CurrencySelect value={to} currencies={currencies} onChange={(code) => onChange({ from, to: code })} />
 
-      <PillTabs options={QUICK_PAIRS} value={quickPair} onChange={setQuickPair} className="ml-auto" />
+      <PillTabs options={quickPairOptions} value={activePair} onChange={handleQuickPair} className="ml-auto" />
     </div>
   );
 }
 
 type CurrencySelectProps = {
-  value: CurrencyCode;
-  onChange: (value: CurrencyCode) => void;
+  value: string;
+  currencies: Currency[];
+  onChange: (value: string) => void;
 };
 
-// Dropdown mata uang: <select> asli yang didandani, bukan listbox custom.
-// Ini menjaga navigasi keyboard & pembaca layar bekerja gratis dari browser.
-function CurrencySelect({ value, onChange }: CurrencySelectProps) {
-  const current = findCurrency(value);
+// Kode ISO 4217 -> emoji bendera. Kebanyakan kode mata uang dibentuk dari
+// [kode negara][huruf mata uang] (IDR = ID + Rupiah, SGD = SG + Dollar),
+// jadi dua huruf pertamanya biasanya = kode negara ISO 3166-1 alpha-2.
+// Emoji bendera dibuat dari dua "regional indicator symbol" Unicode yang
+// berpadanan dengan huruf A-Z — bukan gambar/aset terpisah.
+function currencyToFlag(code: string): string | null {
+  // Kode berawalan "X" (XAU, XDR, XAF, dst.) menurut ISO 4217 khusus untuk
+  // mata uang non-negara (emas, SDR, dsb.) — tidak ada benderanya.
+  if (code.startsWith('X')) return null;
+  const countryCode = code.slice(0, 2).toUpperCase();
+  const codePoints = [...countryCode].map((char) => 0x1f1e6 + char.charCodeAt(0) - 65);
+  return String.fromCodePoint(...codePoints);
+}
 
+function CurrencySelect({ value, currencies, onChange }: CurrencySelectProps) {
   return (
-    <label className="flex items-center gap-2 rounded-full border border-line px-3 py-2 font-mono text-sm text-ink">
-      <span aria-hidden>{current.flag}</span>
+    <label className="flex max-w-[300px] shrink-0 items-center gap-2 rounded-full border border-line px-3 py-2 font-mono text-sm text-ink">
       <select
         value={value}
-        onChange={(event) => onChange(event.target.value as CurrencyCode)}
-        className="bg-transparent outline-none"
+        onChange={(event) => onChange(event.target.value)}
+        className="w-full truncate bg-transparent outline-none"
       >
-        {CURRENCIES.map((currency) => (
-          <option key={currency.code} value={currency.code}>
-            {currency.code} - {currency.label}
-          </option>
-        ))}
+        {currencies.map((currency) => {
+          const flag = currencyToFlag(currency.code);
+          return (
+            <option key={currency.code} value={currency.code}>
+              {flag ? `${flag} ` : ''}
+              {currency.code} - {currency.name}
+            </option>
+          );
+        })}
       </select>
     </label>
   );
