@@ -14,6 +14,51 @@ const strokeIcon = {
   "aria-hidden": true,
 } as const;
 
+export function SearchIcon({ className }: IconProps) {
+  return (
+    <svg {...strokeIcon} className={className}>
+      <circle cx="11" cy="11" r="7" />
+      <path d="M21 21l-4.3-4.3" />
+    </svg>
+  );
+}
+
+export function FilterIcon({ className }: IconProps) {
+  return (
+    <svg {...strokeIcon} className={className}>
+      <path d="M4 6h16M4 12h16M4 18h16" />
+      <circle cx="8" cy="6" r="1.5" fill="currentColor" stroke="none" />
+      <circle cx="16" cy="12" r="1.5" fill="currentColor" stroke="none" />
+      <circle cx="10" cy="18" r="1.5" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+export function GlobeIcon({ className }: IconProps) {
+  return (
+    <svg {...strokeIcon} className={className}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M3 12h18M12 3c2.5 2.5 3.8 5.7 3.8 9s-1.3 6.5-3.8 9c-2.5-2.5-3.8-5.7-3.8-9s1.3-6.5 3.8-9Z" />
+    </svg>
+  );
+}
+
+export function BookmarkIcon({ className, filled }: IconProps & { filled?: boolean }) {
+  return (
+    <svg {...strokeIcon} fill={filled ? 'currentColor' : 'none'} className={className}>
+      <path d="M6 4h12v16l-6-4-6 4V4Z" />
+    </svg>
+  );
+}
+
+export function ExternalLinkIcon({ className }: IconProps) {
+  return (
+    <svg {...strokeIcon} className={className}>
+      <path d="M7 17 17 7M9 7h8v8" />
+    </svg>
+  );
+}
+
 // Panah kanan untuk tombol CTA & kontrol carousel (putar 180° untuk "prev").
 export function ArrowRight({ className }: IconProps) {
   return (
