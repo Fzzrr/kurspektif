@@ -1,4 +1,5 @@
-import RateLineChart, { SENTIMENT, type ChartPoint } from "./RateLineChart";
+import RateLineChart, { type ChartPoint } from "./RateLineChart";
+import { SENTIMENT } from "@/lib/sentiment";
 import CountUp from "../motion/CountUp";
 
 // Kartu "signature" — elemen visual khas Kurspektif.
