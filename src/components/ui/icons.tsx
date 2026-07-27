@@ -1,4 +1,4 @@
-// Kumpulan ikon SVG yang dipakai di form auth & landing page.
+// Kumpulan ikon SVG yang dipakai di form auth, landing page, & dashboard.
 // Ukuran selalu diatur pemanggil lewat `className` (mis. `size-5`, `size-[1.1em]`).
 
 type IconProps = { className?: string };
@@ -13,6 +13,51 @@ const strokeIcon = {
   strokeLinejoin: "round",
   "aria-hidden": true,
 } as const;
+
+export function SearchIcon({ className }: IconProps) {
+  return (
+    <svg {...strokeIcon} className={className}>
+      <circle cx="11" cy="11" r="7" />
+      <path d="M21 21l-4.3-4.3" />
+    </svg>
+  );
+}
+
+export function FilterIcon({ className }: IconProps) {
+  return (
+    <svg {...strokeIcon} className={className}>
+      <path d="M4 6h16M4 12h16M4 18h16" />
+      <circle cx="8" cy="6" r="1.5" fill="currentColor" stroke="none" />
+      <circle cx="16" cy="12" r="1.5" fill="currentColor" stroke="none" />
+      <circle cx="10" cy="18" r="1.5" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+export function GlobeIcon({ className }: IconProps) {
+  return (
+    <svg {...strokeIcon} className={className}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M3 12h18M12 3c2.5 2.5 3.8 5.7 3.8 9s-1.3 6.5-3.8 9c-2.5-2.5-3.8-5.7-3.8-9s1.3-6.5 3.8-9Z" />
+    </svg>
+  );
+}
+
+export function BookmarkIcon({ className, filled }: IconProps & { filled?: boolean }) {
+  return (
+    <svg {...strokeIcon} fill={filled ? 'currentColor' : 'none'} className={className}>
+      <path d="M6 4h12v16l-6-4-6 4V4Z" />
+    </svg>
+  );
+}
+
+export function ExternalLinkIcon({ className }: IconProps) {
+  return (
+    <svg {...strokeIcon} className={className}>
+      <path d="M7 17 17 7M9 7h8v8" />
+    </svg>
+  );
+}
 
 // Panah kanan untuk tombol CTA & kontrol carousel (putar 180° untuk "prev").
 export function ArrowRight({ className }: IconProps) {
@@ -76,6 +121,59 @@ export function EyeOffIcon({ className }: IconProps) {
     <svg viewBox="0 0 24 24" fill="none" className={className} stroke="currentColor" strokeWidth="1.8">
       <path d="M3 3l18 18M10.6 10.6a2 2 0 002.8 2.8" strokeLinecap="round" />
       <path d="M9.4 5.2A9.6 9.6 0 0112 5c5 0 9 4.5 9 7-.4 1-1.2 2.2-2.4 3.3M6.1 6.1C4 7.4 2.6 9.4 3 12c.4 1 3.5 5 9 5 1 0 1.9-.1 2.7-.4" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+// Dua panah horizontal berlawanan arah — tombol "tukar" pasangan mata uang.
+export function SwapIcon({ className }: IconProps) {
+  return (
+    <svg {...strokeIcon} className={className}>
+      <path d="M3 7h13M13 3l4 4-4 4" />
+      <path d="M21 17H8M8 21l-4-4 4-4" />
+    </svg>
+  );
+}
+
+// Koran terlipat — menandai item navigasi "Berita".
+export function NewspaperIcon({ className }: IconProps) {
+  return (
+    <svg {...strokeIcon} className={className}>
+      <path d="M4 4h12v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4Z" />
+      <path d="M16 8h4v10a2 2 0 0 1-2 2h-2" />
+      <path d="M7 8h6M7 11h6M7 14h4" />
+    </svg>
+  );
+}
+
+// Hati — menandai item navigasi "Pasangan saya" (pasangan kurs favorit).
+export function HeartHandshakeIcon({ className }: IconProps) {
+  return (
+    <svg {...strokeIcon} className={className}>
+      <path d="M12 21s-7-4.35-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6C19 16.65 12 21 12 21Z" />
+    </svg>
+  );
+}
+
+// Lingkaran "i" — menandai item navigasi "Tentang sentimen".
+export function InfoIcon({ className }: IconProps) {
+  return (
+    <svg {...strokeIcon} className={className}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 8h.01" />
+      <path d="M11 12h1v5h1" />
+    </svg>
+  );
+}
+
+// Grid 4 kotak — menandai item navigasi "Dashboard".
+export function LayoutDashboardIcon({ className }: IconProps) {
+  return (
+    <svg {...strokeIcon} className={className}>
+      <rect x="3" y="3" width="7" height="9" rx="1" />
+      <rect x="14" y="3" width="7" height="5" rx="1" />
+      <rect x="14" y="12" width="7" height="9" rx="1" />
+      <rect x="3" y="16" width="7" height="5" rx="1" />
     </svg>
   );
 }
