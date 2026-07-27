@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { auth } from '@/lib/auth';
-import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
+import DashboardSidebar from '@/components/dashboard/layout/DashboardSidebar';
 
 // Layout ini membungkus SEMUA route di bawah /dashboard (page.tsx, berita/,
 // pasangan-saya/, alert/, tentang-sentimen/) — sidebar & footer disclaimer

@@ -1,4 +1,4 @@
-// Kumpulan ikon SVG yang dipakai di form auth & landing page.
+// Kumpulan ikon SVG yang dipakai di form auth, landing page, & dashboard.
 // Ukuran selalu diatur pemanggil lewat `className` (mis. `size-5`, `size-[1.1em]`).
 
 type IconProps = { className?: string };

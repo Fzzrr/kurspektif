@@ -1,7 +1,7 @@
 // Kartu ringkasan "apa yang menggerakkan rupiah". Server Component murni —
 // teks & bar proporsional dihitung sekali dari data mock, tidak ada state.
-import DashboardCard from './DashboardCard';
-import { MARKET_MOVER } from '@/lib/mock/dashboard';
+import DashboardCard from '../ui/DashboardCard';
+import { MARKET_MOVER } from '@/lib/mock/rate';
 
 const SEGMENT_COLOR = {
   positif: 'bg-up',

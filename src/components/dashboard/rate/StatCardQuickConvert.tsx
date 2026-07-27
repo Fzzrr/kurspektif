@@ -4,7 +4,7 @@
 // berasal dari state React, bukan dari DOM, jadi hasil konversi di bawahnya
 // otomatis ikut berubah setiap ketikan tanpa kode tambahan.
 import { useState } from 'react';
-import DashboardCard from './DashboardCard';
+import DashboardCard from '../ui/DashboardCard';
 import { inputClass } from '@/components/ui/styles';
 
 type Props = {

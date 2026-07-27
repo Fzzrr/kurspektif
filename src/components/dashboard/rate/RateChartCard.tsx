@@ -2,8 +2,8 @@
 
 import { useMemo, useState } from 'react';
 import RateLineChart from '@/components/landing/rate/RateLineChart';
-import DashboardCard from './DashboardCard';
-import PillTabs from './PillTabs';
+import DashboardCard from '../ui/DashboardCard';
+import PillTabs from '../ui/PillTabs';
 import type { RatePoint } from '@/lib/frankfurter';
 
 const TIMEFRAMES = [

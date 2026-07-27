@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import DashboardHeader from './DashboardHeader';
-import PairSelector from './PairSelector';
-import StatCardsRow from './StatCardsRow';
-import RateChartCard from './RateChartCard';
+import DashboardHeader from './layout/DashboardHeader';
+import PairSelector from './rate/PairSelector';
+import StatCardsRow from './rate/StatCardsRow';
+import RateChartCard from './rate/RateChartCard';
 import { useLiveRate } from '@/lib/useLiveRate';
 import { formatRate } from '@/components/landing/rate/RateLineChart';
 import type { Currency } from '@/lib/frankfurter';
@@ -60,12 +60,12 @@ export default function DashboardLiveSection({ title, currencies }: Props) {
   const updatedAt = latest ? `${dateFmt.format(new Date(latest.date))} (kurs referensi harian)` : 'Memuat…';
 
   const change = useMemo(() => {
-    if (!latest || series.length < 2) return { changeAbsolute: '0', changePercent: '0%', changeDir: 'up' as const };
+    if (!latest || series.length < 2) return { changeAbsolute: '—', changePercent: 'Memuat…', changeDir: null };
     const prev = series[series.length - 2].rate;
     const diff = latest.rate - prev;
     return {
       changeAbsolute: formatRate(Math.abs(diff)),
-      changePercent: `${fmt(Math.abs((diff / prev) * 100), { maximumFractionDigits: 1 })}%`,
+      changePercent: `${fmt(Math.abs((diff / prev) * 100), { maximumFractionDigits: 3 })}%`,
       changeDir: diff >= 0 ? ('up' as const) : ('down' as const),
     };
   }, [latest, series]);

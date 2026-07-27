@@ -1,7 +1,7 @@
 'use client';
 
 import { SwapIcon } from '@/components/ui/icons';
-import PillTabs from './PillTabs';
+import PillTabs from '../ui/PillTabs';
 
 type Currency = { code: string; name: string };
 

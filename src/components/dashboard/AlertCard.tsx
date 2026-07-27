@@ -6,8 +6,8 @@
 
 import { useState, type FormEvent } from 'react';
 import { CloseIcon } from '@/components/ui/icons';
-import DashboardCard from './DashboardCard';
-import { SEED_ALERTS, type AlertCondition } from '@/lib/mock/dashboard';
+import DashboardCard from './ui/DashboardCard';
+import { SEED_ALERTS, type AlertCondition } from '@/lib/mock/alerts';
 
 // Versi ringkas dari `inputClass` di ui/styles.ts: sama warna/rounding/focus
 // ring, tapi tanpa `w-full` karena field di sini berdampingan dalam satu

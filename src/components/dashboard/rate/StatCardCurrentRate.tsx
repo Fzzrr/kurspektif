@@ -3,7 +3,7 @@
 // Kartu "kurs saat ini". Client Component karena memakai CountUp (yang
 // mengamati viewport lewat IntersectionObserver di browser).
 import CountUp from '@/components/landing/motion/CountUp';
-import DashboardCard from './DashboardCard';
+import DashboardCard from '../ui/DashboardCard';
 
 type Props = {
   rate?: string;
@@ -15,7 +15,6 @@ type Props = {
 export default function StatCardCurrentRate({
   rate = '16.234',
   changePercent = '0,8%',
-  changeAbsolute = '-128',
   changeDir = 'down',
 }: Props) {
   const isUp = changeDir === 'up';
@@ -27,7 +26,7 @@ export default function StatCardCurrentRate({
         <CountUp value={rate} />
       </p>
       <p className={`mt-1 font-mono text-sm ${isUp ? 'text-up' : 'text-down'}`}>
-        {isUp ? '↑' : '↓'} {changePercent} ({changeAbsolute}) hari ini
+        {isUp ? '↑' : '↓'} {changePercent} Hari ini
       </p>
     </DashboardCard>
   );

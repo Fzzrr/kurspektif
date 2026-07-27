@@ -17,19 +17,12 @@ import {
 } from "recharts";
 import type { TooltipContentProps } from "recharts";
 import { usePrefersReducedMotion } from "@/lib/motion";
-
-export type Sentiment = "positif" | "netral" | "negatif";
+import { SENTIMENT, type Sentiment } from "@/lib/sentiment";
 
 export type ChartPoint = {
   day: string;
   rate: number;
   sentiment?: Sentiment;
-};
-
-export const SENTIMENT: Record<Sentiment, { color: string; label: string }> = {
-  positif: { color: "var(--color-up)", label: "Positif" },
-  netral: { color: "var(--color-neutral)", label: "Netral" },
-  negatif: { color: "var(--color-down)", label: "Negatif" },
 };
 
 // Data ilustrasi default (USD → IDR) 30 hari terakhir (H-30 = terlama, H-1 = terbaru).

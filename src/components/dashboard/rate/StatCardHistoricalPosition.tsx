@@ -1,6 +1,6 @@
 // Kartu posisi historis. Server Component murni — angka tetap (mock), tidak
 // ada interaksi, jadi tidak perlu 'use client'.
-import DashboardCard from './DashboardCard';
+import DashboardCard from '../ui/DashboardCard';
 
 type Props = {
   label?: string;

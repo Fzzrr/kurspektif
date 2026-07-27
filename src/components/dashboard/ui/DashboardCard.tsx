@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactNode, CSSProperties } from 'react';
 
 // "Cangkang" kartu yang dipakai berulang di dashboard (kartu statistik, grafik,
 // berita, alert, dst). Diambil dari shell yang sama seperti RateCard di landing
@@ -9,11 +9,13 @@ type Props = {
   className?: string;
   /** Varian latar tinted untuk kartu highlight (mis. "Yang menggerakkan rupiah"). */
   tint?: boolean;
+  style?: CSSProperties;
 };
 
-export default function DashboardCard({ children, className = '', tint = false }: Props) {
+export default function DashboardCard({ children, className = '', tint = false, style }: Props) {
   return (
     <div
+      style={style}
       className={`rounded-2xl border border-line p-5 text-ink shadow-[0_18px_40px_-28px_rgba(14,31,26,0.5)] ${
         tint ? 'bg-accent-soft/50' : 'bg-surface'
       } ${className}`}

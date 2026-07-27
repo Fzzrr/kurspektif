@@ -1,10 +1,9 @@
-"use client";
 // Kartu daftar berita terkait. Server Component — daftar statis dari mock,
 // tidak perlu interaktivitas apa pun untuk halaman ini.
 import Link from 'next/link';
-import DashboardCard from './DashboardCard';
-import { SENTIMENT } from '@/components/landing/rate/RateLineChart';
-import { NEWS_ITEMS } from '@/lib/mock/dashboard';
+import DashboardCard from '../ui/DashboardCard';
+import { SENTIMENT } from '@/lib/sentiment';
+import { NEWS_ITEMS } from '@/lib/mock/news';
 
 export default function NewsListCard() {
   return (
