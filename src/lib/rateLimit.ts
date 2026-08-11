@@ -49,3 +49,6 @@ function createLimiter(opts: Options): RateLimiter {
 export const loginLimiter = createLimiter({ limit: 5, windowMs: 60_000 });    // 5/menit per IP+email
 export const loginIpLimiter = createLimiter({ limit: 30, windowMs: 60_000 }); // 30/menit per IP
 export const registerLimiter = createLimiter({ limit: 5, windowMs: 60_000 }); // 5/menit per IP
+export const profileUpdateLimiter = createLimiter({ limit: 10, windowMs: 60_000 });
+export const passwordChangeLimiter = createLimiter({ limit: 5, windowMs: 60_000 });
+export const emailChangeLimiter = createLimiter({ limit: 3, windowMs: 15 * 60_000 });

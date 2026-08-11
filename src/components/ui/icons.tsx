@@ -178,6 +178,36 @@ export function LayoutDashboardIcon({ className }: IconProps) {
   );
 }
 
+// Siluet orang — menandai tab "Profil" di modal pengaturan.
+export function UserIcon({ className }: IconProps) {
+  return (
+    <svg {...strokeIcon} className={className}>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 21c0-4 3.6-6 8-6s8 2 8 6" />
+    </svg>
+  );
+}
+
+// Kamera — overlay "ganti foto" saat avatar profil di-hover.
+export function CameraIcon({ className }: IconProps) {
+  return (
+    <svg {...strokeIcon} className={className}>
+      <path d="M3 8h3l2-3h8l2 3h3v11H3V8Z" />
+      <circle cx="12" cy="13" r="3.5" />
+    </svg>
+  );
+}
+
+// Pensil — tombol "ubah" pada baris pengaturan.
+export function PencilIcon({ className }: IconProps) {
+  return (
+    <svg {...strokeIcon} className={className}>
+      <path d="M4 20h4l10-10a2.8 2.8 0 0 0-4-4L4 16v4Z" />
+      <path d="M13.5 6.5l4 4" />
+    </svg>
+  );
+}
+
 export function GoogleIcon({ className }: IconProps) {
   return (
     <svg viewBox="0 0 48 48" className={className} aria-hidden="true">

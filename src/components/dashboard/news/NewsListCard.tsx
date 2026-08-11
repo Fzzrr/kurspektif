@@ -5,6 +5,8 @@ import DashboardCard from '../ui/DashboardCard';
 import { SENTIMENT } from '@/lib/sentiment';
 import { NEWS_ITEMS } from '@/lib/mock/news';
 
+const PREVIEW_COUNT = 4;
+
 export default function NewsListCard() {
   return (
     <DashboardCard>
@@ -16,7 +18,7 @@ export default function NewsListCard() {
       </div>
 
       <ul className="mt-3 divide-y divide-line">
-        {NEWS_ITEMS.map((item) => (
+        {NEWS_ITEMS.slice(0, PREVIEW_COUNT).map((item) => (
           <li key={item.id} className="flex gap-2.5 py-3 first:pt-0 last:pb-0">
             <span
               className="mt-1.5 inline-block size-2 shrink-0 rounded-full"

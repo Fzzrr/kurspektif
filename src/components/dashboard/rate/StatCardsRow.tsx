@@ -7,7 +7,7 @@ type Props = {
     rate: string;
     changePercent: string;
     changeAbsolute: string;
-    changeDir: 'up' | 'down';
+    changeDir?: 'up' | 'down';
   };
   quickConvert: {
     rate: number;

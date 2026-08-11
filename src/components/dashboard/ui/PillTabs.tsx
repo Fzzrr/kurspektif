@@ -1,8 +1,8 @@
 'use client';
 
-// Kontrol tab berbentuk pil, dipakai untuk pasangan kurs cepat (PairSelector)
-// dan pilihan rentang waktu grafik (RateChartCard). Generik lewat <T extends
-// string> supaya bisa dipakai untuk daftar opsi apa pun tanpa "as"/cast.
+import { useId } from 'react';
+import { motion } from 'framer-motion';
+
 type Option<T extends string> = {
   value: T;
   label: string;
@@ -21,6 +21,8 @@ export default function PillTabs<T extends string>({
   onChange,
   className = '',
 }: Props<T>) {
+  const instanceId = useId();
+
   return (
     <div
       className={`inline-flex items-center gap-1 rounded-full border border-line bg-paper p-1 ${className}`}
@@ -33,11 +35,18 @@ export default function PillTabs<T extends string>({
             type="button"
             onClick={() => onChange(option.value)}
             aria-pressed={isActive}
-            className={`rounded-full px-3 py-1.5 font-mono text-xs transition-colors ${
-              isActive ? 'bg-ink text-paper' : 'text-muted hover:text-ink'
+            className={`relative rounded-full px-3 py-1.5 font-mono text-xs transition-colors ${
+              isActive ? 'text-paper' : 'text-muted hover:text-ink'
             }`}
           >
-            {option.label}
+            {isActive && (
+              <motion.span
+                layoutId={`pill-active-bg-${instanceId}`}
+                className="absolute inset-0 rounded-full bg-ink"
+                transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+              />
+            )}
+            <span className="relative z-10">{option.label}</span>
           </button>
         );
       })}
