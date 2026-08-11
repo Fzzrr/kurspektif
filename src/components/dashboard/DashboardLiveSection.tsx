@@ -68,7 +68,7 @@ export default function DashboardLiveSection({ title, currencies }: Props) {
 
   const { latest, series, isLoading, error } = useLiveRate(from, to, 365);
 
-  const updatedAt = latest ? `${dateFmt.format(new Date(latest.date))} (kurs referensi harian)` : 'Memuat…';
+  const updatedAt = latest ? `${dateFmt.format(new Date(latest.date))}` : 'Memuat…';
 
   const change = useMemo(() => {
     if (!latest || series.length < 2) return { changeAbsolute: '—', changePercent: 'Memuat…', changeDir: undefined };
