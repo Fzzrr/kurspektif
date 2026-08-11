@@ -13,8 +13,8 @@ const fmt = (value: number, opts?: Intl.NumberFormatOptions) => new Intl.NumberF
 const dateFmt = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
 
 const RECENT_PAIRS_KEY = 'kurspektif:recentPairs';
-const DEFAULT_RECENT_PAIRS = ['USD/IDR', 'EUR/IDR', 'JPY/IDR', 'SGD/IDR', 'USD/EUR'];
-const MAX_RECENT_PAIRS = 5;
+const DEFAULT_RECENT_PAIRS = ['USD/IDR', 'EUR/IDR', 'JPY/IDR', 'SGD/IDR'];
+const MAX_RECENT_PAIRS = 4;
 
 type Props = { title: string; currencies: Currency[] };
 
@@ -25,17 +25,19 @@ export default function DashboardLiveSection({ title, currencies }: Props) {
   const [recentPairs, setRecentPairs] = useState<string[]>(DEFAULT_RECENT_PAIRS);
 
   // Sesaat setelah mount: baca riwayat tersimpan, lalu pulihkan pasangan
-  // PALING BARU (recentPairs[0]) sebagai pasangan yang aktif sekarang.
-  // Harus di useEffect, bukan di initializer useState — localStorage tidak
-  // ada saat komponen ini pertama kali dirender di server.
+  // PALING BARU (elemen terakhir — daftar ini FIFO, bukan MRU-di-depan)
+  // sebagai pasangan yang aktif sekarang. Harus di useEffect, bukan di
+  // initializer useState — localStorage tidak ada saat komponen ini
+  // pertama kali dirender di server.
   useEffect(() => {
     const saved = localStorage.getItem(RECENT_PAIRS_KEY);
     if (!saved) return;
     try {
       const parsed = JSON.parse(saved);
       if (Array.isArray(parsed) && parsed.length > 0 && parsed.every((p) => typeof p === 'string')) {
-        setRecentPairs(parsed);
-        const [savedFrom, savedTo] = parsed[0].split('/');
+        const trimmed = parsed.slice(-MAX_RECENT_PAIRS);
+        setRecentPairs(trimmed);
+        const [savedFrom, savedTo] = trimmed[trimmed.length - 1].split('/');
         if (savedFrom) setFrom(savedFrom);
         if (savedTo) setTo(savedTo);
       }
@@ -44,23 +46,32 @@ export default function DashboardLiveSection({ title, currencies }: Props) {
     }
   }, []);
 
-  // Tiap kali pasangan berubah: taruh di depan riwayat, buang duplikat,
-  // batasi 5, lalu simpan ulang ke localStorage.
-  useEffect(() => {
-    const current = `${from}/${to}`;
+  // Pilih pasangan aktif. Posisi pill yang SUDAH ada di daftar tidak pernah
+  // digeser saat diklik — itu supaya animasi slide di PillTabs punya target
+  // yang stabil, bukan ikut lompat karena urutan berubah. Daftar hanya
+  // bertambah saat user memilih pasangan yang benar-benar baru (lewat
+  // dropdown pencarian mata uang); yang lama otomatis tergeser keluar
+  // kalau sudah penuh (FIFO, maksimal MAX_RECENT_PAIRS). Semua state
+  // diubah di satu handler (bukan useEffect terpisah) supaya React
+  // membatch jadi satu render per klik.
+  function updatePair(next: { from: string; to: string }) {
+    setFrom(next.from);
+    setTo(next.to);
+    const current = `${next.from}/${next.to}`;
     setRecentPairs((prevList) => {
-      const updated = [current, ...prevList.filter((pair) => pair !== current)].slice(0, MAX_RECENT_PAIRS);
+      if (prevList.includes(current)) return prevList;
+      const updated = [...prevList, current].slice(-MAX_RECENT_PAIRS);
       localStorage.setItem(RECENT_PAIRS_KEY, JSON.stringify(updated));
       return updated;
     });
-  }, [from, to]);
+  }
 
   const { latest, series, isLoading, error } = useLiveRate(from, to, 365);
 
-  const updatedAt = latest ? `${dateFmt.format(new Date(latest.date))} (kurs referensi harian)` : 'Memuat…';
+  const updatedAt = latest ? `${dateFmt.format(new Date(latest.date))}` : 'Memuat…';
 
   const change = useMemo(() => {
-    if (!latest || series.length < 2) return { changeAbsolute: '—', changePercent: 'Memuat…', changeDir: null };
+    if (!latest || series.length < 2) return { changeAbsolute: '—', changePercent: 'Memuat…', changeDir: undefined };
     const prev = series[series.length - 2].rate;
     const diff = latest.rate - prev;
     return {
@@ -88,10 +99,7 @@ export default function DashboardLiveSection({ title, currencies }: Props) {
         to={to}
         currencies={currencies}
         recentPairs={recentPairs}
-        onChange={(next) => {
-          setFrom(next.from);
-          setTo(next.to);
-        }}
+        onChange={updatePair}
       />
       {error && (
         <p className="rounded-lg border border-down/30 bg-down/5 px-4 py-2 font-mono text-xs text-down">{error}</p>

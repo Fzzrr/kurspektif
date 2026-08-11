@@ -12,8 +12,11 @@ export const authHeadingTextStyle: CSSProperties = {
   letterSpacing: '-2.5px',
 };
 
-export const inputClass =
-  'mt-1.5 block w-full rounded-lg border border-line bg-surface px-4 py-2.5 font-mono text-sm text-ink placeholder:text-muted/60 shadow-sm transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20';
+// Tanpa margin — untuk input yang berdiri sendiri (tanpa label di atasnya).
+export const bareInputClass =
+  'block w-full rounded-lg border border-line bg-surface px-4 py-2.5 font-mono text-sm text-ink placeholder:text-muted/60 shadow-sm transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20';
+
+export const inputClass = `mt-1.5 ${bareInputClass}`;
 
 export const labelClass =
   'block font-mono text-[11px] font-light uppercase tracking-[0.15em] text-muted';
