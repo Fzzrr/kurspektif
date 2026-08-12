@@ -22,7 +22,7 @@ export default function StatCardCurrentRate({
   return (
     <DashboardCard>
       <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted">Kurs saat ini</p>
-      <p className="mt-3 font-mono text-3xl font-medium tracking-tight">
+      <p className="mt-3 font-mono text-2xl font-medium tracking-tight">
         <CountUp value={rate} />
       </p>
       <p className={`mt-1 font-mono text-sm ${isUp ? 'text-up' : 'text-down'}`}>

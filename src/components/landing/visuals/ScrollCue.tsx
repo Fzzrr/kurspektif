@@ -26,7 +26,7 @@ export default function ScrollCue() {
         hidden ? "pointer-events-none opacity-0" : "opacity-100"
       }`}
     >
-      <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted">
+      <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted">
         Gulir
       </span>
       <span

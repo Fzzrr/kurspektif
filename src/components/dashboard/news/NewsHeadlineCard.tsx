@@ -17,12 +17,12 @@ export default function NewsHeadlineCard({ item }: Props) {
     <DashboardCard className="border-l-4" style={{ borderLeftColor: sentiment.color }}>
       <div className="flex flex-wrap items-center gap-2">
         <span
-          className="rounded-full px-2.5 py-1 font-mono text-[11px] font-medium uppercase text-paper"
+          className="rounded-full px-2.5 py-1 font-mono text-[10px] font-medium uppercase text-paper"
           style={{ backgroundColor: sentiment.color }}
         >
           {sentiment.label}
         </span>
-        <span className="flex items-center gap-1 font-mono text-[11px] font-medium uppercase tracking-wide text-accent">
+        <span className="flex items-center gap-1 font-mono text-[10px] font-medium uppercase tracking-wide text-accent">
           ✦ Headline
         </span>
         <span className="font-mono text-xs text-muted">
@@ -30,7 +30,7 @@ export default function NewsHeadlineCard({ item }: Props) {
         </span>
       </div>
 
-      <h2 className="mt-4 font-display text-2xl font-semibold leading-snug tracking-tight">{item.headline}</h2>
+      <h2 className="mt-4 font-display text-xl font-semibold leading-snug tracking-tight">{item.headline}</h2>
       <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">{item.summary}</p>
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
