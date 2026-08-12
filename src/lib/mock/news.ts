@@ -40,6 +40,7 @@ export const NEWS_ITEMS: NewsItem[] = [
     sentiment: 'positif',
     region: 'Indonesia',
     category: 'Ekonomi',
+    pair: 'USD/IDR',
   },
   {
     id: '3',
@@ -51,6 +52,7 @@ export const NEWS_ITEMS: NewsItem[] = [
     sentiment: 'netral',
     region: 'Asia',
     category: 'Mata uang',
+    pair: 'JPY/IDR',
   },
   {
     id: '4',
@@ -73,6 +75,7 @@ export const NEWS_ITEMS: NewsItem[] = [
     sentiment: 'negatif',
     region: 'AS & Eropa',
     category: 'Pasar saham',
+    pair: 'USD/IDR',
   },
   {
     id: '6',
@@ -125,3 +128,10 @@ export const NEWS_ITEMS: NewsItem[] = [
 
 export const REGIONS: NewsRegion[] = ['Indonesia', 'Asia', 'AS & Eropa', 'Global'];
 export const CATEGORIES: NewsCategory[] = ['Ekonomi', 'Mata uang', 'Bank sentral', 'Komoditas', 'Pasar saham'];
+
+// Diturunkan dari data, bukan ditulis manual — daftar opsinya ikut bertambah
+// sendiri saat ada berita baru dengan pasangan yang belum pernah muncul.
+// Berita komoditas murni (minyak, emas) sengaja tidak ber-`pair`.
+export const NEWS_PAIRS: string[] = Array.from(
+  new Set(NEWS_ITEMS.map((item) => item.pair).filter((pair): pair is string => Boolean(pair))),
+).sort();

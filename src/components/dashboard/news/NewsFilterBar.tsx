@@ -1,8 +1,6 @@
-'use client';
-
-import { SearchIcon, FilterIcon, GlobeIcon } from '@/components/ui/icons';
+import { GlobeIcon, SwapIcon } from '@/components/ui/icons';
 import PillTabs from '../ui/PillTabs';
-import { REGIONS, CATEGORIES } from '@/lib/mock/news';
+import { REGIONS, CATEGORIES, NEWS_PAIRS } from '@/lib/mock/news';
 
 const SENTIMENT_OPTIONS = [
   { value: 'semua', label: 'Semua sentimen' },
@@ -13,9 +11,18 @@ const SENTIMENT_OPTIONS = [
 
 export type SentimentFilter = (typeof SENTIMENT_OPTIONS)[number]['value'];
 
+// Kontrol yang nilainya bukan "semua" diberi aksen — sekali lihat langsung
+// ketahuan filter mana yang sedang menyala.
+const controlClass = (active: boolean) =>
+  `flex shrink-0 items-center gap-2 rounded-full border px-3 py-2 transition-colors ${
+    active ? 'border-accent bg-accent-soft/60' : 'border-line hover:bg-paper'
+  }`;
+
+const selectClass = 'cursor-pointer bg-transparent font-mono text-sm text-ink outline-none';
+
 type Props = {
-  search: string;
-  onSearchChange: (value: string) => void;
+  pair: string;
+  onPairChange: (value: string) => void;
   region: string;
   onRegionChange: (value: string) => void;
   category: string;
@@ -24,9 +31,11 @@ type Props = {
   onSentimentChange: (value: SentimentFilter) => void;
 };
 
+// Tombol reset TIDAK di sini — letaknya sejajar paragraf NewsHeader, dirakit
+// di NewsBoard yang memang memegang seluruh state filter.
 export default function NewsFilterBar({
-  search,
-  onSearchChange,
+  pair,
+  onPairChange,
   region,
   onRegionChange,
   category,
@@ -35,33 +44,20 @@ export default function NewsFilterBar({
   onSentimentChange,
 }: Props) {
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-line bg-surface p-3 md:flex-row md:items-center">
-      <label className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-line px-3 py-2">
-        <SearchIcon className="size-4 shrink-0 text-muted" />
-        <input
-          type="text"
-          value={search}
-          onChange={(event) => onSearchChange(event.target.value)}
-          placeholder="Cari berita, sumber, atau pasangan mata uang..."
-          className="w-full bg-transparent font-mono text-sm text-ink outline-none placeholder:text-muted/60"
-        />
+    <div className="flex flex-col gap-3 rounded-2xl border border-line bg-surface p-3 md:flex-row md:flex-wrap md:items-center">
+      <label className={controlClass(pair !== 'semua')}>
+        <SwapIcon className={`size-4 ${pair !== 'semua' ? 'text-accent' : 'text-muted'}`} />
+        <select value={pair} onChange={(event) => onPairChange(event.target.value)} className={selectClass}>
+          <option value="semua">Semua pasangan</option>
+          {NEWS_PAIRS.map((p) => (
+            <option key={p} value={p}>{p}</option>
+          ))}
+        </select>
       </label>
 
-      <button
-        type="button"
-        className="flex shrink-0 items-center gap-2 rounded-full border border-line px-3 py-2 font-mono text-xs uppercase tracking-wide text-muted transition-colors hover:bg-paper hover:text-ink"
-      >
-        <FilterIcon className="size-4" />
-        Filter
-      </button>
-
-      <label className="flex shrink-0 items-center gap-2 rounded-full border border-line px-3 py-2">
-        <GlobeIcon className="size-4 text-muted" />
-        <select
-          value={region}
-          onChange={(event) => onRegionChange(event.target.value)}
-          className="bg-transparent font-mono text-sm text-ink outline-none"
-        >
+      <label className={controlClass(region !== 'semua')}>
+        <GlobeIcon className={`size-4 ${region !== 'semua' ? 'text-accent' : 'text-muted'}`} />
+        <select value={region} onChange={(event) => onRegionChange(event.target.value)} className={selectClass}>
           <option value="semua">Semua wilayah</option>
           {REGIONS.map((r) => (
             <option key={r} value={r}>{r}</option>
@@ -69,12 +65,8 @@ export default function NewsFilterBar({
         </select>
       </label>
 
-      <label className="flex shrink-0 items-center gap-2 rounded-full border border-line px-3 py-2">
-        <select
-          value={category}
-          onChange={(event) => onCategoryChange(event.target.value)}
-          className="bg-transparent font-mono text-sm text-ink outline-none"
-        >
+      <label className={controlClass(category !== 'semua')}>
+        <select value={category} onChange={(event) => onCategoryChange(event.target.value)} className={selectClass}>
           <option value="semua">Semua kategori</option>
           {CATEGORIES.map((c) => (
             <option key={c} value={c}>{c}</option>
@@ -82,7 +74,12 @@ export default function NewsFilterBar({
         </select>
       </label>
 
-      <PillTabs options={SENTIMENT_OPTIONS} value={sentiment} onChange={onSentimentChange} className="shrink-0" />
+      <PillTabs
+        options={SENTIMENT_OPTIONS}
+        value={sentiment}
+        onChange={onSentimentChange}
+        className="shrink-0 md:ml-auto"
+      />
     </div>
   );
 }
