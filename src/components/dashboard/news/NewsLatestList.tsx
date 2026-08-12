@@ -12,7 +12,7 @@ export default function NewsLatestList({ items }: Props) {
       <ul className="mt-3 divide-y divide-line">
         {items.map((item) => (
           <li key={item.id} className="py-3 first:pt-0 last:pb-0">
-            <p className="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wide text-muted">
+            <p className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wide text-muted">
               <span
                 className="inline-block size-1.5 rounded-full"
                 style={{ backgroundColor: SENTIMENT[item.sentiment].color }}
@@ -20,7 +20,7 @@ export default function NewsLatestList({ items }: Props) {
               {item.region} · {item.category}
             </p>
             <p className="mt-1 text-sm font-medium leading-snug text-ink">{item.headline}</p>
-            <p className="mt-1 font-mono text-[11px] text-muted">
+            <p className="mt-1 font-mono text-[10px] text-muted">
               {item.source} · {item.timeAgo}
             </p>
           </li>

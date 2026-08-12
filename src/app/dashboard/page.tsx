@@ -7,7 +7,7 @@ export default async function DashboardPage() {
   const currencies = await fetchSupportedCurrencies();
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
+    <div className="mx-auto max-w-6xl space-y-5">
       <DashboardLiveSection title="Pantau kurs Anda Saat Ini" currencies={currencies} />
       <InsightRow />
       <AlertCard />
