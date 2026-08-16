@@ -14,6 +14,12 @@ export type NewsItem = {
   category: NewsCategory;
   pair?: string;
   isHeadline?: boolean;
+  /**
+   * Gambar pendamping berita. Opsional: kartu headline tetap tampil rapi tanpa
+   * ini (kolom gambarnya tidak dirender sama sekali), karena tidak semua sumber
+   * berita menyertakan thumbnail.
+   */
+  image?: string;
 };
 
 export const NEWS_ITEMS: NewsItem[] = [
@@ -29,6 +35,7 @@ export const NEWS_ITEMS: NewsItem[] = [
     category: 'Bank sentral',
     pair: 'USD/IDR',
     isHeadline: true,
+    image: '/news/market-abstract.svg',
   },
   {
     id: '2',
