@@ -1,6 +1,7 @@
 import { GlobeIcon, SwapIcon } from '@/components/ui/icons';
 import PillTabs from '../ui/PillTabs';
 import { REGIONS, CATEGORIES, NEWS_PAIRS } from '@/lib/mock/news';
+import SelectMenu from '../ui/SelectMenu';
 
 const SENTIMENT_OPTIONS = [
   { value: 'semua', label: 'Semua sentimen' },
@@ -11,14 +12,24 @@ const SENTIMENT_OPTIONS = [
 
 export type SentimentFilter = (typeof SENTIMENT_OPTIONS)[number]['value'];
 
-// Kontrol yang nilainya bukan "semua" diberi aksen — sekali lihat langsung
-// ketahuan filter mana yang sedang menyala.
-const controlClass = (active: boolean) =>
-  `flex shrink-0 items-center gap-2 rounded-full border px-3 py-2 transition-colors ${
-    active ? 'border-accent bg-accent-soft/60' : 'border-line hover:bg-paper'
-  }`;
+// Opsi "semua" selalu paling depan supaya urutan resetnya konsisten di ketiga
+// menu. Sengaja bertipe string biasa agar cocok dengan state filter NewsBoard.
+type FilterOption = { value: string; label: string };
 
-const selectClass = 'cursor-pointer bg-transparent font-mono text-sm text-ink outline-none';
+const PAIR_OPTIONS: FilterOption[] = [
+  { value: 'semua', label: 'Semua pasangan' },
+  ...NEWS_PAIRS.map((pair) => ({ value: pair, label: pair })),
+];
+
+const REGION_OPTIONS: FilterOption[] = [
+  { value: 'semua', label: 'Semua wilayah' },
+  ...REGIONS.map((region) => ({ value: region, label: region })),
+];
+
+const CATEGORY_OPTIONS: FilterOption[] = [
+  { value: 'semua', label: 'Semua kategori' },
+  ...CATEGORIES.map((category) => ({ value: category, label: category })),
+];
 
 type Props = {
   pair: string;
@@ -45,34 +56,28 @@ export default function NewsFilterBar({
 }: Props) {
   return (
     <div className="flex flex-col gap-3 rounded-2xl border border-line bg-surface p-3 md:flex-row md:flex-wrap md:items-center">
-      <label className={controlClass(pair !== 'semua')}>
-        <SwapIcon className={`size-4 ${pair !== 'semua' ? 'text-accent' : 'text-muted'}`} />
-        <select value={pair} onChange={(event) => onPairChange(event.target.value)} className={selectClass}>
-          <option value="semua">Semua pasangan</option>
-          {NEWS_PAIRS.map((p) => (
-            <option key={p} value={p}>{p}</option>
-          ))}
-        </select>
-      </label>
+      <SelectMenu
+        options={PAIR_OPTIONS}
+        value={pair}
+        onChange={onPairChange}
+        active={pair !== 'semua'}
+        icon={<SwapIcon className={`size-4 ${pair !== 'semua' ? 'text-accent' : 'text-muted'}`} />}
+      />
 
-      <label className={controlClass(region !== 'semua')}>
-        <GlobeIcon className={`size-4 ${region !== 'semua' ? 'text-accent' : 'text-muted'}`} />
-        <select value={region} onChange={(event) => onRegionChange(event.target.value)} className={selectClass}>
-          <option value="semua">Semua wilayah</option>
-          {REGIONS.map((r) => (
-            <option key={r} value={r}>{r}</option>
-          ))}
-        </select>
-      </label>
+      <SelectMenu
+        options={REGION_OPTIONS}
+        value={region}
+        onChange={onRegionChange}
+        active={region !== 'semua'}
+        icon={<GlobeIcon className={`size-4 ${region !== 'semua' ? 'text-accent' : 'text-muted'}`} />}
+      />
 
-      <label className={controlClass(category !== 'semua')}>
-        <select value={category} onChange={(event) => onCategoryChange(event.target.value)} className={selectClass}>
-          <option value="semua">Semua kategori</option>
-          {CATEGORIES.map((c) => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </select>
-      </label>
+      <SelectMenu
+        options={CATEGORY_OPTIONS}
+        value={category}
+        onChange={onCategoryChange}
+        active={category !== 'semua'}
+      />
 
       <PillTabs
         options={SENTIMENT_OPTIONS}
