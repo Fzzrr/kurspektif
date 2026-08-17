@@ -1,7 +1,9 @@
 'use client';
 
+import { useMemo } from 'react';
 import { SwapIcon } from '@/components/ui/icons';
 import PillTabs from '../ui/PillTabs';
+import SelectMenu from '../ui/SelectMenu';
 
 type Currency = { code: string; name: string };
 
@@ -27,31 +29,55 @@ export default function PairSelector({ from, to, currencies, recentPairs, onChan
 
   const quickPairOptions = recentPairs.map((pair) => ({ value: pair, label: pair }));
 
+  // Daftarnya ~30 entri dan dipakai dua kali (from & to) — dibentuk sekali saja.
+  const currencyOptions = useMemo(
+    () =>
+      currencies.map((currency) => {
+        const flag = currencyToFlag(currency.code);
+        return {
+          value: currency.code,
+          label: `${flag ? `${flag} ` : ''}${currency.code} - ${currency.name}`,
+        };
+      }),
+    [currencies],
+  );
+
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3">
-      <CurrencySelect value={from} currencies={currencies} onChange={(code) => onChange({ from: code, to })} />
+    <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-surface p-3">
+      {/* Trio select/swap/select jadi satu unit: menyusut bersama, dan turun
+          baris bersama saat kartu lebih sempit dari basis-nya. */}
+      <div className="flex min-w-0 flex-1 basis-[320px] items-center gap-3">
+        <SelectMenu
+          options={currencyOptions}
+          value={from}
+          onChange={(code) => onChange({ from: code, to })}
+          className="min-w-0 flex-1"
+        />
 
-      <button
-        type="button"
-        onClick={handleSwap}
-        aria-label="Tukar pasangan mata uang"
-        className="flex size-9 shrink-0 items-center justify-center rounded-full border border-line text-muted transition-colors hover:bg-paper hover:text-ink"
-      >
-        <SwapIcon className="size-4" />
-      </button>
+        <button
+          type="button"
+          onClick={handleSwap}
+          aria-label="Tukar pasangan mata uang"
+          className="flex size-9 shrink-0 items-center justify-center rounded-full border border-line text-muted transition-colors hover:bg-paper hover:text-ink"
+        >
+          <SwapIcon className="size-4" />
+        </button>
 
-      <CurrencySelect value={to} currencies={currencies} onChange={(code) => onChange({ from, to: code })} />
+        <SelectMenu
+          options={currencyOptions}
+          value={to}
+          onChange={(code) => onChange({ from, to: code })}
+          className="min-w-0 flex-1"
+        />
+      </div>
 
-      <PillTabs options={quickPairOptions} value={activePair} onChange={handleQuickPair} className="ml-auto" />
+      {/* Pill tidak pernah dikompres — kalau tidak muat, digeser horizontal. */}
+      <div className="ml-auto max-w-full shrink-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <PillTabs options={quickPairOptions} value={activePair} onChange={handleQuickPair} />
+      </div>
     </div>
   );
 }
-
-type CurrencySelectProps = {
-  value: string;
-  currencies: Currency[];
-  onChange: (value: string) => void;
-};
 
 // Kode ISO 4217 -> emoji bendera. Kebanyakan kode mata uang dibentuk dari
 // [kode negara][huruf mata uang] (IDR = ID + Rupiah, SGD = SG + Dollar),
@@ -65,26 +91,4 @@ function currencyToFlag(code: string): string | null {
   const countryCode = code.slice(0, 2).toUpperCase();
   const codePoints = [...countryCode].map((char) => 0x1f1e6 + char.charCodeAt(0) - 65);
   return String.fromCodePoint(...codePoints);
-}
-
-function CurrencySelect({ value, currencies, onChange }: CurrencySelectProps) {
-  return (
-    <label className="flex max-w-[300px] shrink-0 items-center gap-2 rounded-full border border-line px-3 py-2 font-mono text-sm text-ink">
-      <select
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="w-full truncate bg-transparent outline-none"
-      >
-        {currencies.map((currency) => {
-          const flag = currencyToFlag(currency.code);
-          return (
-            <option key={currency.code} value={currency.code}>
-              {flag ? `${flag} ` : ''}
-              {currency.code} - {currency.name}
-            </option>
-          );
-        })}
-      </select>
-    </label>
-  );
 }
