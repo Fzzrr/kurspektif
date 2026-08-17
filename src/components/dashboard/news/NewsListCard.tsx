@@ -26,7 +26,7 @@ export default function NewsListCard() {
             />
             <div className="min-w-0">
               <p className="text-sm leading-snug text-ink">{item.headline}</p>
-              <p className="mt-1 font-mono text-[11px] text-muted">
+              <p className="mt-1 font-mono text-[10px] text-muted">
                 {item.source} · {item.timeAgo}
               </p>
             </div>

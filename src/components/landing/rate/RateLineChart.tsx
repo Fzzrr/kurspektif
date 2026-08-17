@@ -68,7 +68,7 @@ function CustomTooltip({ active, payload }: Partial<TooltipContentProps<number, 
   const sentiment = point.sentiment ? SENTIMENT[point.sentiment] : null;
 
   return (
-    <div className="rounded-lg border border-line bg-surface px-2.5 py-1.5 font-mono text-[11px] shadow-[0_10px_30px_-12px_rgba(0,0,0,0.35)]">
+    <div className="rounded-lg border border-line bg-surface px-2.5 py-1.5 font-mono text-[10px] shadow-[0_10px_30px_-12px_rgba(0,0,0,0.35)]">
       <p className="text-muted">{point.day}</p>
       <p className="font-medium text-ink">Rp {formatRate(point.rate)}</p>
       {sentiment && (

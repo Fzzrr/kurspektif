@@ -65,7 +65,7 @@ function SummaryMock() {
         suku bunga, sementara data domestik relatif netral. Tekanan utama datang
         dari penguatan dolar global, bukan dari faktor lokal.
       </p>
-      <p className="mt-3 font-mono text-[11px] uppercase tracking-wide text-neutral">
+      <p className="mt-3 font-mono text-[10px] uppercase tracking-wide text-neutral">
         Rangkuman · Pekan ini
       </p>
     </div>
@@ -97,7 +97,7 @@ function PercentileMock() {
         />
       </div>
 
-      <div className="mt-2 flex justify-between font-mono text-[11px] text-muted">
+      <div className="mt-2 flex justify-between font-mono text-[10px] text-muted">
         <span>Murah</span>
         <span>Mahal</span>
       </div>
@@ -127,7 +127,7 @@ function AlertMock() {
             Kemungkinan dipicu: <span className="text-ink">“The Fed sinyalkan
             suku bunga tinggi lebih lama”</span>
           </p>
-          <p className="mt-2 font-mono text-[11px] uppercase tracking-wide text-neutral">
+          <p className="mt-2 font-mono text-[10px] uppercase tracking-wide text-neutral">
             Alert · 2 menit lalu
           </p>
         </div>

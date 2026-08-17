@@ -20,7 +20,7 @@ export default function DashboardPreview() {
             <span className="ml-2 min-w-0 flex-1 truncate font-mono text-xs text-muted">
               app.kurspektif.id/dashboard
             </span>
-            <span className="ml-auto flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wide text-up">
+            <span className="ml-auto flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-wide text-up">
               <PulseDot className="bg-up" />
               Live
             </span>

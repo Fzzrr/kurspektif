@@ -23,6 +23,7 @@
 html {
   scroll-behavior: smooth;
   /* offset agar target anchor tidak ketutup navbar sticky (h-16 = 4rem) + napas */
+  font-size: 90%;
   scroll-padding-top: 5rem;
 }
 

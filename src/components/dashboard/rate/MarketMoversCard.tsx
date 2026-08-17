@@ -31,7 +31,7 @@ export default function MarketMoversCard() {
           />
         ))}
       </div>
-      <p className="mt-2 font-mono text-[11px] text-muted">{caption}</p>
+      <p className="mt-2 font-mono text-[10px] text-muted">{caption}</p>
     </DashboardCard>
   );
 }

@@ -37,7 +37,7 @@ export default function RateCard({
       {/* Header: pasangan kurs + badge live */}
       <div className="flex items-center justify-between">
         <p className="font-mono text-xs text-muted">{pair}</p>
-        <span className="flex items-center gap-1.5 rounded-full border border-line px-2.5 py-1 font-mono text-[11px] uppercase tracking-wide text-muted">
+        <span className="flex items-center gap-1.5 rounded-full border border-line px-2.5 py-1 font-mono text-[10px] uppercase tracking-wide text-muted">
           <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-up" />
           Live
         </span>
@@ -58,7 +58,7 @@ export default function RateCard({
 
       <RateLineChart data={data} className="mt-4" />
 
-      <div className="mt-1 flex gap-4 font-mono text-[11px] text-muted">
+      <div className="mt-1 flex gap-4 font-mono text-[10px] text-muted">
         {legend.map((item) => (
           <span key={item.label} className="flex items-center gap-1.5">
             <span

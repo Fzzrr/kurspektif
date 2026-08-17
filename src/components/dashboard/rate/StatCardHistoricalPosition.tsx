@@ -31,7 +31,7 @@ export default function StatCardHistoricalPosition({
           style={{ left: `${percentile}%` }}
         />
       </div>
-      <div className="mt-2 flex justify-between font-mono text-[11px] text-muted">
+      <div className="mt-2 flex justify-between font-mono text-[10px] text-muted">
         <span>{min}</span>
         <span>{max}</span>
       </div>
