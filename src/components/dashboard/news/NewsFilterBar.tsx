@@ -1,8 +1,7 @@
-'use client';
-
-import { SearchIcon, FilterIcon, GlobeIcon } from '@/components/ui/icons';
+import { GlobeIcon, SwapIcon } from '@/components/ui/icons';
 import PillTabs from '../ui/PillTabs';
-import { REGIONS, CATEGORIES } from '@/lib/mock/news';
+import { REGIONS, CATEGORIES, NEWS_PAIRS } from '@/lib/mock/news';
+import SelectMenu from '../ui/SelectMenu';
 
 const SENTIMENT_OPTIONS = [
   { value: 'semua', label: 'Semua sentimen' },
@@ -13,9 +12,28 @@ const SENTIMENT_OPTIONS = [
 
 export type SentimentFilter = (typeof SENTIMENT_OPTIONS)[number]['value'];
 
+// Opsi "semua" selalu paling depan supaya urutan resetnya konsisten di ketiga
+// menu. Sengaja bertipe string biasa agar cocok dengan state filter NewsBoard.
+type FilterOption = { value: string; label: string };
+
+const PAIR_OPTIONS: FilterOption[] = [
+  { value: 'semua', label: 'Semua pasangan' },
+  ...NEWS_PAIRS.map((pair) => ({ value: pair, label: pair })),
+];
+
+const REGION_OPTIONS: FilterOption[] = [
+  { value: 'semua', label: 'Semua wilayah' },
+  ...REGIONS.map((region) => ({ value: region, label: region })),
+];
+
+const CATEGORY_OPTIONS: FilterOption[] = [
+  { value: 'semua', label: 'Semua kategori' },
+  ...CATEGORIES.map((category) => ({ value: category, label: category })),
+];
+
 type Props = {
-  search: string;
-  onSearchChange: (value: string) => void;
+  pair: string;
+  onPairChange: (value: string) => void;
   region: string;
   onRegionChange: (value: string) => void;
   category: string;
@@ -24,9 +42,11 @@ type Props = {
   onSentimentChange: (value: SentimentFilter) => void;
 };
 
+// Tombol reset TIDAK di sini — letaknya sejajar paragraf NewsHeader, dirakit
+// di NewsBoard yang memang memegang seluruh state filter.
 export default function NewsFilterBar({
-  search,
-  onSearchChange,
+  pair,
+  onPairChange,
   region,
   onRegionChange,
   category,
@@ -35,54 +55,36 @@ export default function NewsFilterBar({
   onSentimentChange,
 }: Props) {
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-line bg-surface p-3 md:flex-row md:items-center">
-      <label className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-line px-3 py-2">
-        <SearchIcon className="size-4 shrink-0 text-muted" />
-        <input
-          type="text"
-          value={search}
-          onChange={(event) => onSearchChange(event.target.value)}
-          placeholder="Cari berita, sumber, atau pasangan mata uang..."
-          className="w-full bg-transparent font-mono text-sm text-ink outline-none placeholder:text-muted/60"
-        />
-      </label>
+    <div className="flex flex-col gap-3 rounded-2xl border border-line bg-surface p-3 md:flex-row md:flex-wrap md:items-center">
+      <SelectMenu
+        options={PAIR_OPTIONS}
+        value={pair}
+        onChange={onPairChange}
+        active={pair !== 'semua'}
+        icon={<SwapIcon className={`size-4 ${pair !== 'semua' ? 'text-accent' : 'text-muted'}`} />}
+      />
 
-      <button
-        type="button"
-        className="flex shrink-0 items-center gap-2 rounded-full border border-line px-3 py-2 font-mono text-xs uppercase tracking-wide text-muted transition-colors hover:bg-paper hover:text-ink"
-      >
-        <FilterIcon className="size-4" />
-        Filter
-      </button>
+      <SelectMenu
+        options={REGION_OPTIONS}
+        value={region}
+        onChange={onRegionChange}
+        active={region !== 'semua'}
+        icon={<GlobeIcon className={`size-4 ${region !== 'semua' ? 'text-accent' : 'text-muted'}`} />}
+      />
 
-      <label className="flex shrink-0 items-center gap-2 rounded-full border border-line px-3 py-2">
-        <GlobeIcon className="size-4 text-muted" />
-        <select
-          value={region}
-          onChange={(event) => onRegionChange(event.target.value)}
-          className="bg-transparent font-mono text-sm text-ink outline-none"
-        >
-          <option value="semua">Semua wilayah</option>
-          {REGIONS.map((r) => (
-            <option key={r} value={r}>{r}</option>
-          ))}
-        </select>
-      </label>
+      <SelectMenu
+        options={CATEGORY_OPTIONS}
+        value={category}
+        onChange={onCategoryChange}
+        active={category !== 'semua'}
+      />
 
-      <label className="flex shrink-0 items-center gap-2 rounded-full border border-line px-3 py-2">
-        <select
-          value={category}
-          onChange={(event) => onCategoryChange(event.target.value)}
-          className="bg-transparent font-mono text-sm text-ink outline-none"
-        >
-          <option value="semua">Semua kategori</option>
-          {CATEGORIES.map((c) => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </select>
-      </label>
-
-      <PillTabs options={SENTIMENT_OPTIONS} value={sentiment} onChange={onSentimentChange} className="shrink-0" />
+      <PillTabs
+        options={SENTIMENT_OPTIONS}
+        value={sentiment}
+        onChange={onSentimentChange}
+        className="shrink-0 md:ml-auto"
+      />
     </div>
   );
 }
