@@ -13,24 +13,28 @@ export default function NewsLatestList({ items }: Props) {
       <ul className="mt-3 flex flex-1 flex-col gap-3">
         {items.map((item) => (
           <li key={item.id} className="flex-1">
-            <Link href={item.url} target="_blank" rel="noopener noreferrer" className="block h-full">
-              <DashboardCard className="flex h-full items-center gap-4">
+            <Link href={item.url} target="_blank" rel="noopener noreferrer" className="group block h-full">
+              <DashboardCard className="flex h-full items-center gap-4 group-hover:-translate-y-0.5 group-hover:border-muted/60">
                 <div className="min-w-0 flex-1">
                   <span
                     className="inline-block size-1.5 rounded-full"
                     style={{ backgroundColor: SENTIMENT[item.sentiment].color }}
                   />
-                  <p className="mt-1 text-sm font-medium leading-snug text-ink">{item.headline}</p>
+                  <p className="mt-1 text-sm font-medium leading-snug text-ink underline-offset-4 decoration-muted group-hover:underline">
+                    {item.headline}
+                  </p>
                   <p className="mt-1 font-mono text-[10px] text-muted">
                     {item.source} · {formatTimeAgo(item.publishedAt)}
                   </p>
                 </div>
                 {item.image && (
-                  <img
-                    src={item.image}
-                    alt=""
-                    className="size-16 shrink-0 rounded-lg border border-line object-cover"
-                  />
+                  <div className="size-16 shrink-0 overflow-hidden rounded-lg border border-line">
+                    <img
+                      src={item.image}
+                      alt=""
+                      className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                  </div>
                 )}
               </DashboardCard>
             </Link>

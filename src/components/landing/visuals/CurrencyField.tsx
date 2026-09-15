@@ -7,7 +7,7 @@
 // & tanpa reaksi kursor) dan berhenti saat tab tersembunyi.
 //
 // Warna mengikuti design system (lihat globals.css):
-//   accent #b8902a (emas), ink #0e1f1a (hijau tua). Alpha sengaja rendah
+//   accent #ffffff (putih), ink #f5f5f5 (teks). Alpha sengaja rendah
 //   agar teks di atasnya tetap terbaca.
 
 import { useEffect, useRef } from "react";
@@ -16,8 +16,8 @@ import { prefersReducedMotion } from "@/lib/motion";
 const GLYPHS = ["$", "€", "£", "¥", "₹", "₽", "¢", "₩"] as const;
 
 // Warna dari token globals.css.
-const ACCENT = { r: 184, g: 144, b: 42 }; // #b8902a
-const INK = { r: 14, g: 31, b: 26 }; // #0e1f1a
+const ACCENT = { r: 255, g: 255, b: 255 }; // #ffffff
+const INK = { r: 245, g: 245, b: 245 }; // #f5f5f5
 
 type Particle = {
   x: number;
@@ -41,6 +41,9 @@ export default function CurrencyField() {
     if (!ctx) return;
 
     const reduceMotion = prefersReducedMotion();
+    // ctx.font tidak bisa membaca var() CSS — ambil keluarga font yang sudah
+    // terhitung dari elemen supaya glyph mengikuti font halaman.
+    const fontFamily = getComputedStyle(canvas).fontFamily;
 
     let width = 0;
     let height = 0;
@@ -128,7 +131,7 @@ export default function CurrencyField() {
         const ox = parallaxX * p.depth * 60;
         const oy = parallaxY * p.depth * 60;
 
-        ctx.font = `${p.size}px var(--font-jetbrains), monospace`;
+        ctx.font = `${p.size}px ${fontFamily}`;
         ctx.fillStyle = `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, ${p.alpha})`;
         ctx.fillText(p.glyph, p.x + ox, p.y + oy);
       }

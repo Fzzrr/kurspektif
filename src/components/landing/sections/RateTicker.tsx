@@ -18,17 +18,17 @@ export default function RateTicker() {
   const row = [...rates, ...rates];
 
   return (
-    <div className="ticker group relative overflow-hidden border-y border-white/10 bg-ink py-3 text-paper">
+    <div className="ticker group relative overflow-hidden border-y border-line bg-surface py-3 text-ink">
       {/* Gradien tepi agar item masuk/keluar terasa halus */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16"
-        style={{ background: "linear-gradient(to right, var(--color-ink), transparent)" }}
+        style={{ background: "linear-gradient(to right, var(--color-surface), transparent)" }}
       />
       <div
         aria-hidden
         className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16"
-        style={{ background: "linear-gradient(to left, var(--color-ink), transparent)" }}
+        style={{ background: "linear-gradient(to left, var(--color-surface), transparent)" }}
       />
 
       <div className="ticker-track flex w-max items-center will-change-transform">
@@ -39,8 +39,8 @@ export default function RateTicker() {
               key={`${rate.pair}-${i}`}
               className="flex items-center gap-2 pr-8 font-mono text-sm"
             >
-              <span className="text-paper/70">{rate.pair}</span>
-              <span className="text-paper">{rate.value}</span>
+              <span className="text-muted">{rate.pair}</span>
+              <span className="text-ink">{rate.value}</span>
               <span className={up ? "text-up" : "text-down"}>
                 {up ? "▲" : "▼"} {rate.delta}
               </span>

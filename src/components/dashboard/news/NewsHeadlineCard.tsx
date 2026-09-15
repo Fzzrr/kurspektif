@@ -40,7 +40,7 @@ export default function NewsHeadlineCard({ item }: Props) {
             <img
               src={item.image}
               alt=""
-              className="absolute inset-0 size-full object-cover"
+              className="absolute inset-0 size-full object-cover transition-transform duration-500 hover:scale-105"
             />
           </div>
         )}
@@ -62,7 +62,7 @@ export default function NewsHeadlineCard({ item }: Props) {
               onClick={() => setSaved((current) => !current)}
               aria-label={saved ? 'Hapus dari tersimpan' : 'Simpan berita'}
               aria-pressed={saved}
-              className="flex size-9 items-center justify-center rounded-full border border-line text-muted transition-colors hover:bg-paper hover:text-ink"
+              className="flex size-9 items-center justify-center rounded-full border border-line text-muted transition-colors hover:bg-accent-soft hover:text-ink"
             >
               <BookmarkIcon className="size-4" filled={saved} />
             </button>

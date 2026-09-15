@@ -59,7 +59,7 @@ export default function PairSelector({ from, to, currencies, recentPairs, onChan
           type="button"
           onClick={handleSwap}
           aria-label="Tukar pasangan mata uang"
-          className="flex size-9 shrink-0 items-center justify-center rounded-full border border-line text-muted transition-colors hover:bg-paper hover:text-ink"
+          className="flex size-9 shrink-0 items-center justify-center rounded-full border border-line text-muted transition-colors hover:bg-accent-soft hover:text-ink"
         >
           <SwapIcon className="size-4" />
         </button>

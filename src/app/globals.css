@@ -1,23 +1,66 @@
 @import "tailwindcss";
 
 @theme {
-  /* Warna design system Kurspektif */
-  --color-ink: #0e1f1a;
-  --color-paper: #f6f5f1;
-  --color-surface: #ffffff;
-  --color-accent: #b8902a;
-  --color-accent-soft: #f0e6cc;
-  --color-up: #2f8f5b;
-  --color-down: #c0492f;
-  --color-muted: #5c665f;
-  --color-neutral: #888780;
-  --color-line: #d9d6cc;
+  /* Warna design system Kurspektif — monokrom hitam-putih.
+     Kerangka UI (latar, kartu, teks, garis, aksen) abu-abu netral tanpa
+     semburat warna; warna hanya untuk membaca data: up hijau, down merah,
+     neutral abu-abu. paper = latar, surface = kartu, ink = teks. Tombol
+     utama bg-ink text-paper = tombol putih di atas hitam. Koin emas di
+     landing sengaja tetap emas sebagai satu-satunya aksen hangat. */
+  --color-ink: #f5f5f5;
+  --color-paper: #0a0a0a;
+  --color-surface: #161616;
+  --color-accent: #ffffff;
+  --color-accent-soft: #1f1f1f;
+  --color-up: #22c55e;
+  --color-down: #ef4444;
+  --color-muted: #8a8a8a;
+  --color-neutral: #5a5a5a;
+  --color-line: #262626;
 
-  /* Token font untuk utility Tailwind (font-sans / font-display / font-mono).
-     --font-inter / --font-bricolage / --font-jetbrains diisi next/font di <html>. */
+  /* Satu keluarga sans untuk semua peran (display/mono ikut Inter) — utility
+     font-display / font-mono di komponen tetap valid tanpa diubah satu-satu. */
   --font-sans: var(--font-inter);
-  --font-display: var(--font-bricolage);
-  --font-mono: var(--font-jetbrains);
+  --font-display: var(--font-inter);
+  --font-mono: var(--font-inter);
+}
+
+/* font-mono dipakai untuk angka kurs & label data; tanpa monospace, angka
+   tetap sejajar lewat digit lebar-tetap Inter. */
+.font-mono {
+  font-variant-numeric: tabular-nums;
+}
+
+/* =========================================================================
+   Lapisan interaksi global. Di @layer base supaya utility Tailwind
+   (transition-*, duration-*) di komponen tetap menang bila ada.
+   ========================================================================= */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+  button, a, input, select, textarea {
+    transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+    transition-duration: 150ms;
+    transition-timing-function: ease-out;
+  }
+  button:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--color-accent) 35%, transparent);
+  }
+}
+
+/* Panel dropdown muncul dengan fade + geser kecil dari atas. */
+@keyframes menu-in {
+  from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+.menu-in {
+  transform-origin: top;
+  animation: menu-in 150ms ease-out;
 }
 
 html {
@@ -183,6 +226,8 @@ body {
   .scroll-cue,
   .sentiment-dot,
   .ticker-track,
-  .shimmer-sweep { animation: none !important; }
+  .shimmer-sweep,
+  .menu-in { animation: none !important; }
   .draw-underline::after { animation: none; transform: scaleX(1); }
+  button:active:not(:disabled) { transform: none; }
 }
