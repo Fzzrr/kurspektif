@@ -75,7 +75,7 @@ export default function Coin({ glyph, code, className }: CoinProps) {
         y={code ? "47" : "50"}
         textAnchor="middle"
         dominantBaseline="central"
-        fontFamily="var(--font-jetbrains), monospace"
+        fontFamily="var(--font-mono), sans-serif"
         fontWeight="700"
         fontSize="38"
         fill="#6e5415"
@@ -87,7 +87,7 @@ export default function Coin({ glyph, code, className }: CoinProps) {
         y={code ? "46.3" : "49.3"}
         textAnchor="middle"
         dominantBaseline="central"
-        fontFamily="var(--font-jetbrains), monospace"
+        fontFamily="var(--font-mono), sans-serif"
         fontWeight="700"
         fontSize="38"
         fill="#fbf1c9"
@@ -102,7 +102,7 @@ export default function Coin({ glyph, code, className }: CoinProps) {
           y="68"
           textAnchor="middle"
           dominantBaseline="central"
-          fontFamily="var(--font-jetbrains), monospace"
+          fontFamily="var(--font-mono), sans-serif"
           fontWeight="600"
           fontSize="11"
           letterSpacing="1"

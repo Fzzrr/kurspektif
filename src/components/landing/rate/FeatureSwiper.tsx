@@ -23,7 +23,7 @@ function SlideCard({
   children: ReactNode;
 }) {
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-[0_24px_60px_-36px_rgba(14,31,26,0.55)]">
+    <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06),0_24px_60px_-36px_rgba(0,0,0,0.8)]">
       <div className="border-b border-line px-6 pt-6">
         <p className="font-mono text-xs uppercase tracking-[0.18em] text-accent">
           {eyebrow}

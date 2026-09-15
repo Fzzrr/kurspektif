@@ -70,7 +70,7 @@ export default function Modal({ open, onClose, title, size = 'md', padded = true
   if (!mounted || !open) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-paper/60 p-4 backdrop-blur-sm" onClick={onClose}>
       <div
         ref={panelRef}
         role="dialog"
@@ -82,7 +82,7 @@ export default function Modal({ open, onClose, title, size = 'md', padded = true
         onClick={(e) => e.stopPropagation()}
         className={`max-h-[90vh] w-full ${sizeClass[size]} ${
           padded ? 'overflow-y-auto p-6 sm:p-8' : 'overflow-hidden'
-        } rounded-2xl bg-surface shadow-[0_24px_60px_-24px_rgba(14,31,26,0.45)] outline-none`}
+        } rounded-2xl border border-line bg-paper/85 shadow-[0_24px_60px_-24px_rgba(0,0,0,0.8)] backdrop-blur-xl outline-none`}
       >
         {title && padded && (
           <h2 id="modal-title" className="mb-4 font-display text-lg font-semibold text-ink">

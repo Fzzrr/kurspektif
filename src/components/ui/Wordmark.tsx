@@ -8,7 +8,7 @@ export default function Wordmark({ className }: { className?: string }) {
         y="134"
         fill="currentColor"
         style={{
-          fontFamily: 'var(--font-bricolage), sans-serif',
+          fontFamily: 'var(--font-display), sans-serif',
           fontSize: '125px',
           fontWeight: 800,
           letterSpacing: '-6px',

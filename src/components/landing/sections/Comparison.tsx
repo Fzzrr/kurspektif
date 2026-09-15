@@ -44,19 +44,19 @@ export default function Comparison() {
           </div>
 
           {/* Kurspektif */}
-          <div className="relative overflow-hidden bg-ink p-6 text-paper sm:p-8">
+          <div className="relative overflow-hidden bg-accent-soft p-6 text-ink sm:p-8">
             <GlowBlob className="-right-12 -top-12 h-40 w-40" />
             <p className="relative font-mono text-xs uppercase tracking-wider text-accent">
               Kurspektif
             </p>
-            <h3 className="relative mt-2 font-display text-xl font-semibold text-white">
+            <h3 className="relative mt-2 font-display text-xl font-semibold">
               Memberi alasan.
             </h3>
             <ul className="relative mt-4 space-y-2.5">
               {after.map((item) => (
                 <li
                   key={item}
-                  className="group flex gap-3 text-sm text-[#c7d2cb] transition-colors hover:text-white"
+                  className="group flex gap-3 text-sm text-ink/75 transition-colors hover:text-ink"
                 >
                   <span className="font-mono text-accent transition-transform duration-300 group-hover:scale-125">
                     ✦

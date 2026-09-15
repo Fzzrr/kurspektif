@@ -49,19 +49,21 @@ function NewsRow({ item }: { item: NewsItem }) {
         className="mt-1.5 inline-block size-2 shrink-0 rounded-full"
         style={{ backgroundColor: SENTIMENT[item.sentiment].color }}
       />
-      <Link href={item.url} target="_blank" rel="noopener noreferrer" className="flex min-w-0 flex-1 items-center gap-3">
+      <Link href={item.url} target="_blank" rel="noopener noreferrer" className="group flex min-w-0 flex-1 items-center gap-3">
         <div className="min-w-0 flex-1">
-          <p className="text-sm leading-snug text-ink">{item.headline}</p>
+          <p className="text-sm leading-snug text-ink underline-offset-4 decoration-muted group-hover:underline">{item.headline}</p>
           <p className="mt-1 font-mono text-[10px] text-muted">
             {item.source} · {formatTimeAgo(item.publishedAt)}
           </p>
         </div>
         {item.image && (
-          <img
-            src={item.image}
-            alt=""
-            className="size-14 shrink-0 rounded-lg border border-line object-cover"
-          />
+          <div className="size-14 shrink-0 overflow-hidden rounded-lg border border-line">
+            <img
+              src={item.image}
+              alt=""
+              className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+          </div>
         )}
       </Link>
     </li>

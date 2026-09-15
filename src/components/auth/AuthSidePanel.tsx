@@ -44,7 +44,7 @@ const eurSeries: ChartPoint[] = [
 
 export default function AuthSidePanel() {
   return (
-    <div className="relative hidden overflow-hidden bg-ink p-6 text-paper lg:flex lg:flex-1 lg:flex-col lg:justify-center xl:px-20">
+    <div className="relative hidden overflow-hidden border-l border-line bg-surface p-6 text-ink lg:flex lg:flex-1 lg:flex-col lg:justify-center xl:px-20">
       {/* Glow dekoratif di pojok kanan atas */}
       <div
         className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full opacity-30 blur-3xl"
@@ -70,7 +70,7 @@ export default function AuthSidePanel() {
             <text
               x="0"
               y="100"
-              fill="var(--color-paper)"
+              fill="var(--color-ink)"
               xmlSpace="preserve"
               style={authHeadingTextStyle}
             >
@@ -83,7 +83,7 @@ export default function AuthSidePanel() {
           </svg>
         </h2>
 
-        <p className="mt-4 max-w-md text-paper/70">
+        <p className="mt-4 max-w-md text-muted">
           News tagged with sentiment, charts that carry context, and weekly
           summaries explained in plain language.
         </p>
@@ -101,7 +101,7 @@ export default function AuthSidePanel() {
         {/* Checklist fitur */}
         <ul className="mt-6 space-y-2.5">
           {features.map((feature) => (
-            <li key={feature} className="flex items-center gap-3 text-sm text-paper/90">
+            <li key={feature} className="flex items-center gap-3 text-sm text-ink/90">
               <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-up/20 text-up">
                 <svg viewBox="0 0 20 20" fill="currentColor" className="h-3 w-3">
                   <path

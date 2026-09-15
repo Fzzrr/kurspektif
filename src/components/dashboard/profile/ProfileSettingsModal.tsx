@@ -27,7 +27,7 @@ const MAX_FILE_BYTES = 1.5 * 1024 * 1024; // 1.5MB
 const TABS = [{ id: 'profil', label: 'Profil', icon: UserIcon }] as const;
 
 const ghostButtonClass =
-  'rounded-lg border border-line px-3 py-2 font-mono text-xs text-ink transition-colors hover:bg-paper disabled:opacity-60';
+  'rounded-lg border border-line px-3 py-2 font-mono text-xs text-ink transition-colors hover:bg-accent-soft disabled:opacity-60';
 const solidButtonClass =
   'rounded-lg bg-ink px-4 py-2 font-mono text-xs font-medium text-paper transition-opacity hover:opacity-90 disabled:opacity-60';
 
