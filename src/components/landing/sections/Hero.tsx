@@ -1,7 +1,6 @@
 import RateCard from "../rate/RateCard";
 import ScrollCue from "../visuals/ScrollCue";
 import Coin from "../visuals/Coin";
-import Tilt from "../motion/Tilt";
 import CtaLink from "../ui/CtaLink";
 import { PulseDot } from "../ui/decor";
 
@@ -100,10 +99,7 @@ export default function Hero() {
             </div>
           ))}
 
-          {/* Kartu — miring 3D mengikuti kursor (mati di sentuh/reduced motion). */}
-          <Tilt className="rounded-2xl">
-            <RateCard />
-          </Tilt>
+          <RateCard />
         </div>
       </div>
 

@@ -8,7 +8,7 @@ import { ArrowRight } from "@/components/ui/icons";
 
 const VARIANTS = {
   ink: "bg-ink text-paper hover:opacity-90 hover:shadow-[0_14px_30px_-12px_rgba(14,31,26,0.6)]",
-  accent: "bg-accent text-ink hover:shadow-[0_14px_30px_-10px_rgba(184,144,42,0.7)]",
+  accent: "bg-accent text-paper hover:shadow-[0_14px_30px_-10px_color-mix(in_srgb,var(--color-accent)_70%,transparent)]",
 } as const;
 
 type Props = {

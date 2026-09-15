@@ -62,7 +62,7 @@ export default function RateChartCard({ series, pair, isLoading = false }: Props
       </div>
 
       {isLoading || chartData.length === 0 ? (
-        <div className="mt-4 flex h-56 items-center justify-center font-mono text-xs text-muted">
+        <div className="mt-4 flex h-56 animate-pulse items-center justify-center rounded-xl bg-paper/60 font-mono text-xs text-muted">
           Memuat data kurs…
         </div>
       ) : (

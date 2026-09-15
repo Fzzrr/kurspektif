@@ -76,7 +76,7 @@ export default function SelectMenu<T extends string>({
         onClick={() => (open ? close() : setOpen(true))}
         aria-expanded={open}
         className={`flex w-full min-w-0 items-center gap-2 rounded-full border px-3 py-2 font-mono text-sm text-ink transition-colors ${
-          active ? 'border-accent bg-accent-soft/60' : 'border-line hover:bg-paper'
+          active ? 'border-accent bg-accent-soft/60' : 'border-line hover:bg-accent-soft'
         }`}
       >
         {icon}
@@ -91,10 +91,10 @@ export default function SelectMenu<T extends string>({
           `max-h-72` untuk daftar panjang (mis. ~30 mata uang): panelnya
           menggulung sendiri alih-alih memanjang melewati layar. */}
       {open && (
-        <div className="absolute left-0 top-full z-30 mt-2 max-h-72 min-w-full max-w-[calc(100vw-2rem)] overflow-y-auto overscroll-contain rounded-2xl border border-line bg-surface p-1 shadow-[0_18px_40px_-20px_rgba(14,31,26,0.45)]">
+        <div className="menu-in absolute left-0 top-full z-30 mt-2 max-h-72 min-w-full max-w-[calc(100vw-2rem)] overflow-y-auto overscroll-contain rounded-2xl border border-line bg-paper/85 p-1 shadow-[0_18px_40px_-20px_rgba(0,0,0,0.8)] backdrop-blur-xl">
           {searchable && (
             // `sticky` menjaga kotak cari tetap terlihat saat daftar digulung.
-            <label className="sticky top-0 z-10 mb-1 flex items-center gap-2 rounded-xl border border-line bg-surface px-3 py-2">
+            <label className="sticky top-0 z-10 mb-1 flex items-center gap-2 rounded-xl border border-line bg-paper px-3 py-2 transition-colors focus-within:border-accent">
               <SearchIcon className="size-4 shrink-0 text-muted" />
               <input
                 ref={searchRef}
@@ -120,7 +120,7 @@ export default function SelectMenu<T extends string>({
                   close();
                 }}
                 className={`block w-full whitespace-nowrap rounded-xl px-3 py-2 text-left font-mono text-sm transition-colors ${
-                  isSelected ? 'bg-accent-soft text-accent' : 'text-muted hover:bg-paper hover:text-ink'
+                  isSelected ? 'bg-accent-soft text-accent' : 'text-muted hover:bg-accent-soft hover:text-ink'
                 }`}
               >
                 {option.label}

@@ -8,7 +8,7 @@ export default function NewsGrid({ items, totalCount }: Props) {
   if (totalCount === 0) {
     return (
       <p className="rounded-2xl border border-dashed border-line px-4 py-12 text-center text-sm text-muted">
-        Tidak ada berita yang cocok. Coba ubah kata kunci atau tekan Reset.
+        Tidak ada berita yang cocok. Coba ubah kata kunci atau filter.
       </p>
     );
   }

@@ -73,7 +73,7 @@ export default function AlertCard() {
 
         <button
           type="submit"
-          className="rounded-lg bg-accent px-5 py-2 font-mono text-sm font-medium text-ink shadow-sm transition-opacity hover:opacity-90"
+          className="rounded-lg bg-accent px-5 py-2 font-mono text-sm font-medium text-paper shadow-sm transition-opacity hover:opacity-90"
         >
           Atur alert
         </button>

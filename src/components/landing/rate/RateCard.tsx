@@ -32,7 +32,7 @@ export default function RateCard({
 
   return (
     <div
-      className={`rounded-2xl border border-line bg-surface p-5 text-ink shadow-[0_18px_40px_-28px_rgba(14,31,26,0.5)] ${className}`}
+      className={`rounded-2xl border border-line bg-surface p-5 text-ink shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06),0_20px_50px_-30px_rgba(0,0,0,0.8)] ${className}`}
     >
       {/* Header: pasangan kurs + badge live */}
       <div className="flex items-center justify-between">
