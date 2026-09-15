@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import RateLineChart from '@/components/landing/rate/RateLineChart';
+import RateLineChart, { formatRate } from '@/components/landing/rate/RateLineChart';
 import DashboardCard from '../ui/DashboardCard';
 import PillTabs from '../ui/PillTabs';
 import type { RatePoint } from '@/lib/frankfurter';
@@ -23,13 +23,7 @@ const TIMEFRAME_DESCRIPTIONS: Record<Timeframe, string> = {
 };
 
 const dayLabelFormatter = new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'short' });
-const MAX_CHART_POINTS = 30;
-
-function sampleSeries(points: RatePoint[], maxPoints: number): RatePoint[] {
-  if (points.length <= maxPoints) return points;
-  const step = (points.length - 1) / (maxPoints - 1);
-  return Array.from({ length: maxPoints }, (_, i) => points[Math.round(i * step)]);
-}
+const percentFormatter = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 2 });
 
 type Props = {
   series: RatePoint[];
@@ -40,33 +34,79 @@ type Props = {
 export default function RateChartCard({ series, pair, isLoading = false }: Props) {
   const [timeframe, setTimeframe] = useState<Timeframe>('30H');
 
-  const chartData = useMemo(() => {
-    const windowed = series.slice(-DAYS_BY_TIMEFRAME[timeframe]);
-    const sampled = sampleSeries(windowed, MAX_CHART_POINTS);
-    return sampled.map((point) => ({
-      day: dayLabelFormatter.format(new Date(point.date)),
-      rate: point.rate,
-    }));
-  }, [series, timeframe]);
+  const windowed = useMemo(() => series.slice(-DAYS_BY_TIMEFRAME[timeframe]), [series, timeframe]);
+
+  const chartData = useMemo(
+    () => windowed.map((point) => ({ day: dayLabelFormatter.format(new Date(point.date)), rate: point.rate })),
+    [windowed],
+  );
+
+  // Ringkasan periode dari data yang sama persis dengan yang digambar, supaya
+  // "tertinggi" di header selalu titik yang benar-benar ada di grafik.
+  const stats = useMemo(() => {
+    if (windowed.length < 2) return null;
+    const first = windowed[0].rate;
+    const last = windowed[windowed.length - 1].rate;
+    const high = windowed.reduce((best, p) => (p.rate > best.rate ? p : best));
+    const low = windowed.reduce((best, p) => (p.rate < best.rate ? p : best));
+    const average = windowed.reduce((sum, p) => sum + p.rate, 0) / windowed.length;
+    return { changePct: ((last - first) / first) * 100, high, low, average };
+  }, [windowed]);
+
+  const isUp = (stats?.changePct ?? 0) >= 0;
 
   return (
     <DashboardCard>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted">Grafik kurs</p>
-          <p className="mt-1 font-mono text-sm text-ink">
-            {pair} · {TIMEFRAME_DESCRIPTIONS[timeframe]}
-          </p>
+          <div className="mt-1 flex flex-wrap items-center gap-2">
+            <p className="font-mono text-sm text-ink">
+              {pair} · {TIMEFRAME_DESCRIPTIONS[timeframe]}
+            </p>
+            {stats && (
+              <span
+                className={`rounded-full px-2 py-0.5 font-mono text-[11px] font-medium ${
+                  isUp ? 'bg-up/15 text-up' : 'bg-down/15 text-down'
+                }`}
+              >
+                {isUp ? '↑' : '↓'} {percentFormatter.format(Math.abs(stats.changePct))}%
+              </span>
+            )}
+          </div>
         </div>
         <PillTabs options={TIMEFRAMES} value={timeframe} onChange={setTimeframe} />
       </div>
+
+      {stats && (
+        <dl className="mt-4 flex flex-wrap gap-x-6 gap-y-2 font-mono text-[11px]">
+          <div>
+            <dt className="text-muted">Tertinggi</dt>
+            <dd className="mt-0.5 text-ink">
+              {formatRate(stats.high.rate)}
+              <span className="text-muted"> · {dayLabelFormatter.format(new Date(stats.high.date))}</span>
+            </dd>
+          </div>
+          <div>
+            <dt className="text-muted">Terendah</dt>
+            <dd className="mt-0.5 text-ink">
+              {formatRate(stats.low.rate)}
+              <span className="text-muted"> · {dayLabelFormatter.format(new Date(stats.low.date))}</span>
+            </dd>
+          </div>
+          <div>
+            <dt className="text-muted">Rata-rata</dt>
+            <dd className="mt-0.5 text-ink">{formatRate(stats.average)}</dd>
+          </div>
+        </dl>
+      )}
 
       {isLoading || chartData.length === 0 ? (
         <div className="mt-4 flex h-56 animate-pulse items-center justify-center rounded-xl bg-paper/60 font-mono text-xs text-muted">
           Memuat data kurs…
         </div>
       ) : (
-        <RateLineChart data={chartData} className="mt-4 h-56" />
+        <RateLineChart data={chartData} className="mt-4 h-56" showAverage />
       )}
     </DashboardCard>
   );
