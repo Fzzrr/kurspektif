@@ -11,9 +11,9 @@ export default function DashboardPreview() {
       </Reveal>
 
       <Reveal delay={80}>
-        <div className="mt-8 overflow-hidden rounded-2xl border border-line bg-surface shadow-[0_24px_60px_-36px_rgba(14,31,26,0.55)] transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_36px_80px_-40px_rgba(14,31,26,0.6)]">
+        <div className="mt-8 overflow-hidden rounded-2xl border border-line bg-surface shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06),0_24px_60px_-36px_rgba(0,0,0,0.8)] transition-all duration-500 hover:-translate-y-1 hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08),0_36px_80px_-40px_rgba(0,0,0,0.9)]">
           {/* Bar browser palsu */}
-          <div className="flex items-center gap-2 border-b border-line bg-[#fcfbf8] px-4 py-3">
+          <div className="flex items-center gap-2 border-b border-line bg-paper px-4 py-3">
             <span className="h-2.5 w-2.5 rounded-full bg-line" />
             <span className="h-2.5 w-2.5 rounded-full bg-line" />
             <span className="h-2.5 w-2.5 rounded-full bg-line" />

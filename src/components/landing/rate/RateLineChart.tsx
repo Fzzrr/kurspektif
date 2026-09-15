@@ -120,6 +120,10 @@ export default function RateLineChart({ data = DEFAULT_RATE_SERIES, className }:
     [data],
   );
 
+  // Konvensi grafik finance: warna garis = arah tren sepanjang periode.
+  const trendColor =
+    data.length > 1 && data[data.length - 1].rate < data[0].rate ? "var(--color-down)" : "var(--color-up)";
+
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
@@ -158,7 +162,7 @@ export default function RateLineChart({ data = DEFAULT_RATE_SERIES, className }:
             interval={3}
             tickLine={false}
             axisLine={false}
-            tick={{ fontSize: 9, fontFamily: "monospace", fill: "var(--color-muted)" }}
+            tick={{ fontSize: 9, fontFamily: "inherit", fill: "var(--color-muted)" }}
             tickMargin={6}
           />
 
@@ -169,7 +173,7 @@ export default function RateLineChart({ data = DEFAULT_RATE_SERIES, className }:
             width={46}
             tickLine={false}
             axisLine={false}
-            tick={{ fontSize: 9, fontFamily: "monospace", fill: "var(--color-muted)" }}
+            tick={{ fontSize: 9, fontFamily: "inherit", fill: "var(--color-muted)" }}
             tickFormatter={formatRate}
           />
 
@@ -181,13 +185,13 @@ export default function RateLineChart({ data = DEFAULT_RATE_SERIES, className }:
           <Line
             type="linear"
             dataKey="rate"
-            stroke="var(--color-ink)"
+            stroke={trendColor}
             strokeWidth={2.4}
             dot={false}
             isAnimationActive={!reduce}
             animationDuration={DRAW_MS}
             animationEasing="ease-out"
-            activeDot={{ r: 5, fill: "var(--color-ink)", stroke: "var(--color-surface)", strokeWidth: 2 }}
+            activeDot={{ r: 5, fill: trendColor, stroke: "var(--color-surface)", strokeWidth: 2 }}
           />
 
           {/* Titik sentimen berita — muncul "pop" setelah garis tergambar. */}

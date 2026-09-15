@@ -11,7 +11,7 @@ type Props = {
 // bisa dipusatkan tanpa ikut mengatur tata letak filter di bawahnya.
 export default function NewsSearchBar({ value, onChange }: Props) {
   return (
-    <label className="mx-auto flex w-full max-w-xl items-center gap-2 rounded-full border border-line bg-surface px-4 py-2.5">
+    <label className="mx-auto flex w-full max-w-xl items-center gap-2 rounded-full border border-line bg-surface px-4 py-2.5 transition-[border-color,box-shadow] focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20">
       <SearchIcon className="size-4 shrink-0 text-muted" />
       <input
         type="text"

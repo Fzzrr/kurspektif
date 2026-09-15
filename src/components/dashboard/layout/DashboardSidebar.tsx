@@ -35,7 +35,7 @@ export default function DashboardSidebar({ userName, userEmail, userImage, hasPa
   const [profileOpen, setProfileOpen] = useState(false);
 
   return (
-    <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-line bg-white text-ink md:flex">
+    <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-line bg-paper/80 text-ink backdrop-blur-xl md:flex">
       <div className="px-6 pt-8">
         <Wordmark className="h-6 w-auto text-ink" />
       </div>
@@ -48,8 +48,10 @@ export default function DashboardSidebar({ userName, userEmail, userImage, hasPa
             <Link
               key={href}
               href={href}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 font-mono text-sm transition-colors ${
-                isActive ? 'bg-accent-soft font-medium text-accent' : 'text-muted hover:bg-ink/5 hover:text-ink'
+              className={`relative flex items-center gap-3 rounded-lg px-3 py-2.5 font-mono text-sm transition-colors ${
+                isActive
+                  ? 'bg-accent-soft font-medium text-accent before:absolute before:left-0 before:top-1/2 before:h-5 before:w-0.5 before:-translate-y-1/2 before:rounded-full before:bg-accent'
+                  : 'text-muted hover:bg-ink/5 hover:text-ink'
               }`}
             >
               <Icon className="size-4" />
