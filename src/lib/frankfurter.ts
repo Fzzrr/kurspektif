@@ -51,9 +51,16 @@ export async function fetchSupportedCurrencies(): Promise<Currency[]> {
   if (!res.ok) throw new Error(`Failed to fetch currency list (${res.status})`);
   const data: { iso_code: string; name: string; end_date: string }[] = await res.json();
 
+  // Frankfurter memperbarui tiap mata uang pada jadwal berbeda (ECB harian,
+  // sisanya bisa tertinggal sehari-dua). Menyamakan persis dengan tanggal
+  // terbaru membuang >100 mata uang aktif (INR, dst.) — cukup buang yang
+  // sudah lama tidak diperbarui, yakni mata uang yang memang tidak berlaku lagi.
   const mostRecent = data.reduce((max, c) => (c.end_date > max ? c.end_date : max), '');
+  const cutoff = new Date(mostRecent);
+  cutoff.setDate(cutoff.getDate() - 7);
+  const minDate = toISODate(cutoff);
   return data
-    .filter((c) => c.end_date === mostRecent)
+    .filter((c) => c.end_date >= minDate)
     .map((c) => ({ code: c.iso_code, name: c.name }))
     .sort((a, b) => a.code.localeCompare(b.code));
 }
