@@ -5,25 +5,41 @@
 // lihat cakupan "mock data" di plan).
 
 import { useState, type FormEvent } from 'react';
-import { CloseIcon } from '@/components/ui/icons';
+import { BellIcon, CloseIcon } from '@/components/ui/icons';
 import DashboardCard from './ui/DashboardCard';
+import PillTabs from './ui/PillTabs';
+import SelectMenu from './ui/SelectMenu';
+import { currencyToFlag } from './rate/PairSelector';
 import { SEED_ALERTS, type AlertCondition } from '@/lib/mock/alerts';
+import type { Currency } from '@/lib/frankfurter';
 
-// Versi ringkas dari `inputClass` di ui/styles.ts: sama warna/rounding/focus
-// ring, tapi tanpa `w-full` karena field di sini berdampingan dalam satu
-// baris, bukan ditumpuk penuh seperti form auth.
-const fieldClass =
-  'rounded-lg border border-line bg-surface px-3 py-2 font-mono text-sm text-ink placeholder:text-muted/60 shadow-sm transition-colors focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20';
+const DIRECTIONS = [
+  { value: 'atas', label: 'di atas' },
+  { value: 'bawah', label: 'di bawah' },
+] as const;
 
-export default function AlertCard() {
+type Props = { currencies: Currency[] };
+
+export default function AlertCard({ currencies }: Props) {
   const [alerts, setAlerts] = useState<AlertCondition[]>(SEED_ALERTS);
   const [pair, setPair] = useState('USD/IDR');
   const [direction, setDirection] = useState<AlertCondition['direction']>('atas');
   const [threshold, setThreshold] = useState('');
 
+  // Pasangan alert selalu terhadap rupiah — fokus produk; label diberi
+  // bendera & nama seperti pemilih mata uang di atas.
+  const pairOptions = currencies
+    .filter((c) => c.code !== 'IDR')
+    .map((c) => {
+      const flag = currencyToFlag(c.code);
+      return { value: `${c.code}/IDR`, label: `${flag ? `${flag} ` : ''}${c.code}/IDR` };
+    });
+
+  const canSubmit = threshold.trim() !== '';
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!threshold.trim()) return;
+    if (!canSubmit) return;
 
     // Selalu buat array BARU (spread ...current lalu tambahkan elemen baru)
     // alih-alih current.push(...) — React membandingkan state lama vs baru
@@ -42,61 +58,69 @@ export default function AlertCard() {
 
   return (
     <DashboardCard>
-      <p className="text-sm font-medium">Alert kurs</p>
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-sm font-medium">Alert kurs</p>
+        <span className="font-mono text-[11px] text-muted">{alerts.length} aktif</span>
+      </div>
 
       <form onSubmit={handleSubmit} className="mt-3 flex flex-wrap items-center gap-2">
         <span className="font-mono text-xs text-muted">Kabari saya jika</span>
 
-        <input
-          value={pair}
-          onChange={(event) => setPair(event.target.value)}
-          placeholder="USD/IDR"
-          className={`${fieldClass} w-28`}
-        />
+        <SelectMenu options={pairOptions} value={pair} onChange={setPair} searchable className="w-40" />
 
-        <select
-          value={direction}
-          onChange={(event) => setDirection(event.target.value as AlertCondition['direction'])}
-          className={`${fieldClass} w-28`}
-        >
-          <option value="atas">di atas</option>
-          <option value="bawah">di bawah</option>
-        </select>
+        <PillTabs options={DIRECTIONS} value={direction} onChange={setDirection} />
 
-        <input
-          value={threshold}
-          onChange={(event) => setThreshold(event.target.value)}
-          placeholder="16500"
-          inputMode="decimal"
-          className={`${fieldClass} w-28`}
-        />
+        <label className="flex items-center rounded-lg border border-line bg-surface transition-[border-color,box-shadow] focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20">
+          <input
+            value={threshold}
+            onChange={(event) => setThreshold(event.target.value.replace(/[^\d.,]/g, ''))}
+            placeholder="16.500"
+            inputMode="decimal"
+            aria-label="Ambang kurs"
+            className="w-24 min-w-0 bg-transparent px-3 py-2 font-mono text-sm text-ink outline-none placeholder:text-muted/60"
+          />
+          <span className="shrink-0 border-l border-line px-2.5 py-2 font-mono text-[11px] text-muted">IDR</span>
+        </label>
 
         <button
           type="submit"
-          className="rounded-lg bg-accent px-5 py-2 font-mono text-sm font-medium text-paper shadow-sm transition-opacity hover:opacity-90"
+          disabled={!canSubmit}
+          className="rounded-lg bg-accent px-5 py-2 font-mono text-sm font-medium text-paper shadow-sm hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
         >
           Atur alert
         </button>
       </form>
 
-      <div className="mt-4 flex flex-wrap gap-2">
-        {alerts.map((alert) => (
-          <span
-            key={alert.id}
-            className="inline-flex items-center gap-1.5 rounded-full border border-line bg-paper px-3 py-1.5 font-mono text-xs text-ink"
-          >
-            {alert.pair} di {alert.direction} {alert.threshold}
-            <button
-              type="button"
-              onClick={() => handleRemove(alert.id)}
-              aria-label={`Hapus alert ${alert.pair}`}
-              className="text-muted transition-colors hover:text-ink"
-            >
-              <CloseIcon className="size-3" />
-            </button>
-          </span>
-        ))}
-      </div>
+      {alerts.length === 0 ? (
+        <p className="mt-4 rounded-xl border border-dashed border-line px-4 py-6 text-center font-mono text-xs text-muted">
+          Belum ada alert. Atur satu di atas — Anda akan dikabari saat kurs melewati ambangnya.
+        </p>
+      ) : (
+        <ul className="mt-4 divide-y divide-line">
+          {alerts.map((alert) => (
+            <li key={alert.id} className="menu-in flex items-center gap-3 py-2.5">
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-accent-soft text-muted">
+                <BellIcon className="size-4" />
+              </span>
+              <p className="min-w-0 flex-1 font-mono text-sm text-ink">
+                <span className="font-medium">{alert.pair}</span>
+                <span className="text-muted"> di {alert.direction} </span>
+                <span className={alert.direction === 'atas' ? 'text-up' : 'text-down'}>
+                  {alert.direction === 'atas' ? '↑' : '↓'} {alert.threshold}
+                </span>
+              </p>
+              <button
+                type="button"
+                onClick={() => handleRemove(alert.id)}
+                aria-label={`Hapus alert ${alert.pair}`}
+                className="flex size-7 shrink-0 items-center justify-center rounded-full text-muted hover:bg-accent-soft hover:text-ink"
+              >
+                <CloseIcon className="size-3.5" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </DashboardCard>
   );
 }

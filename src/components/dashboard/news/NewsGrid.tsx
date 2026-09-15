@@ -19,7 +19,7 @@ export default function NewsGrid({ items, totalCount }: Props) {
 
   return (
     <div>
-      <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted">Semua berita ({totalCount})</p>
+      <p className="font-mono text-xs text-muted">Semua Berita ({totalCount})</p>
       <div className="mt-3 grid gap-4 md:grid-cols-3">
         {items.map((item) => (
           <NewsCard key={item.id} item={item} />
