@@ -22,7 +22,7 @@ export default async function DashboardPage() {
         news={news}
         userId={session?.user?.id ?? 'anon'}
       />
-      <AlertCard />
+      <AlertCard currencies={currencies} />
     </div>
   );
 }

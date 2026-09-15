@@ -8,6 +8,8 @@ type Props = {
     changePercent: string;
     changeAbsolute: string;
     changeDir?: 'up' | 'down';
+    pair: string;
+    sparkline: number[];
   };
   quickConvert: {
     rate: number;

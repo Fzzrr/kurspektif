@@ -5,15 +5,16 @@
 // Memakai pola ukur-kontainer (ResizeObserver) seperti LiveCurrencyChart,
 // alih-alih ResponsiveContainer, untuk menghindari warning width/height(-1).
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import {
-  LineChart,
-  Line,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ReferenceDot,
+  ReferenceLine,
 } from "recharts";
 import type { TooltipContentProps } from "recharts";
 import { usePrefersReducedMotion } from "@/lib/motion";
@@ -62,15 +63,30 @@ const DEFAULT_RATE_SERIES: ChartPoint[] = [
 export const formatRate = (value: number) =>
   new Intl.NumberFormat("id-ID", { maximumSignificantDigits: 6 }).format(value);
 
-function CustomTooltip({ active, payload }: Partial<TooltipContentProps<number, string>>) {
+const percentFormatter = new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 });
+
+type TooltipProps = Partial<TooltipContentProps<number, string>> & { data: ChartPoint[] };
+
+function CustomTooltip({ active, payload, data }: TooltipProps) {
   if (!active || !payload?.length) return null;
   const point = payload[0].payload as ChartPoint;
   const sentiment = point.sentiment ? SENTIMENT[point.sentiment] : null;
 
+  // Perubahan vs titik sebelumnya — dicari dari `data` karena payload hanya
+  // membawa titik yang sedang di-hover.
+  const index = data.indexOf(point);
+  const prev = index > 0 ? data[index - 1].rate : null;
+  const deltaPct = prev ? ((point.rate - prev) / prev) * 100 : null;
+
   return (
-    <div className="rounded-lg border border-line bg-surface px-2.5 py-1.5 font-mono text-[10px] shadow-[0_10px_30px_-12px_rgba(0,0,0,0.35)]">
+    <div className="rounded-lg border border-line bg-surface px-2.5 py-1.5 font-mono text-[10px] shadow-[0_10px_30px_-12px_rgba(0,0,0,0.6)]">
       <p className="text-muted">{point.day}</p>
-      <p className="font-medium text-ink">Rp {formatRate(point.rate)}</p>
+      <p className="font-medium text-ink">{formatRate(point.rate)}</p>
+      {deltaPct !== null && (
+        <p className={deltaPct >= 0 ? "text-up" : "text-down"}>
+          {deltaPct >= 0 ? "↑" : "↓"} {percentFormatter.format(Math.abs(deltaPct))}% vs hari sebelumnya
+        </p>
+      )}
       {sentiment && (
         <p className="mt-0.5 flex items-center gap-1" style={{ color: sentiment.color }}>
           <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ backgroundColor: sentiment.color }} />
@@ -84,13 +100,16 @@ function CustomTooltip({ active, payload }: Partial<TooltipContentProps<number, 
 type Props = {
   data?: ChartPoint[];
   className?: string;
+  /** Garis putus-putus di rata-rata periode. */
+  showAverage?: boolean;
 };
 
 // Durasi garis "menggambar diri". Titik sentimen muncul setelahnya.
 const DRAW_MS = 1100;
 
-export default function RateLineChart({ data = DEFAULT_RATE_SERIES, className }: Props) {
-  // Ukur container sendiri lalu beri LineChart ukuran piksel konkret.
+export default function RateLineChart({ data = DEFAULT_RATE_SERIES, className, showAverage = false }: Props) {
+  const gradientId = useId();
+  // Ukur container sendiri lalu beri AreaChart ukuran piksel konkret.
   const wrapRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
 
@@ -124,6 +143,11 @@ export default function RateLineChart({ data = DEFAULT_RATE_SERIES, className }:
   const trendColor =
     data.length > 1 && data[data.length - 1].rate < data[0].rate ? "var(--color-down)" : "var(--color-up)";
 
+  const average = useMemo(() => data.reduce((sum, d) => sum + d.rate, 0) / (data.length || 1), [data]);
+
+  // Sumbu X: sekitar 8 label apa pun jumlah titiknya (7 hari sampai 1 tahun).
+  const tickInterval = Math.max(0, Math.ceil(data.length / 8) - 1);
+
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
@@ -149,17 +173,24 @@ export default function RateLineChart({ data = DEFAULT_RATE_SERIES, className }:
       aria-label="Grafik kurs 30 hari terakhir dengan titik sentimen berita"
     >
       {size.width > 0 && size.height > 0 && (
-        <LineChart
+        <AreaChart
           width={size.width}
           height={size.height}
           data={data}
           margin={{ top: 8, right: 4, left: 0, bottom: 0 }}
         >
+          <defs>
+            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={trendColor} stopOpacity={0.25} />
+              <stop offset="100%" stopColor={trendColor} stopOpacity={0} />
+            </linearGradient>
+          </defs>
+
           <CartesianGrid vertical={false} stroke="var(--color-line)" strokeDasharray="2 4" />
 
           <XAxis
             dataKey="day"
-            interval={3}
+            interval={tickInterval}
             tickLine={false}
             axisLine={false}
             tick={{ fontSize: 9, fontFamily: "inherit", fill: "var(--color-muted)" }}
@@ -178,15 +209,26 @@ export default function RateLineChart({ data = DEFAULT_RATE_SERIES, className }:
           />
 
           <Tooltip
-            cursor={{ stroke: "var(--color-line)", strokeWidth: 1 }}
-            content={<CustomTooltip />}
+            cursor={{ stroke: "var(--color-muted)", strokeWidth: 1, strokeDasharray: "3 3" }}
+            content={<CustomTooltip data={data} />}
           />
 
-          <Line
-            type="linear"
+          {showAverage && (
+            <ReferenceLine
+              y={average}
+              stroke="var(--color-muted)"
+              strokeDasharray="4 4"
+              strokeOpacity={0.6}
+              label={{ value: "Rata-rata", position: "insideTopLeft", fontSize: 9, fill: "var(--color-muted)" }}
+            />
+          )}
+
+          <Area
+            type="monotone"
             dataKey="rate"
             stroke={trendColor}
-            strokeWidth={2.4}
+            strokeWidth={2.2}
+            fill={`url(#${gradientId})`}
             dot={false}
             isAnimationActive={!reduce}
             animationDuration={DRAW_MS}
@@ -210,7 +252,7 @@ export default function RateLineChart({ data = DEFAULT_RATE_SERIES, className }:
                 style={reduce ? undefined : { animationDelay: `${i * 130}ms` }}
               />
             ))}
-        </LineChart>
+        </AreaChart>
       )}
     </div>
   );
