@@ -1,5 +1,5 @@
 import NewsCard from './NewsCard';
-import type { NewsItem } from '@/lib/mock/news';
+import type { NewsItem } from '@/lib/marketaux';
 
 type Props = { items: NewsItem[]; totalCount: number };
 

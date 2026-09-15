@@ -5,22 +5,28 @@ import DashboardHeader from './layout/DashboardHeader';
 import PairSelector from './rate/PairSelector';
 import StatCardsRow from './rate/StatCardsRow';
 import RateChartCard from './rate/RateChartCard';
+import MarketMoversCard from './rate/MarketMoversCard';
+import NewsListCard from './news/NewsListCard';
 import { useLiveRate } from '@/lib/useLiveRate';
 import { formatRate } from '@/components/landing/rate/RateLineChart';
 import type { Currency } from '@/lib/frankfurter';
+import type { NewsItem } from '@/lib/marketaux';
 
 const fmt = (value: number, opts?: Intl.NumberFormatOptions) => new Intl.NumberFormat('id-ID', opts).format(value);
 const dateFmt = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
 
-const RECENT_PAIRS_KEY = 'kurspektif:recentPairs';
 const DEFAULT_RECENT_PAIRS = ['USD/IDR', 'EUR/IDR', 'JPY/IDR', 'SGD/IDR'];
 const MAX_RECENT_PAIRS = 4;
 
-type Props = { title: string; currencies: Currency[] };
+type Props = { title: string; currencies: Currency[]; news: NewsItem[]; userId: string };
 
-export default function DashboardLiveSection({ title, currencies }: Props) {
+export default function DashboardLiveSection({ title, currencies, news, userId }: Props) {
   const [from, setFrom] = useState('USD');
   const [to, setTo] = useState('IDR');
+
+  // Kunci diberi id pengguna: localStorage milik browser, bukan akun — tanpa
+  // ini dua akun yang login bergantian di browser yang sama berbagi riwayat.
+  const recentPairsKey = `kurspektif:recentPairs:${userId}`;
 
   const [recentPairs, setRecentPairs] = useState<string[]>(DEFAULT_RECENT_PAIRS);
 
@@ -30,7 +36,7 @@ export default function DashboardLiveSection({ title, currencies }: Props) {
   // initializer useState — localStorage tidak ada saat komponen ini
   // pertama kali dirender di server.
   useEffect(() => {
-    const saved = localStorage.getItem(RECENT_PAIRS_KEY);
+    const saved = localStorage.getItem(recentPairsKey);
     if (!saved) return;
     try {
       const parsed = JSON.parse(saved);
@@ -44,7 +50,7 @@ export default function DashboardLiveSection({ title, currencies }: Props) {
     } catch {
       // data tersimpan rusak/format lama -> abaikan, pakai default
     }
-  }, []);
+  }, [recentPairsKey]);
 
   // Pilih pasangan aktif. Posisi pill yang SUDAH ada di daftar tidak pernah
   // digeser saat diklik — itu supaya animasi slide di PillTabs punya target
@@ -61,7 +67,7 @@ export default function DashboardLiveSection({ title, currencies }: Props) {
     setRecentPairs((prevList) => {
       if (prevList.includes(current)) return prevList;
       const updated = [...prevList, current].slice(-MAX_RECENT_PAIRS);
-      localStorage.setItem(RECENT_PAIRS_KEY, JSON.stringify(updated));
+      localStorage.setItem(recentPairsKey, JSON.stringify(updated));
       return updated;
     });
   }
@@ -80,6 +86,13 @@ export default function DashboardLiveSection({ title, currencies }: Props) {
       changeDir: diff >= 0 ? ('up' as const) : ('down' as const),
     };
   }, [latest, series]);
+
+  // Berita yang pasangannya memuat salah satu sisi pasangan aktif — sama
+  // seperti filter mata uang di halaman berita.
+  const { relatedNews, otherNews } = useMemo(() => {
+    const isRelated = (item: NewsItem) => item.pair?.split('/').some((code) => code === from || code === to) ?? false;
+    return { relatedNews: news.filter(isRelated), otherNews: news.filter((item) => !isRelated(item)) };
+  }, [news, from, to]);
 
   const historicalPosition = useMemo(() => {
     const window = series.slice(-90);
@@ -110,6 +123,13 @@ export default function DashboardLiveSection({ title, currencies }: Props) {
         historicalPosition={historicalPosition}
       />
       <RateChartCard series={series} pair={`${from}/${to}`} isLoading={isLoading && series.length === 0} />
+
+      {/* 3fr/2fr ~= proporsi 60/40 dari desain — kartu movers lebih lebar
+          dari kartu daftar berita. */}
+      <div className="grid gap-4 md:grid-cols-[3fr_2fr]">
+        <MarketMoversCard />
+        <NewsListCard related={relatedNews} others={otherNews} currency={from} />
+      </div>
     </>
   );
 }
