@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import DashboardCard from '../ui/DashboardCard';
-import { SENTIMENT } from '@/lib/sentiment';
+import SentimentBadge from './SentimentBadge';
 import { BookmarkIcon, ExternalLinkIcon } from '@/components/ui/icons';
 import type { NewsItem } from '@/lib/marketaux';
 import { formatTimeAgo } from '@/lib/timeAgo';
@@ -12,22 +12,16 @@ type Props = { item: NewsItem };
 
 export default function NewsHeadlineCard({ item }: Props) {
   const [saved, setSaved] = useState(false);
-  const sentiment = SENTIMENT[item.sentiment];
 
   return (
-    <DashboardCard className="border-l-4" style={{ borderLeftColor: sentiment.color }}>
+    <DashboardCard>
       <div className="flex h-full flex-col">
         {/* Tanpa gambar, wrapper ini jadi div biasa dan layout kembali satu kolom
           seperti semula — jadi berita tanpa thumbnail tidak menyisakan lubang. */}
         <div className="flex flex-wrap items-center gap-2">
-          <span
-            className="rounded-full px-2.5 py-1 font-mono text-[10px] font-medium uppercase text-paper"
-            style={{ backgroundColor: sentiment.color }}
-          >
-            {sentiment.label}
-          </span>
-          <span className="flex items-center gap-1 font-mono text-[10px] font-medium uppercase tracking-wide text-accent">
-            ✦ Headline
+          <SentimentBadge sentiment={item.sentiment} />
+          <span className="flex items-center gap-1 font-mono text-[12px] font-medium text-accent">
+             Headline
           </span>
         </div>
 
@@ -36,17 +30,20 @@ export default function NewsHeadlineCard({ item }: Props) {
           // kartu ini diregangkan setinggi kolom "Paling baru", jadi tanpa ini
           // deskripsi pendek menyisakan ruang kosong. `min-h-56` menjaga
           // gambar tetap layak saat deskripsinya panjang.
-          <div className="relative mt-4 min-h-56 flex-1 overflow-hidden rounded-xl border border-line bg-paper">
+          <div className="group relative mt-4 min-h-56 flex-1 overflow-hidden rounded-2xl bg-paper ring-1 ring-white/10">
             <img
               src={item.image}
               alt=""
-              className="absolute inset-0 size-full object-cover transition-transform duration-500 hover:scale-105"
+              className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
             />
+            {/* Gradien bawah melebur gambar ke kartu supaya tepinya tidak
+                terasa terpotong keras di atas judul. */}
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-surface to-transparent" />
           </div>
         )}
 
-        <h2 className="mt-4 font-display text-xl font-semibold leading-snug tracking-tight">{item.headline}</h2>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">{item.summary}</p>
+        <h2 className="mt-4 font-display text-2xl font-semibold leading-snug tracking-tight">{item.headline}</h2>
+        <p className="mt-3 line-clamp-4 max-w-2xl text-sm leading-relaxed text-muted">{item.summary}</p>
 
         {/* `mt-auto` mendorong baris aksi ke dasar kolom supaya sejajar dengan
               ujung bawah gambar; `pt-6` menjaga jarak minimum dari paragraf. */}

@@ -118,7 +118,12 @@ export default function DashboardLiveSection({ title, currencies, news, userId }
         <p className="rounded-lg border border-down/30 bg-down/5 px-4 py-2 font-mono text-xs text-down">{error}</p>
       )}
       <StatCardsRow
-        currentRate={{ rate: latest ? formatRate(latest.rate) : '—', ...change }}
+        currentRate={{
+          rate: latest ? formatRate(latest.rate) : '—',
+          ...change,
+          pair: `${from}/${to}`,
+          sparkline: series.slice(-30).map((p) => p.rate),
+        }}
         quickConvert={{ rate: latest?.rate ?? 0, fromCode: from, toCode: to }}
         historicalPosition={historicalPosition}
       />
@@ -127,7 +132,7 @@ export default function DashboardLiveSection({ title, currencies, news, userId }
       {/* 3fr/2fr ~= proporsi 60/40 dari desain — kartu movers lebih lebar
           dari kartu daftar berita. */}
       <div className="grid gap-4 md:grid-cols-[3fr_2fr]">
-        <MarketMoversCard />
+        <MarketMoversCard news={news} />
         <NewsListCard related={relatedNews} others={otherNews} currency={from} />
       </div>
     </>
