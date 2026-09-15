@@ -5,7 +5,8 @@ import Link from 'next/link';
 import DashboardCard from '../ui/DashboardCard';
 import { SENTIMENT } from '@/lib/sentiment';
 import { BookmarkIcon, ExternalLinkIcon } from '@/components/ui/icons';
-import type { NewsItem } from '@/lib/mock/news';
+import type { NewsItem } from '@/lib/marketaux';
+import { formatTimeAgo } from '@/lib/timeAgo';
 
 type Props = { item: NewsItem };
 
@@ -28,15 +29,14 @@ export default function NewsHeadlineCard({ item }: Props) {
           <span className="flex items-center gap-1 font-mono text-[10px] font-medium uppercase tracking-wide text-accent">
             ✦ Headline
           </span>
-          <span className="font-mono text-xs text-muted">
-            {item.region} · {item.category}
-          </span>
         </div>
 
         {item.image && (
-          // `aspect-[4/3]` menjaga bentuk gambar saat kolom menumpuk di layar
-          // sempit; mulai `sm` tingginya ikut meregang menyamai kolom teks.
-          <div className="relative mt-4 h-56 overflow-hidden rounded-xl border border-line bg-paper">
+          // `flex-1` membuat gambar menyerap tinggi yang tidak dipakai teks —
+          // kartu ini diregangkan setinggi kolom "Paling baru", jadi tanpa ini
+          // deskripsi pendek menyisakan ruang kosong. `min-h-56` menjaga
+          // gambar tetap layak saat deskripsinya panjang.
+          <div className="relative mt-4 min-h-56 flex-1 overflow-hidden rounded-xl border border-line bg-paper">
             <img
               src={item.image}
               alt=""
@@ -52,7 +52,7 @@ export default function NewsHeadlineCard({ item }: Props) {
               ujung bawah gambar; `pt-6` menjaga jarak minimum dari paragraf. */}
         <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-6">
           <div className="flex items-center gap-3 font-mono text-xs text-muted">
-            <span>{item.source} · {item.timeAgo}</span>
+            <span>{item.source} · {formatTimeAgo(item.publishedAt)}</span>
             {item.pair && <span className="rounded-full bg-accent-soft px-2.5 py-1 text-accent">{item.pair}</span>}
           </div>
 
@@ -67,7 +67,9 @@ export default function NewsHeadlineCard({ item }: Props) {
               <BookmarkIcon className="size-4" filled={saved} />
             </button>
             <Link
-              href="#"
+              href={item.url}
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center gap-2 rounded-lg bg-ink px-4 py-2 font-mono text-sm font-medium text-paper transition-opacity hover:opacity-90"
             >
               Baca selengkapnya
