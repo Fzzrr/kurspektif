@@ -43,7 +43,7 @@ export default function PairSelector({ from, to, currencies, recentPairs, onChan
   );
 
   return (
-    <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-surface p-3">
+    <div className="flex flex-wrap items-center gap-3 ">
       {/* Trio select/swap/select jadi satu unit: menyusut bersama, dan turun
           baris bersama saat kartu lebih sempit dari basis-nya. */}
       <div className="flex min-w-0 flex-1 basis-[320px] items-center gap-3">

@@ -91,10 +91,10 @@ export default function SelectMenu<T extends string>({
           `max-h-72` untuk daftar panjang (mis. ~30 mata uang): panelnya
           menggulung sendiri alih-alih memanjang melewati layar. */}
       {open && (
-        <div className="menu-in absolute left-0 top-full z-30 mt-2 max-h-72 min-w-full max-w-[calc(100vw-2rem)] overflow-y-auto overscroll-contain rounded-2xl border border-line bg-paper/85 p-1 shadow-[0_18px_40px_-20px_rgba(0,0,0,0.8)] backdrop-blur-xl">
+        <div className="menu-in absolute left-0 top-full z-30 mt-2 max-h-72 w-full overflow-y-auto overscroll-contain glass rounded-2xl border border-white/40 bg-black/80 p-1 shadow-[0_28px_70px_-18px_rgba(0,0,0,1)]">
           {searchable && (
             // `sticky` menjaga kotak cari tetap terlihat saat daftar digulung.
-            <label className="sticky top-0 z-10 mb-1 flex items-center gap-2 rounded-xl border border-line bg-paper px-3 py-2 transition-colors focus-within:border-accent">
+            <label className="sticky top-0 z-10 mb-1 flex items-center gap-2 rounded-xl border border-white/30 bg-black/60 px-3 py-2 transition-colors focus-within:border-accent">
               <SearchIcon className="size-4 shrink-0 text-muted" />
               <input
                 ref={searchRef}
@@ -119,7 +119,7 @@ export default function SelectMenu<T extends string>({
                   onChange(option.value);
                   close();
                 }}
-                className={`block w-full whitespace-nowrap rounded-xl px-3 py-2 text-left font-mono text-sm transition-colors ${
+                className={`block w-full truncate rounded-xl px-3 py-2 text-left font-mono text-sm transition-colors ${
                   isSelected ? 'bg-accent-soft text-accent' : 'text-muted hover:bg-accent-soft hover:text-ink'
                 }`}
               >

@@ -12,10 +12,10 @@ export default function DashboardHeader({ title, eyebrow = 'Dashboard', updatedA
   return (
     <div className="flex flex-wrap items-end justify-between gap-3">
       <div>
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted">{eyebrow}</p>
+        <p className="font-mono text-xs text-muted">{eyebrow}</p>
         <h1 className="mt-2 font-display text-2xl font-semibold tracking-tight">{title}</h1>
       </div>
-      <p className="font-mono text-xs text-muted">Diperbarui {updatedAt}</p>
+      <p className="font-mono text-xs text-muted">{updatedAt}</p>
     </div>
   );
 }

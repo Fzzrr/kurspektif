@@ -59,7 +59,7 @@ export default function RateChartCard({ series, pair, isLoading = false }: Props
     <DashboardCard>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted">Grafik kurs</p>
+          <p className="font-mono text-xs text-muted">Grafik Kurs</p>
           <div className="mt-1 flex flex-wrap items-center gap-2">
             <p className="font-mono text-sm text-ink">
               {pair} · {TIMEFRAME_DESCRIPTIONS[timeframe]}

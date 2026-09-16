@@ -9,7 +9,9 @@ const PREVIEW_COUNT = 4;
 type Props = { related: NewsItem[]; others: NewsItem[]; currency: string };
 
 // Slot yang tidak terisi berita terkait pasangan aktif diisi berita terbaru
-// lain, dipisah label supaya tidak dikira terkait.
+// lain. Label pemisah hanya muncul kalau memang ada berita terkait di
+// atasnya — kalau tidak ada sama sekali, daftar tampil sebagai berita global
+// biasa tanpa label yang menegaskan "tidak ada yang cocok".
 export default function NewsListCard({ related, others, currency }: Props) {
   const shownRelated = related.slice(0, PREVIEW_COUNT);
   const filler = others.slice(0, PREVIEW_COUNT - shownRelated.length);
@@ -30,7 +32,7 @@ export default function NewsListCard({ related, others, currency }: Props) {
           {shownRelated.map((item) => (
             <NewsRow key={item.id} item={item} />
           ))}
-          {filler.length > 0 && (
+          {shownRelated.length > 0 && filler.length > 0 && (
             <li className="py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted">Berita lainnya</li>
           )}
           {filler.map((item) => (
