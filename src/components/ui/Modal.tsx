@@ -82,7 +82,7 @@ export default function Modal({ open, onClose, title, size = 'md', padded = true
         onClick={(e) => e.stopPropagation()}
         className={`max-h-[90vh] w-full ${sizeClass[size]} ${
           padded ? 'overflow-y-auto p-6 sm:p-8' : 'overflow-hidden'
-        } rounded-2xl border border-line bg-paper/85 shadow-[0_24px_60px_-24px_rgba(0,0,0,0.8)] backdrop-blur-xl outline-none`}
+        } glass rounded-2xl bg-paper/70 outline-none`}
       >
         {title && padded && (
           <h2 id="modal-title" className="mb-4 font-display text-lg font-semibold text-ink">

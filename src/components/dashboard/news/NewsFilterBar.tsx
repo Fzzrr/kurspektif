@@ -5,7 +5,7 @@ import { currencyToFlag } from '../rate/PairSelector';
 import type { Currency } from '@/lib/frankfurter';
 
 const SENTIMENT_OPTIONS = [
-  { value: 'semua', label: 'Semua sentimen' },
+  { value: 'semua', label: 'Semua' },
   { value: 'positif', label: 'Positif' },
   { value: 'netral', label: 'Netral' },
   { value: 'negatif', label: 'Negatif' },
@@ -33,7 +33,7 @@ export default function NewsFilterBar({ currency, onCurrencyChange, currencies, 
   ];
 
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-line bg-surface p-3 md:flex-row md:flex-wrap md:items-center">
+    <div className="flex flex-col gap-3 md:flex-row md:flex-wrap md:items-center">
       <SelectMenu
         options={currencyOptions}
         value={currency}
