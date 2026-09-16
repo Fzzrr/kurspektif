@@ -1,4 +1,5 @@
 import type { Sentiment } from '@/lib/sentiment';
+import { prisma } from '@/lib/prisma';
 
 const MARKETAUX_BASE = 'https://api.marketaux.com/v1/news/all';
 
@@ -66,7 +67,40 @@ function mapArticle(article: MarketauxArticle): NewsItem {
 const PAGES_TO_FETCH = 8;
 const REVALIDATE_SECONDS = 10_800;
 
+// Berapa artikel terbaru dari arsip yang dikirim ke halaman.
+const ARCHIVE_LIMIT = 200;
+
+// Tarik dari Marketaux (kena cache 3 jam), tumpuk ke arsip di database, lalu
+// kembalikan isi arsip urut terbaru. Kalau API gagal (kuota habis, jaringan),
+// arsip yang sudah ada tetap tersaji — hanya tidak bertambah.
 export async function fetchCurrencyNews(): Promise<NewsItem[]> {
+  try {
+    const fresh = await fetchFromMarketaux();
+    if (fresh.length > 0) {
+      await prisma.newsArticle.createMany({
+        data: fresh.map((item) => ({ ...item, publishedAt: new Date(item.publishedAt) })),
+        skipDuplicates: true,
+      });
+    }
+  } catch (err) {
+    console.error('Marketaux gagal, memakai arsip:', err);
+  }
+
+  const rows = await prisma.newsArticle.findMany({ orderBy: { publishedAt: 'desc' }, take: ARCHIVE_LIMIT });
+  return rows.map((row) => ({
+    id: row.id,
+    headline: row.headline,
+    summary: row.summary,
+    source: row.source,
+    url: row.url,
+    publishedAt: row.publishedAt.toISOString(),
+    sentiment: row.sentiment as Sentiment,
+    pair: row.pair ?? undefined,
+    image: row.image ?? undefined,
+  }));
+}
+
+async function fetchFromMarketaux(): Promise<NewsItem[]> {
   const apiKey = process.env.MARKETAUX_API_KEY;
   if (!apiKey) throw new Error('MARKETAUX_API_KEY is not set');
 

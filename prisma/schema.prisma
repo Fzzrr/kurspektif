@@ -56,3 +56,21 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+
+// Arsip berita Marketaux. Tiap fetch menumpuk ke sini (id = uuid Marketaux,
+// jadi artikel yang sama tidak pernah dobel); halaman berita membaca dari
+// tabel ini, bukan langsung dari API — arsip terus bertambah antar-hari.
+model NewsArticle {
+  id          String   @id
+  headline    String
+  summary     String
+  source      String
+  url         String
+  publishedAt DateTime
+  sentiment   String
+  pair        String?
+  image       String?
+  createdAt   DateTime @default(now())
+
+  @@index([publishedAt(sort: Desc)])
+}
