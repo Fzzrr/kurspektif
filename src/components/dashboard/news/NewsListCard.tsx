@@ -59,7 +59,7 @@ function NewsRow({ item }: { item: NewsItem }) {
           </p>
         </div>
         {item.image && (
-          <div className="size-14 shrink-0 overflow-hidden rounded-lg border border-line">
+          <div className="size-14 shrink-0 overflow-hidden rounded-lg">
             <img
               src={item.image}
               alt=""

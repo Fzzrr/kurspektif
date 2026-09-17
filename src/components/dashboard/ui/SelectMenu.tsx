@@ -75,8 +75,8 @@ export default function SelectMenu<T extends string>({
         type="button"
         onClick={() => (open ? close() : setOpen(true))}
         aria-expanded={open}
-        className={`flex w-full min-w-0 items-center gap-2 rounded-full border px-3 py-2 font-mono text-sm text-ink transition-colors ${
-          active ? 'border-accent bg-accent-soft/60' : 'border-line hover:bg-accent-soft'
+        className={`flex w-full min-w-0 items-center gap-2 rounded-full px-3 py-2 font-mono text-sm text-ink transition-colors ${
+          active ? 'bg-accent-soft font-medium' : 'bg-accent-soft/60 hover:bg-accent-soft'
         }`}
       >
         {icon}
@@ -91,10 +91,10 @@ export default function SelectMenu<T extends string>({
           `max-h-72` untuk daftar panjang (mis. ~30 mata uang): panelnya
           menggulung sendiri alih-alih memanjang melewati layar. */}
       {open && (
-        <div className="menu-in absolute left-0 top-full z-30 mt-2 max-h-72 w-full overflow-y-auto overscroll-contain glass rounded-2xl border border-white/40 bg-black/80 p-1 shadow-[0_28px_70px_-18px_rgba(0,0,0,1)]">
+        <div className="menu-in absolute left-0 top-full z-30 mt-2 max-h-72 w-full overflow-y-auto overscroll-contain rounded-2xl bg-black/70 p-1 shadow-[0_28px_70px_-18px_rgba(0,0,0,1)] backdrop-blur-xl">
           {searchable && (
             // `sticky` menjaga kotak cari tetap terlihat saat daftar digulung.
-            <label className="sticky top-0 z-10 mb-1 flex items-center gap-2 rounded-xl border border-white/30 bg-black/60 px-3 py-2 transition-colors focus-within:border-accent">
+            <label className="sticky top-0 z-10 mb-1 flex items-center gap-2 rounded-xl bg-white/5 px-3 py-2 ring-1 ring-transparent transition-[box-shadow] focus-within:ring-accent/40">
               <SearchIcon className="size-4 shrink-0 text-muted" />
               <input
                 ref={searchRef}
@@ -120,7 +120,7 @@ export default function SelectMenu<T extends string>({
                   close();
                 }}
                 className={`block w-full truncate rounded-xl px-3 py-2 text-left font-mono text-sm transition-colors ${
-                  isSelected ? 'bg-accent-soft text-accent' : 'text-muted hover:bg-accent-soft hover:text-ink'
+                  isSelected ? 'bg-white/10 text-accent' : 'text-muted hover:bg-white/5 hover:text-ink'
                 }`}
               >
                 {option.label}

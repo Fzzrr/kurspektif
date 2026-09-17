@@ -27,7 +27,7 @@ const MAX_FILE_BYTES = 1.5 * 1024 * 1024; // 1.5MB
 const TABS = [{ id: 'profil', label: 'Profil', icon: UserIcon }] as const;
 
 const ghostButtonClass =
-  'rounded-lg border border-line px-3 py-2 font-mono text-xs text-ink transition-colors hover:bg-accent-soft disabled:opacity-60';
+  'rounded-lg bg-accent-soft px-3 py-2 font-mono text-xs text-ink transition-colors hover:bg-accent-soft/70 disabled:opacity-60';
 const solidButtonClass =
   'rounded-lg bg-ink px-4 py-2 font-mono text-xs font-medium text-paper transition-opacity hover:opacity-90 disabled:opacity-60';
 
@@ -53,7 +53,7 @@ export default function ProfileSettingsModal({ open, onClose, user }: Props) {
     <Modal open={open} onClose={onClose} title="Profil" size="xl" padded={false}>
       <div className="flex max-h-[90vh] flex-col sm:flex-row">
         {/* Navigasi kiri — jadi baris tab horizontal di layar kecil. */}
-        <nav className="shrink-0 border-b border-line bg-paper p-3 sm:w-56 sm:border-b-0 sm:border-r sm:p-4">
+        <nav className="shrink-0 bg-paper/60 p-3 sm:w-56 sm:p-4">
           <p className="hidden px-3 pb-3 font-mono text-[11px] uppercase tracking-[0.15em] text-muted sm:block">
             Pengaturan
           </p>

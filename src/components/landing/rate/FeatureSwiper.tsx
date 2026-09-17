@@ -23,7 +23,7 @@ function SlideCard({
   children: ReactNode;
 }) {
   return (
-    <div className="flex h-full flex-col overflow-hidden glass rounded-2xl">
+    <div className="flex h-full flex-col overflow-hidden rounded-2xl">
       <div className="border-b border-line px-6 pt-6">
         <p className="font-mono text-xs uppercase tracking-[0.18em] text-accent">
           {eyebrow}
@@ -56,7 +56,7 @@ function ChartMock() {
 // 2. Rangkuman mingguan → panel teks bergaya "Yang menggerakkan minggu ini".
 function SummaryMock() {
   return (
-    <div className="w-full rounded-xl border border-line bg-surface p-5">
+    <div className="w-full rounded-xl p-5">
       <p className="text-sm font-medium">
         <span className="text-accent">✦</span> Yang menggerakkan minggu ini
       </p>
@@ -113,7 +113,7 @@ function PercentileMock() {
 // 4. Alert yang membawa alasan → mockup notifikasi.
 function AlertMock() {
   return (
-    <div className="w-full rounded-xl border border-line bg-surface p-4">
+    <div className="w-full rounded-xl p-4">
       <div className="flex items-start gap-3">
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent">
           <BellIcon className="size-[18px]" />
@@ -165,7 +165,7 @@ const slides: { eyebrow: string; title: string; desc: string; visual: ReactNode 
 ];
 
 const navButtonClass =
-  "flex h-10 w-10 items-center justify-center rounded-full border border-line bg-surface text-ink transition-colors duration-200 hover:border-accent hover:text-accent";
+  "flex h-10 w-10 items-center justify-center rounded-full bg-accent-soft text-ink transition-colors duration-200 hover:border-accent hover:text-accent";
 
 export default function FeatureSwiper() {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" });

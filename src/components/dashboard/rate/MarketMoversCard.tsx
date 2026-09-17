@@ -29,7 +29,7 @@ export default function MarketMoversCard({ news }: Props) {
   const verdict = ORDER.reduce((best, s) => (split[s] > split[best] ? s : best), 'netral' as Sentiment);
 
   return (
-    <DashboardCard tint className="flex flex-col">
+    <DashboardCard className="flex flex-col">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <p className="text-sm font-medium">Yang menggerakkan rupiah minggu ini</p>
         {total > 0 && (

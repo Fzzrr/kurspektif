@@ -65,12 +65,9 @@ export default function RateChartCard({ series, pair, isLoading = false }: Props
               {pair} · {TIMEFRAME_DESCRIPTIONS[timeframe]}
             </p>
             {stats && (
-              <span
-                className={`rounded-full px-2 py-0.5 font-mono text-[11px] font-medium ${
-                  isUp ? 'bg-up/15 text-up' : 'bg-down/15 text-down'
-                }`}
-              >
-                {isUp ? '↑' : '↓'} {percentFormatter.format(Math.abs(stats.changePct))}%
+              <span className={`font-mono text-[11px] font-medium ${isUp ? 'text-up' : 'text-down'}`}>
+                {isUp ? '+' : '−'}
+                {percentFormatter.format(Math.abs(stats.changePct))}%
               </span>
             )}
           </div>
@@ -95,7 +92,7 @@ export default function RateChartCard({ series, pair, isLoading = false }: Props
             </dd>
           </div>
           <div>
-            <dt className="text-muted">Rata-rata</dt>
+            <dt className="text-muted">Rerata</dt>
             <dd className="mt-0.5 text-ink">{formatRate(stats.average)}</dd>
           </div>
         </dl>

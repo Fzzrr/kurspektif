@@ -14,7 +14,7 @@ export default function NewsLatestList({ items }: Props) {
         {items.map((item) => (
           <li key={item.id} className="flex-1">
             <Link href={item.url} target="_blank" rel="noopener noreferrer" className="group block h-full">
-              <DashboardCard className="flex h-full items-center gap-4 group-hover:-translate-y-0.5 group-hover:border-muted/60">
+              <DashboardCard className="flex h-full items-center gap-4 group-hover:-translate-y-0.5 group-hover:bg-accent-soft">
                 <div className="min-w-0 flex-1">
                   <p className="line-clamp-2 text-sm font-medium leading-snug text-ink underline-offset-4 decoration-muted group-hover:underline">
                     {item.headline}
@@ -28,7 +28,7 @@ export default function NewsLatestList({ items }: Props) {
                   </p>
                 </div>
                 {item.image && (
-                  <div className="size-[4.5rem] shrink-0 overflow-hidden rounded-xl ring-1 ring-white/10">
+                  <div className="size-[4.5rem] shrink-0 overflow-hidden rounded-xl">
                     <img
                       src={item.image}
                       alt=""

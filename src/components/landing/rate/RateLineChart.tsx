@@ -28,35 +28,35 @@ export type ChartPoint = {
 
 // Data ilustrasi default (USD → IDR) 30 hari terakhir (H-30 = terlama, H-1 = terbaru).
 const DEFAULT_RATE_SERIES: ChartPoint[] = [
-  { day: "H-30", rate: 16190 },
-  { day: "H-29", rate: 16175 },
-  { day: "H-28", rate: 16140 },
-  { day: "H-27", rate: 16110 },
-  { day: "H-26", rate: 16095 },
-  { day: "H-25", rate: 16120 },
-  { day: "H-24", rate: 16150, sentiment: "netral" },
-  { day: "H-23", rate: 16185 },
-  { day: "H-22", rate: 16210 },
-  { day: "H-21", rate: 16205 },
-  { day: "H-20", rate: 16230 },
-  { day: "H-19", rate: 16260 },
-  { day: "H-18", rate: 16295, sentiment: "positif" },
-  { day: "H-17", rate: 16285 },
-  { day: "H-16", rate: 16270 },
-  { day: "H-15", rate: 16300 },
-  { day: "H-14", rate: 16320 },
-  { day: "H-13", rate: 16330 },
-  { day: "H-12", rate: 16310 },
-  { day: "H-11", rate: 16290 },
-  { day: "H-10", rate: 16260 },
-  { day: "H-9", rate: 16235 },
-  { day: "H-8", rate: 16210 },
-  { day: "H-7", rate: 16180 },
-  { day: "H-6", rate: 16150, sentiment: "negatif" },
-  { day: "H-5", rate: 16165 },
-  { day: "H-4", rate: 16190 },
-  { day: "H-3", rate: 16210 },
-  { day: "H-2", rate: 16225 },
+  { day: "H-30", rate: 16182 },
+  { day: "H-29", rate: 16171 },
+  { day: "H-28", rate: 16158 },
+  { day: "H-27", rate: 16163 },
+  { day: "H-26", rate: 16149 },
+  { day: "H-25", rate: 16127 },
+  { day: "H-24", rate: 16118, sentiment: "netral" },
+  { day: "H-23", rate: 16131 },
+  { day: "H-22", rate: 16174 },
+  { day: "H-21", rate: 16198 },
+  { day: "H-20", rate: 16192 },
+  { day: "H-19", rate: 16215 },
+  { day: "H-18", rate: 16262, sentiment: "positif" },
+  { day: "H-17", rate: 16281 },
+  { day: "H-16", rate: 16274 },
+  { day: "H-15", rate: 16289 },
+  { day: "H-14", rate: 16312 },
+  { day: "H-13", rate: 16334 },
+  { day: "H-12", rate: 16326 },
+  { day: "H-11", rate: 16341 },
+  { day: "H-10", rate: 16319 },
+  { day: "H-9", rate: 16296 },
+  { day: "H-8", rate: 16302 },
+  { day: "H-7", rate: 16273 },
+  { day: "H-6", rate: 16214, sentiment: "negatif" },
+  { day: "H-5", rate: 16197 },
+  { day: "H-4", rate: 16209 },
+  { day: "H-3", rate: 16226 },
+  { day: "H-2", rate: 16218 },
   { day: "H-1", rate: 16240 },
 ];
 
@@ -79,7 +79,7 @@ function CustomTooltip({ active, payload, data }: TooltipProps) {
   const deltaPct = prev ? ((point.rate - prev) / prev) * 100 : null;
 
   return (
-    <div className="rounded-lg border border-line bg-surface px-2.5 py-1.5 font-mono text-[10px] shadow-[0_10px_30px_-12px_rgba(0,0,0,0.6)]">
+    <div className="rounded-lg bg-surface px-2.5 py-1.5 font-mono text-[10px] shadow-[0_10px_30px_-12px_rgba(0,0,0,0.6)]">
       <p className="text-muted">{point.day}</p>
       <p className="font-medium text-ink">{formatRate(point.rate)}</p>
       {deltaPct !== null && (
@@ -219,15 +219,15 @@ export default function RateLineChart({ data = DEFAULT_RATE_SERIES, className, s
               stroke="var(--color-muted)"
               strokeDasharray="4 4"
               strokeOpacity={0.6}
-              label={{ value: "Rata-rata", position: "insideTopLeft", fontSize: 9, fill: "var(--color-muted)" }}
+              label={{ value: "Rerata", position: "insideTopLeft", fontSize: 9, fill: "var(--color-muted)" }}
             />
           )}
 
           <Area
-            type="monotone"
+            type="linear"
             dataKey="rate"
             stroke={trendColor}
-            strokeWidth={2.2}
+            strokeWidth={1.75}
             fill={`url(#${gradientId})`}
             dot={false}
             isAnimationActive={!reduce}

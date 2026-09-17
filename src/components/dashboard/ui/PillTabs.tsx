@@ -25,7 +25,7 @@ export default function PillTabs<T extends string>({
 
   return (
     <div
-      className={`inline-flex items-center gap-1 rounded-full border border-line bg-paper p-1 ${className}`}
+      className={`inline-flex items-center gap-1 rounded-full bg-accent-soft p-1 ${className}`}
     >
       {options.map((option) => {
         const isActive = option.value === value;

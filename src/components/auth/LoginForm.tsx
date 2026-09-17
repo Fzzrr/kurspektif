@@ -43,7 +43,7 @@ export default function LoginForm() {
       <div className="mx-auto w-full max-w-md space-y-5">
         {/* Hero text */}
         <div className="space-y-2">
-          <p className="font-mono text-xs uppercase tracking-[0.18em] text-accent">
+          <p className="font-mono text-xs text-accent">
             Welcome Back
           </p>
           <AuthHeroHeading ariaLabel="Sign in to Kurspektif.">

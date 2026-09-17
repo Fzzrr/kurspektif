@@ -122,7 +122,7 @@ export default function Navbar() {
             aria-label={menuOpen ? "Tutup menu" : "Buka menu"}
             aria-expanded={menuOpen}
             aria-controls="mobile-menu"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-line text-ink transition-colors hover:border-ink md:hidden"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-accent-soft text-ink transition-colors hover:border-ink md:hidden"
           >
             {menuOpen ? (
               <CloseIcon className="size-5" />

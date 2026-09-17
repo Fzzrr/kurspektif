@@ -30,7 +30,7 @@ export default function NewsHeadlineCard({ item }: Props) {
           // kartu ini diregangkan setinggi kolom "Paling baru", jadi tanpa ini
           // deskripsi pendek menyisakan ruang kosong. `min-h-56` menjaga
           // gambar tetap layak saat deskripsinya panjang.
-          <div className="group relative mt-4 min-h-56 flex-1 overflow-hidden rounded-2xl bg-paper ring-1 ring-white/10">
+          <div className="group relative mt-4 min-h-56 flex-1 overflow-hidden rounded-2xl bg-paper">
             <img
               src={item.image}
               alt=""
@@ -59,7 +59,7 @@ export default function NewsHeadlineCard({ item }: Props) {
               onClick={() => setSaved((current) => !current)}
               aria-label={saved ? 'Hapus dari tersimpan' : 'Simpan berita'}
               aria-pressed={saved}
-              className="flex size-9 items-center justify-center rounded-full border border-line text-muted transition-colors hover:bg-accent-soft hover:text-ink"
+              className="flex size-9 items-center justify-center rounded-full bg-accent-soft text-muted transition-colors hover:text-ink hover:text-ink"
             >
               <BookmarkIcon className="size-4" filled={saved} />
             </button>

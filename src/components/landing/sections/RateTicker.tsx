@@ -18,17 +18,17 @@ export default function RateTicker() {
   const row = [...rates, ...rates];
 
   return (
-    <div className="ticker group relative overflow-hidden border-y border-line bg-surface py-3 text-ink">
+    <div className="ticker group relative overflow-hidden py-3 text-ink">
       {/* Gradien tepi agar item masuk/keluar terasa halus */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16"
-        style={{ background: "linear-gradient(to right, var(--color-surface), transparent)" }}
+        style={{ background: "linear-gradient(to right, var(--color-paper), transparent)" }}
       />
       <div
         aria-hidden
         className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16"
-        style={{ background: "linear-gradient(to left, var(--color-surface), transparent)" }}
+        style={{ background: "linear-gradient(to left, var(--color-paper), transparent)" }}
       />
 
       <div className="ticker-track flex w-max items-center will-change-transform">

@@ -7,18 +7,14 @@ import type { ReactNode, CSSProperties } from 'react';
 type Props = {
   children: ReactNode;
   className?: string;
-  /** Varian latar tinted untuk kartu highlight (mis. "Yang menggerakkan rupiah"). */
-  tint?: boolean;
   style?: CSSProperties;
 };
 
-export default function DashboardCard({ children, className = '', tint = false, style }: Props) {
+export default function DashboardCard({ children, className = '', style }: Props) {
   return (
     <div
       style={style}
-      className={`glass rounded-2xl p-5 text-ink transition-[border-color,transform,box-shadow] duration-200 ${
-        tint ? 'border-white/20' : ''
-      } ${className}`}
+      className={`rounded-2xl p-5 text-ink transition-[background-color,transform] duration-200 ${className}`}
     >
       {children}
     </div>

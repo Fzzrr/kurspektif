@@ -24,14 +24,14 @@ export default function StatCardCurrentRate({
 }: Props) {
   const isUp = changeDir === 'up';
   const loaded = changeDir !== undefined;
-  const tone = !loaded ? 'bg-accent-soft text-muted' : isUp ? 'bg-up/15 text-up' : 'bg-down/15 text-down';
+  const tone = !loaded ? 'text-muted' : isUp ? 'text-up' : 'text-down';
 
   return (
     <DashboardCard className="relative overflow-hidden">
       <div className="flex items-center justify-between gap-2">
         <p className="font-mono text-xs text-muted">Kurs Saat Ini</p>
         {pair && (
-          <span className="rounded-full border border-line px-2 py-0.5 font-mono text-[10px] text-muted">{pair}</span>
+          <span className="rounded-full bg-accent-soft px-2 py-0.5 font-mono text-[10px] text-muted">{pair}</span>
         )}
       </div>
 
@@ -40,8 +40,9 @@ export default function StatCardCurrentRate({
       </p>
 
       <div className="mt-2 flex flex-wrap items-center gap-2">
-        <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-mono text-xs font-medium ${tone}`}>
-          {loaded && (isUp ? '↑' : '↓')} {changePercent}
+        <span className={`font-mono text-xs font-medium ${tone}`}>
+          {loaded && (isUp ? '+' : '−')}
+          {changePercent}
         </span>
         {loaded && <span className="font-mono text-xs text-muted">Hari Ini</span>}
       </div>
