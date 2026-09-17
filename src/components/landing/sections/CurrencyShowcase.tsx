@@ -29,7 +29,7 @@ const stats = [
 
 export default function CurrencyShowcase() {
   return (
-    <section className="relative overflow-hidden border-y border-line bg-surface">
+    <section className="relative overflow-hidden">
       <SymbolBackdrop className="text-stroke text-[30vw] opacity-70" />
 
       <div className="relative mx-auto max-w-6xl px-6 py-16 md:py-20">
@@ -64,9 +64,9 @@ export default function CurrencyShowcase() {
 
         {/* Statistik produk yang berhitung naik */}
         <Reveal delay={140}>
-          <dl className="mx-auto mt-14 grid max-w-3xl grid-cols-1 gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-3">
+          <dl className="mx-auto mt-14 grid max-w-3xl grid-cols-1 overflow-hidden rounded-2xl sm:grid-cols-3 sm:divide-x sm:divide-line">
             {stats.map((stat) => (
-              <div key={stat.label} className="bg-surface p-6 text-center">
+              <div key={stat.label} className="p-6 text-center">
                 <dt className="font-display text-4xl font-bold tracking-tight text-ink">
                   <CountUp value={stat.value} suffix={stat.suffix} />
                 </dt>

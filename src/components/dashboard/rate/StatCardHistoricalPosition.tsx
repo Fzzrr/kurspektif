@@ -33,7 +33,7 @@ export default function StatCardHistoricalPosition({
           marker meluncur saat pasangan diganti, bukan lompat. */}
       <div className="relative mt-auto pt-9">
         <span
-          className="absolute top-1 -translate-x-1/2 rounded-full border border-line bg-paper px-1.5 py-0.5 font-mono text-[10px] text-ink transition-[left] duration-500"
+          className="absolute top-1 -translate-x-1/2 rounded-full bg-accent-soft px-1.5 py-0.5 font-mono text-[10px] text-ink transition-[left] duration-500"
           style={{ left: `${clamped}%` }}
         >
           {clamped}%

@@ -57,7 +57,7 @@ export default function Hero() {
             <CtaLink href="/dashboard">Coba sekarang</CtaLink>
             <a
               href="#cara"
-              className="rounded-xl border border-line px-6 py-3 text-sm font-medium transition-colors hover:border-ink hover:bg-surface"
+              className="rounded-xl bg-accent-soft px-6 py-3 text-sm font-medium transition-colors hover:bg-surface"
             >
               Lihat cara kerja
             </a>

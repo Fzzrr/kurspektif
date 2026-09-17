@@ -52,7 +52,7 @@ export default function StatCardQuickConvert({ rate = 16234, fromCode = 'USD', t
     <DashboardCard className="flex flex-col">
       <p className="font-mono text-xs text-muted">Konversi cepat</p>
 
-      <label className="mt-3 flex items-center rounded-lg border border-line bg-surface transition-[border-color,box-shadow] focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20">
+      <label className="mt-3 flex items-center rounded-lg bg-accent-soft transition-[box-shadow] focus-within:ring-2 focus-within:ring-accent/30">
         <input
           type="text"
           inputMode="numeric"
@@ -62,7 +62,7 @@ export default function StatCardQuickConvert({ rate = 16234, fromCode = 'USD', t
           aria-label={`Jumlah dalam ${fromCode}`}
           className="min-w-0 flex-1 bg-transparent px-3 py-2.5 font-mono text-lg text-ink outline-none placeholder:text-muted/60"
         />
-        <span className="shrink-0 border-l border-line px-3 py-2.5 font-mono text-xs text-muted">{fromCode}</span>
+        <span className="shrink-0 px-3 py-2.5 font-mono text-xs text-muted">{fromCode}</span>
       </label>
 
       <div className="mt-2 flex flex-wrap gap-1.5">
@@ -73,8 +73,8 @@ export default function StatCardQuickConvert({ rate = 16234, fromCode = 'USD', t
               key={value}
               type="button"
               onClick={() => setAmount(formatAmount(value))}
-              className={`rounded-full border px-2.5 py-1 font-mono text-[11px] ${
-                isActive ? 'border-accent bg-accent-soft text-ink' : 'border-line text-muted hover:bg-accent-soft hover:text-ink'
+              className={`rounded-full px-2.5 py-1 font-mono text-[11px] ${
+                isActive ? 'bg-ink text-paper' : 'bg-accent-soft text-muted hover:text-ink'
               }`}
             >
               {formatAmount(value)}
@@ -95,7 +95,7 @@ export default function StatCardQuickConvert({ rate = 16234, fromCode = 'USD', t
         <button
           type="button"
           onClick={copyResult}
-          className="shrink-0 rounded-full border border-line px-3 py-1.5 font-mono text-[11px] text-muted hover:bg-accent-soft hover:text-ink"
+          className="shrink-0 rounded-full bg-accent-soft px-3 py-1.5 font-mono text-[11px] text-muted hover:text-ink"
         >
           {copied ? 'Tersalin' : 'Salin'}
         </button>

@@ -31,7 +31,7 @@ export default function ScrollCue() {
       </span>
       <span
         aria-hidden
-        className="scroll-cue flex h-9 w-9 items-center justify-center rounded-full border border-line bg-paper/70 text-ink backdrop-blur transition-colors hover:border-ink"
+        className="scroll-cue flex h-9 w-9 items-center justify-center rounded-full bg-accent-soft text-ink backdrop-blur transition-colors hover:border-ink"
       >
         <ChevronDown className="size-4" />
       </span>

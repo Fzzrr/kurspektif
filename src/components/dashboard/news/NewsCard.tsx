@@ -10,7 +10,7 @@ export default function NewsCard({ item }: Props) {
 
   return (
     <Link href={item.url} target="_blank" rel="noopener noreferrer" className="group block h-full">
-      <DashboardCard className="flex h-full flex-col group-hover:-translate-y-0.5 group-hover:border-muted/60">
+      <DashboardCard className="flex h-full flex-col group-hover:-translate-y-0.5 group-hover:bg-accent-soft">
         <div className="flex items-center justify-between">
           <SentimentBadge sentiment={item.sentiment} />
         </div>

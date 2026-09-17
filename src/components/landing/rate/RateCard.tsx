@@ -32,12 +32,12 @@ export default function RateCard({
 
   return (
     <div
-      className={`glass rounded-2xl p-5 text-ink ${className}`}
+      className={`rounded-2xl p-5 text-ink ${className}`}
     >
       {/* Header: pasangan kurs + badge live */}
       <div className="flex items-center justify-between">
         <p className="font-mono text-xs text-muted">{pair}</p>
-        <span className="flex items-center gap-1.5 rounded-full border border-line px-2.5 py-1 font-mono text-[10px] uppercase tracking-wide text-muted">
+        <span className="flex items-center gap-1.5 rounded-full bg-accent-soft px-2.5 py-1 font-mono text-[10px] uppercase tracking-wide text-muted">
           <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-up" />
           Live
         </span>

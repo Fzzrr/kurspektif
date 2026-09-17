@@ -21,9 +21,9 @@ export default function Comparison() {
   return (
     <section className="mx-auto max-w-6xl px-6 py-10">
       <Reveal>
-        <div className="grid overflow-hidden rounded-2xl border border-line md:grid-cols-2">
+        <div className="grid overflow-hidden rounded-2xl md:grid-cols-2 md:divide-x md:divide-line">
           {/* Konverter biasa */}
-          <div className="bg-surface p-6 sm:p-8">
+          <div className="p-6 sm:p-8">
             <p className="font-mono text-xs uppercase tracking-wider text-muted">
               Konverter biasa
             </p>
@@ -44,7 +44,7 @@ export default function Comparison() {
           </div>
 
           {/* Kurspektif */}
-          <div className="relative overflow-hidden bg-accent-soft p-6 text-ink sm:p-8">
+          <div className="relative overflow-hidden p-6 text-ink sm:p-8">
             <GlowBlob className="-right-12 -top-12 h-40 w-40" />
             <p className="relative font-mono text-xs uppercase tracking-wider text-accent">
               Kurspektif

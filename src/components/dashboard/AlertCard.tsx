@@ -70,7 +70,7 @@ export default function AlertCard({ currencies }: Props) {
 
         <PillTabs options={DIRECTIONS} value={direction} onChange={setDirection} />
 
-        <label className="flex items-center rounded-lg border border-line bg-surface transition-[border-color,box-shadow] focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20">
+        <label className="flex items-center rounded-lg bg-accent-soft transition-[box-shadow] focus-within:ring-2 focus-within:ring-accent/30">
           <input
             value={threshold}
             onChange={(event) => setThreshold(event.target.value.replace(/[^\d.,]/g, ''))}
@@ -79,7 +79,7 @@ export default function AlertCard({ currencies }: Props) {
             aria-label="Ambang kurs"
             className="w-24 min-w-0 bg-transparent px-3 py-2 font-mono text-sm text-ink outline-none placeholder:text-muted/60"
           />
-          <span className="shrink-0 border-l border-line px-2.5 py-2 font-mono text-[11px] text-muted">IDR</span>
+          <span className="shrink-0 px-2.5 py-2 font-mono text-[11px] text-muted">IDR</span>
         </label>
 
         <button

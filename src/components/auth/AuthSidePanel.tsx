@@ -44,7 +44,7 @@ const eurSeries: ChartPoint[] = [
 
 export default function AuthSidePanel() {
   return (
-    <div className="relative hidden overflow-hidden border-l border-line bg-surface p-6 text-ink lg:flex lg:flex-1 lg:flex-col lg:justify-center xl:px-20">
+    <div className="relative hidden overflow-hidden p-6 text-ink lg:flex lg:flex-1 lg:flex-col lg:justify-center xl:px-20">
       {/* Glow dekoratif di pojok kanan atas */}
       <div
         className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full opacity-30 blur-3xl"

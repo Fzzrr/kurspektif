@@ -23,7 +23,7 @@ const steps = [
 
 export default function HowItWorks() {
   return (
-    <section id="cara" className="border-y border-line bg-surface">
+    <section id="cara">
       <div className="mx-auto max-w-6xl px-6 py-16">
         <Reveal>
           <SectionHeading
