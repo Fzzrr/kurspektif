@@ -9,6 +9,9 @@ import NewsLatestList from './news/NewsLatestList';
 import NewsGrid from './news/NewsGrid';
 import type { NewsItem } from '@/lib/marketaux';
 import type { Currency } from '@/lib/frankfurter';
+import { dayKey } from '@/lib/timeAgo';
+
+const PAGE_SIZE = 30;
 
 type Props = { items: NewsItem[]; currencies: Currency[]; initialCurrency?: string };
 
@@ -23,6 +26,21 @@ export default function NewsBoard({ items, currencies, initialCurrency }: Props)
       : 'semua',
   );
   const [sentiment, setSentiment] = useState<SentimentFilter>('semua');
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
+  // Setiap perubahan filter mulai lagi dari halaman pertama.
+  function updateSearch(value: string) {
+    setSearch(value);
+    setVisibleCount(PAGE_SIZE);
+  }
+  function updateCurrency(value: string) {
+    setCurrency(value);
+    setVisibleCount(PAGE_SIZE);
+  }
+  function updateSentiment(value: SentimentFilter) {
+    setSentiment(value);
+    setVisibleCount(PAGE_SIZE);
+  }
 
   // Dropdown hanya menawarkan mata uang yang benar-benar muncul di salah satu
   // pasangan berita — memilih salah satunya dijamin ada hasilnya.
@@ -53,18 +71,31 @@ export default function NewsBoard({ items, currencies, initialCurrency }: Props)
   const latest = headline ? rest.slice(0, 4) : [];
   const gridItems = headline ? rest.slice(4) : rest;
 
+  // Potong dulu, baru kelompokkan per hari — supaya "Muat lebih banyak"
+  // mengisi kelompok secara berurutan. Items sudah urut terbaru, jadi Map
+  // menjaga urutan kelompoknya.
+  const groups = useMemo(() => {
+    const map = new Map<string, NewsItem[]>();
+    for (const item of gridItems.slice(0, visibleCount)) {
+      const key = dayKey(item.publishedAt);
+      map.set(key, [...(map.get(key) ?? []), item]);
+    }
+    return Array.from(map);
+  }, [gridItems, visibleCount]);
+  const remaining = Math.max(0, gridItems.length - visibleCount);
+
   return (
     <div className="space-y-6">
-      <NewsSearchBar value={search} onChange={setSearch} />
+      <NewsSearchBar value={search} onChange={updateSearch} />
 
       <NewsHeader />
 
       <NewsFilterBar
         currency={currency}
-        onCurrencyChange={setCurrency}
+        onCurrencyChange={updateCurrency}
         currencies={currencyOptions}
         sentiment={sentiment}
-        onSentimentChange={setSentiment}
+        onSentimentChange={updateSentiment}
       />
 
       {headline && (
@@ -74,7 +105,12 @@ export default function NewsBoard({ items, currencies, initialCurrency }: Props)
         </div>
       )}
 
-      <NewsGrid items={gridItems} totalCount={filteredNews.length} />
+      <NewsGrid
+        groups={groups}
+        totalCount={filteredNews.length}
+        remaining={remaining}
+        onLoadMore={() => setVisibleCount((count) => count + PAGE_SIZE)}
+      />
     </div>
   );
 }

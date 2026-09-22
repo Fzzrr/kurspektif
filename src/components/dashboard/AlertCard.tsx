@@ -14,8 +14,8 @@ import { SEED_ALERTS, type AlertCondition } from '@/lib/mock/alerts';
 import type { Currency } from '@/lib/frankfurter';
 
 const DIRECTIONS = [
-  { value: 'atas', label: 'di atas' },
-  { value: 'bawah', label: 'di bawah' },
+  { value: 'atas', label: 'Upper' },
+  { value: 'bawah', label: 'Lower' },
 ] as const;
 
 type Props = { currencies: Currency[] };
@@ -60,7 +60,7 @@ export default function AlertCard({ currencies }: Props) {
     <DashboardCard>
       <div className="flex items-center justify-between gap-2">
         <p className="text-sm font-medium">Alert kurs</p>
-        <span className="font-mono text-[11px] text-muted">{alerts.length} aktif</span>
+        <span className="font-mono text-[11px] text-muted">{alerts.length}</span>
       </div>
 
       <form onSubmit={handleSubmit} className="mt-3 flex flex-wrap items-center gap-2">

@@ -44,7 +44,7 @@ export default function NewsListCard({ related, others, currency }: Props) {
   );
 }
 
-function NewsRow({ item }: { item: NewsItem }) {
+export function NewsRow({ item }: { item: NewsItem }) {
   return (
     <li className="flex gap-2.5 py-3 first:pt-0 last:pb-0">
       <span

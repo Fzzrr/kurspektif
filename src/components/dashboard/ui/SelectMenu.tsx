@@ -93,8 +93,11 @@ export default function SelectMenu<T extends string>({
       {open && (
         <div className="menu-in absolute left-0 top-full z-30 mt-2 max-h-72 w-full overflow-y-auto overscroll-contain rounded-2xl bg-black/70 p-1 shadow-[0_28px_70px_-18px_rgba(0,0,0,1)] backdrop-blur-xl">
           {searchable && (
-            // `sticky` menjaga kotak cari tetap terlihat saat daftar digulung.
-            <label className="sticky top-0 z-10 mb-1 flex items-center gap-2 rounded-xl bg-white/5 px-3 py-2 ring-1 ring-transparent transition-[box-shadow] focus-within:ring-accent/40">
+            // `sticky` menjaga kotak cari tetap terlihat saat daftar digulung —
+            // latar dibuat solid (bukan translucent seperti panelnya) supaya
+            // opsi yang lewat di baliknya tidak tembus dan mengganggu keterbacaan.
+            // Shadow di bawahnya menegaskan batas dari daftar yang bergulir.
+            <label className="sticky top-0 z-10 mb-1 flex items-center gap-2 rounded-xl bg-paper px-3 py-2 shadow-[0_10px_16px_-6px_rgba(0,0,0,0.8)] ring-1 ring-transparent transition-[box-shadow] focus-within:ring-accent/40">
               <SearchIcon className="size-4 shrink-0 text-muted" />
               <input
                 ref={searchRef}
