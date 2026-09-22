@@ -1,3 +1,4 @@
+import { after } from 'next/server';
 import type { Sentiment } from '@/lib/sentiment';
 import { prisma } from '@/lib/prisma';
 
@@ -67,24 +68,31 @@ function mapArticle(article: MarketauxArticle): NewsItem {
 const PAGES_TO_FETCH = 8;
 const REVALIDATE_SECONDS = 10_800;
 
-// Berapa artikel terbaru dari arsip yang dikirim ke halaman.
-const ARCHIVE_LIMIT = 200;
+// Berapa artikel terbaru dari arsip yang dikirim ke halaman. Dulu 200 — turun
+// ke 90 (~3 halaman paginasi client) supaya payload RSC/hydrasi tidak berat;
+// arsip lengkapnya tetap tersimpan penuh di database, cuma yang dikirim ke
+// browser dibatasi.
+const ARCHIVE_LIMIT = 90;
 
-// Tarik dari Marketaux (kena cache 3 jam), tumpuk ke arsip di database, lalu
-// kembalikan isi arsip urut terbaru. Kalau API gagal (kuota habis, jaringan),
-// arsip yang sudah ada tetap tersaji — hanya tidak bertambah.
+// Baca arsip dari database (cepat — cuma query, tidak menunggu API luar),
+// lalu SETELAH respons dikirim, refresh arsip dari Marketaux di background
+// (Next.js `after()`, tetap dijamin selesai walau request sudah kembali ke
+// user). Halaman jadi tidak pernah menunggu 8 fetch paralel + tulis DB —
+// artikel baru muncul mulai kunjungan berikutnya, bukan yang ini.
 export async function fetchCurrencyNews(): Promise<NewsItem[]> {
-  try {
-    const fresh = await fetchFromMarketaux();
-    if (fresh.length > 0) {
-      await prisma.newsArticle.createMany({
-        data: fresh.map((item) => ({ ...item, publishedAt: new Date(item.publishedAt) })),
-        skipDuplicates: true,
-      });
+  after(async () => {
+    try {
+      const fresh = await fetchFromMarketaux();
+      if (fresh.length > 0) {
+        await prisma.newsArticle.createMany({
+          data: fresh.map((item) => ({ ...item, publishedAt: new Date(item.publishedAt) })),
+          skipDuplicates: true,
+        });
+      }
+    } catch (err) {
+      console.error('Marketaux gagal, arsip tidak bertambah:', err);
     }
-  } catch (err) {
-    console.error('Marketaux gagal, memakai arsip:', err);
-  }
+  });
 
   const rows = await prisma.newsArticle.findMany({ orderBy: { publishedAt: 'desc' }, take: ARCHIVE_LIMIT });
   return rows.map((row) => ({
