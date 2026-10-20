@@ -20,7 +20,7 @@ type RateCardProps = {
 };
 
 export default function RateCard({
-  pair = "USD → IDR",
+  pair = "USD/IDR",
   rate = "16.234",
   changePercent = "0,8%",
   changeDir = "up",
