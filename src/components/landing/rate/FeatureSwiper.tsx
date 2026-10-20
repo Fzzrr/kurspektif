@@ -45,7 +45,7 @@ function ChartMock() {
   return (
     <div className="w-full">
       <div className="flex items-baseline justify-between">
-        <p className="font-mono text-xs text-muted">USD → IDR</p>
+        <p className="font-mono text-xs text-muted">USD/IDR</p>
         <p className="font-mono text-2xl font-medium">16.234</p>
       </div>
       <RateLineChart className="mt-2 w-full" />
