@@ -40,6 +40,24 @@ export async function fetchRateSeries(base: string, quote: string, from: string,
   return inverse.map((point) => ({ date: point.date, rate: 1 / point.rate }));
 }
 
+// Kurs tiap mata uang di `quotes` terhadap USD, dikelompokkan per tanggal.
+// Basis USD karena tiap mata uang bernilai >= ~0,3 per USD, jadi 5 angka
+// penting dari Frankfurter cukup presisi untuk perubahan mingguan (basis IDR
+// cuma memberi 2 angka penting).
+export async function fetchUsdRates(
+  quotes: string[],
+  from: string,
+  to: string,
+): Promise<Map<string, Record<string, number>>> {
+  const params = new URLSearchParams({ base: 'USD', quotes: quotes.join(','), from, to });
+  const res = await fetch(`${FRANKFURTER_BASE}/rates?${params}`, { next: { revalidate: 3600 } });
+  if (!res.ok) throw new Error(`Failed to fetch USD rates (${res.status})`);
+  const data: { date: string; quote: string; rate: number }[] = await res.json();
+  const byDate = new Map<string, Record<string, number>>();
+  for (const point of data) byDate.set(point.date, { ...byDate.get(point.date), [point.quote]: point.rate });
+  return byDate;
+}
+
 export function toISODate(date: Date): string {
   return date.toISOString().slice(0, 10);
 }
