@@ -20,6 +20,7 @@ model User {
   password      String?            // null kalau user OAuth-only
   accounts      Account[]
   sessions      Session[]
+  rateAlerts    RateAlert[]
   createdAt     DateTime  @default(now())
 }
 
@@ -73,4 +74,23 @@ model NewsArticle {
   createdAt   DateTime @default(now())
 
   @@index([publishedAt(sort: Desc)])
+}
+
+// Alert kurs milik pengguna. Dicek sekali sehari oleh /api/cron/check-alerts;
+// `triggeredAt` terisi saat batas tercapai — alert berhenti (sekali tembak)
+// sampai diedit, yang mengosongkannya lagi.
+model RateAlert {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  base          String
+  quote         String
+  direction     String    // 'atas' | 'bawah'
+  threshold     Float
+  triggeredAt   DateTime?
+  triggeredRate Float?
+  createdAt     DateTime  @default(now())
+
+  @@index([userId])
+  @@index([triggeredAt])
 }
