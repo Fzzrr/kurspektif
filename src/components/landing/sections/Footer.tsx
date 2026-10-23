@@ -6,15 +6,15 @@ const columns = [
     title: "Produk",
     links: [
       { label: "Dashboard", href: "/dashboard" },
-      { label: "Pasangan saya", href: "/watchlist" },
-      { label: "Alert", href: "/alert" },
+      { label: "Pasangan saya", href: "/dashboard/pasangan-saya" },
+      { label: "Alert", href: "/dashboard/alert" },
     ],
   },
   {
     title: "Tentang",
     links: [
-      { label: "Metodologi", href: "/tentang-sentimen" },
-      { label: "Sumber data", href: "/tentang-sentimen" },
+      { label: "Metodologi", href: "/dashboard/tentang-sentimen" },
+      { label: "Sumber data", href: "/dashboard/tentang-sentimen" },
       { label: "Kontak", href: "#" },
     ],
   },

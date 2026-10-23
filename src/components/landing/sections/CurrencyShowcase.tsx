@@ -22,8 +22,8 @@ const coins = [
 ];
 
 const stats = [
-  { value: "8", suffix: "+", label: "pasangan mata uang populer siap pakai" },
-  { value: "90", label: "hari konteks historis di tiap kurs" },
+  { value: "165", label: "mata uang, bebas dipasangkan" },
+  { value: "365", label: "hari grafik historis di tiap pasangan" },
   { value: "2", label: "sumber data terpadu: kurs & berita" },
 ];
 
@@ -39,7 +39,7 @@ export default function CurrencyShowcase() {
             size="lg"
             eyebrow="Multi-currency"
             title="Satu alat untuk semua mata uang"
-            lead="USD, EUR, JPY, hingga pasangan yang jarang dilirik — selama ada kursnya, Kurspektif menyandingkannya dengan berita yang relevan."
+            lead="USD, EUR, JPY, hingga pasangan yang jarang dilirik — selama ada kursnya, Kurspektif menunjukkan seberapa jauh ia bergerak dan sisi mana yang menggerakkannya."
           />
         </Reveal>
 
@@ -68,7 +68,7 @@ export default function CurrencyShowcase() {
             {stats.map((stat) => (
               <div key={stat.label} className="p-6 text-center">
                 <dt className="font-display text-4xl font-bold tracking-tight text-ink">
-                  <CountUp value={stat.value} suffix={stat.suffix} />
+                  <CountUp value={stat.value} />
                 </dt>
                 <dd className="mx-auto mt-2 max-w-[16rem] text-sm text-muted">
                   {stat.label}

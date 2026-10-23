@@ -11,9 +11,9 @@ const before = [
 
 const after = [
   "Berita ditandai sentimen positif / netral / negatif",
-  "Rangkuman mingguan kenapa kurs bergerak",
+  "Tahu sisi mana yang menggerakkan kurs minggu ini",
   "Konteks historis — mahal atau murah?",
-  "Alert yang membawa alasan, bukan cuma angka",
+  "Grafik hingga 1 tahun dengan tertinggi, terendah, dan rerata",
   "Berlaku untuk pasangan mata uang apa pun",
 ];
 

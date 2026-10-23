@@ -7,7 +7,7 @@ const steps = [
   {
     num: "01",
     title: "Pilih mata uang",
-    desc: "Tentukan pasangan apa pun — USD/IDR, EUR/JPY, atau lainnya.",
+    desc: "Tentukan pasangan apa pun dari 165 mata uang — USD/IDR, EUR/JPY, atau lainnya.",
   },
   {
     num: "02",
@@ -17,7 +17,7 @@ const steps = [
   {
     num: "03",
     title: "Pahami kenapa",
-    desc: "Baca rangkuman pekan ini dan keputusan jadi lebih jernih.",
+    desc: "Lihat sisi mana yang menggerakkan pasanganmu minggu ini, lalu putuskan dengan lebih jernih.",
   },
 ];
 

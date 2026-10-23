@@ -68,8 +68,8 @@ export default function Hero() {
             style={{ animationDelay: ".32s" }}
           >
             {/* {" "} wajib: spasi di ujung baris akan dipangkas JSX. */}
-            Multi mata uang <span className="text-accent">·</span>{" "}
-            Berita lokal &amp; global <span className="text-accent">·</span> Gratis
+            165 mata uang <span className="text-accent">·</span>{" "}
+            Berita bertanda sentimen <span className="text-accent">·</span> Gratis
           </p>
         </div>
 
