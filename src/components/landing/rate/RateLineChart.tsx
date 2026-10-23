@@ -60,6 +60,10 @@ const DEFAULT_RATE_SERIES: ChartPoint[] = [
   { day: "H-1", rate: 16240 },
 ];
 
+// Seri yang sama tanpa titik sentimen — grafik di dashboard tidak memakainya,
+// jadi cuplikan "dashboard" di landing juga tidak boleh menampilkannya.
+export const PLAIN_RATE_SERIES: ChartPoint[] = DEFAULT_RATE_SERIES.map(({ day, rate }) => ({ day, rate }));
+
 export const formatRate = (value: number) =>
   new Intl.NumberFormat("id-ID", { maximumSignificantDigits: 6 }).format(value);
 

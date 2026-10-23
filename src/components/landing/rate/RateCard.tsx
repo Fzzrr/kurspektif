@@ -24,7 +24,7 @@ export default function RateCard({
   rate = "16.234",
   changePercent = "0,8%",
   changeDir = "up",
-  historical = "Lebih tinggi dari 82% (90 hari terakhir)",
+  historical = "Lebih tinggi dari 82% hari (90 hari terakhir)",
   data,
   className = "",
 }: RateCardProps) {
@@ -48,7 +48,8 @@ export default function RateCard({
         <CountUp value={rate} />
       </p>
       <p className={`font-mono text-sm ${isUp ? "text-up" : "text-down"}`}>
-        {isUp ? "↑" : "↓"} {changePercent} hari ini
+        {isUp ? "+" : "−"}
+        {changePercent} hari ini
       </p>
 
       {/* Posisi historis */}

@@ -7,8 +7,10 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import RateLineChart from "./RateLineChart";
-import { ArrowRight, BellIcon } from "@/components/ui/icons";
+import RateLineChart, { PLAIN_RATE_SERIES, formatRate } from "./RateLineChart";
+import MoversMock from "./MoversMock";
+import { ArrowRight } from "@/components/ui/icons";
+import { SENTIMENT, type Sentiment } from "@/lib/sentiment";
 
 // Frame "kartu cuplikan" bergaya DashboardPreview: eyebrow + judul + visual.
 function SlideCard({
@@ -40,66 +42,58 @@ function SlideCard({
 
 // --- Mockup visual per fitur -------------------------------------------------
 
-// 1. Sentimen menempel di grafik → reuse RateLineChart (titik sentimen bawaan).
-function ChartMock() {
+// Setiap mockup meniru kartu yang benar-benar ada di dashboard — landing tidak
+// boleh menjanjikan fitur yang belum dibangun.
+
+// 1. Berita bertanda sentimen → baris berita seperti halaman Berita.
+const SAMPLE_NEWS: { headline: string; source: string; time: string; sentiment: Sentiment }[] = [
+  { headline: "Dollar girded by bets on a US hiking cycle", source: "economictimes.indiatimes.com", time: "2 jam lalu", sentiment: "positif" },
+  { headline: "Gold has delivered 23% returns since 2019", source: "livemint.com", time: "5 jam lalu", sentiment: "netral" },
+  { headline: "Peso at new record low; stocks fall", source: "manilatimes.net", time: "Kemarin", sentiment: "negatif" },
+];
+
+function NewsMock() {
   return (
-    <div className="w-full">
-      <div className="flex items-baseline justify-between">
-        <p className="font-mono text-xs text-muted">USD/IDR</p>
-        <p className="font-mono text-2xl font-medium">16.234</p>
-      </div>
-      <RateLineChart className="mt-2 w-full" />
-    </div>
+    <ul className="w-full divide-y divide-line">
+      {SAMPLE_NEWS.map((item) => {
+        const { color, label } = SENTIMENT[item.sentiment];
+        return (
+          <li key={item.headline} className="py-3 first:pt-0 last:pb-0">
+            <p className="text-sm text-ink">{item.headline}</p>
+            <p className="mt-1 flex items-center gap-1.5 font-mono text-[10px] text-muted">
+              <span className="inline-block size-1.5 rounded-full" style={{ backgroundColor: color }} />
+              {label} · {item.source} · {item.time}
+            </p>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 
-// 2. Rangkuman mingguan → panel teks bergaya "Yang menggerakkan minggu ini".
-function SummaryMock() {
-  return (
-    <div className="w-full rounded-xl p-5">
-      <p className="text-sm font-medium">
-        <span className="text-accent">✦</span> Yang menggerakkan minggu ini
-      </p>
-      <p className="mt-2 text-sm leading-relaxed text-muted">
-        Rupiah cenderung melemah seiring ekspektasi The Fed menunda pemangkasan
-        suku bunga, sementara data domestik relatif netral. Tekanan utama datang
-        dari penguatan dolar global, bukan dari faktor lokal.
-      </p>
-      <p className="mt-3 font-mono text-[10px] uppercase tracking-wide text-neutral">
-        Rangkuman · Pekan ini
-      </p>
-    </div>
-  );
-}
-
-// 3. Konteks mahal/murah → indikator persentil 90 hari.
+// 2. Konteks mahal/murah → sama dengan kartu "Posisi historis".
 function PercentileMock() {
   const position = 72; // posisi kurs hari ini relatif rentang 90 hari (%).
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between">
-        <span className="font-mono text-xs uppercase tracking-wide text-muted">
-          Persentil 90 hari
-        </span>
-        <span className="rounded-full bg-accent-soft px-2.5 py-0.5 font-mono text-xs text-accent">
-          P{position}
-        </span>
-      </div>
+      <span className="inline-block rounded-full bg-accent-soft px-3 py-1 font-mono text-xs text-accent">
+        Lebih tinggi dari {position}% hari (90 hari terakhir)
+      </span>
 
-      <div className="relative mt-4 h-2 rounded-full bg-line">
+      <div className="relative mt-6 h-1.5 rounded-full bg-line">
         <div
-          className="absolute inset-y-0 left-0 rounded-full bg-accent/40"
+          className="absolute inset-y-0 left-0 rounded-full bg-down opacity-60"
           style={{ width: `${position}%` }}
         />
         <span
-          className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-surface bg-accent shadow"
+          className="absolute top-1/2 size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-surface bg-down"
           style={{ left: `${position}%` }}
         />
       </div>
 
       <div className="mt-2 flex justify-between font-mono text-[10px] text-muted">
-        <span>Murah</span>
-        <span>Mahal</span>
+        <span>Terendah 90 hari</span>
+        <span>Tertinggi 90 hari</span>
       </div>
 
       <p className="mt-4 text-sm text-muted">
@@ -110,57 +104,66 @@ function PercentileMock() {
   );
 }
 
-// 4. Alert yang membawa alasan → mockup notifikasi.
-function AlertMock() {
+// 3. Grafik kurs → rentang waktu + ringkasan periode, seperti kartu Grafik Kurs.
+function ChartMock() {
+  const rates = PLAIN_RATE_SERIES.map((point) => point.rate);
+  const stats = [
+    { label: "Tertinggi", value: Math.max(...rates) },
+    { label: "Terendah", value: Math.min(...rates) },
+    { label: "Rerata", value: rates.reduce((sum, rate) => sum + rate, 0) / rates.length },
+  ];
   return (
-    <div className="w-full rounded-xl p-4">
-      <div className="flex items-start gap-3">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-accent">
-          <BellIcon className="size-[18px]" />
-        </span>
-        <div className="min-w-0">
-          <p className="text-sm font-medium">
-            USD/IDR menembus 16.250{" "}
-            <span className="font-mono text-down">▲ 0,8%</span>
-          </p>
-          <p className="mt-1 text-sm leading-relaxed text-muted">
-            Kemungkinan dipicu: <span className="text-ink">“The Fed sinyalkan
-            suku bunga tinggi lebih lama”</span>
-          </p>
-          <p className="mt-2 font-mono text-[10px] uppercase tracking-wide text-neutral">
-            Alert · 2 menit lalu
-          </p>
+    <div className="w-full">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="font-mono text-xs text-muted">USD/IDR · 30 hari terakhir</p>
+        <div className="flex gap-1 rounded-full bg-accent-soft p-1 font-mono text-[11px]">
+          {["7H", "30H", "90H", "1T"].map((range) => (
+            <span
+              key={range}
+              className={`rounded-full px-2.5 py-1 ${range === "30H" ? "bg-ink text-paper" : "text-muted"}`}
+            >
+              {range}
+            </span>
+          ))}
         </div>
       </div>
+      <dl className="mt-3 flex flex-wrap gap-x-6 gap-y-1 font-mono text-[11px]">
+        {stats.map((stat) => (
+          <div key={stat.label}>
+            <dt className="text-muted">{stat.label}</dt>
+            <dd className="mt-0.5 text-ink">{formatRate(stat.value)}</dd>
+          </div>
+        ))}
+      </dl>
+      <RateLineChart data={PLAIN_RATE_SERIES} className="mt-2 w-full" showAverage />
     </div>
   );
 }
 
-// Data slide — judul/eyebrow diturunkan dari fitur yang sebelumnya berupa kartu teks.
 const slides: { eyebrow: string; title: string; desc: string; visual: ReactNode }[] = [
   {
-    eyebrow: "Grafik + Sentimen",
-    title: "Sentimen menempel di grafik",
-    desc: "Titik warna menandai hari saat berita penting terbit — gerakan kurs langsung terkait peristiwa.",
-    visual: <ChartMock />,
+    eyebrow: "Penggerak mingguan",
+    title: "Sisi mana yang sebenarnya bergerak",
+    desc: "Tiap mata uang di pasanganmu dibandingkan dengan mata uang utama — jadi kelihatan apakah dolar yang menguat atau rupiah yang melemah.",
+    visual: <MoversMock />,
   },
   {
-    eyebrow: "Rangkuman",
-    title: "Rangkuman mingguan",
-    desc: "Satu paragraf bahasa manusia tentang kenapa rupiah bergerak ke arah tertentu pekan ini.",
-    visual: <SummaryMock />,
+    eyebrow: "Berita",
+    title: "Berita yang sudah ditandai sentimen",
+    desc: "Berita finansial dikelompokkan per hari, ditandai positif, netral, atau negatif, dan bisa disaring per mata uang.",
+    visual: <NewsMock />,
   },
   {
-    eyebrow: "Konteks Harga",
+    eyebrow: "Konteks harga",
     title: "Mahal atau murah",
-    desc: "Indikator persentil 90 hari menempatkan kurs hari ini relatif terhadap rentang historisnya.",
+    desc: "Posisi kurs hari ini dibanding rentang 90 hari terakhirnya.",
     visual: <PercentileMock />,
   },
   {
-    eyebrow: "Alert",
-    title: "Alert yang membawa alasan",
-    desc: "Saat kurs menembus ambang, notifikasi turut menyertakan berita yang kemungkinan jadi pemicunya.",
-    visual: <AlertMock />,
+    eyebrow: "Grafik",
+    title: "Dari 7 hari sampai 1 tahun",
+    desc: "Pilih rentang waktunya — tertinggi, terendah, dan rerata periode langsung terlihat.",
+    visual: <ChartMock />,
   },
 ];
 

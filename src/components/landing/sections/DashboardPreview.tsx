@@ -1,4 +1,5 @@
-import RateLineChart from "../rate/RateLineChart";
+import RateLineChart, { PLAIN_RATE_SERIES } from "../rate/RateLineChart";
+import MoversMock from "../rate/MoversMock";
 import Reveal from "../motion/Reveal";
 import SectionHeading from "../ui/SectionHeading";
 import { PulseDot } from "../ui/decor";
@@ -30,17 +31,11 @@ export default function DashboardPreview() {
             <div>
               <p className="font-mono text-xs text-muted">USD → IDR</p>
               <p className="font-mono text-3xl font-medium">16.234</p>
-              <RateLineChart className="mt-3 w-full" />
+              <RateLineChart data={PLAIN_RATE_SERIES} className="mt-3 w-full" showAverage />
             </div>
 
             <div className="rounded-xl bg-paper p-5">
-              <p className="text-sm font-medium">
-                <span className="text-accent">✦</span> Yang menggerakkan minggu ini
-              </p>
-              <p className="mt-2 text-sm leading-relaxed text-muted">
-                Rupiah cenderung melemah seiring ekspektasi The Fed menunda
-                pemangkasan suku bunga, sementara data domestik relatif netral.
-              </p>
+              <MoversMock />
             </div>
           </div>
         </div>
