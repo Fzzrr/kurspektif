@@ -132,7 +132,7 @@ export default function DashboardLiveSection({ title, currencies, news, userId }
       {/* 3fr/2fr ~= proporsi 60/40 dari desain — kartu movers lebih lebar
           dari kartu daftar berita. */}
       <div className="grid gap-4 md:grid-cols-[3fr_2fr]">
-        <MarketMoversCard news={news} />
+        <MarketMoversCard news={relatedNews} pair={`${from}/${to}`} />
         <NewsListCard related={relatedNews} others={otherNews} currency={from} />
       </div>
     </>

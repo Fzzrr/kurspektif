@@ -11,6 +11,11 @@ export function formatTimeAgo(iso: string): string {
   return `${days} hari lalu`;
 }
 
+/** true kalau `iso` terbit dalam `days` hari terakhir. */
+export function isWithinDays(iso: string, days: number): boolean {
+  return Date.now() - new Date(iso).getTime() < days * 86_400_000;
+}
+
 // Zona waktu dikunci ke Jakarta supaya server dan client menghasilkan kunci
 // hari yang sama — kalau ikut zona pengunjung, pengelompokan bisa berbeda
 // antara SSR dan hidrasi.
