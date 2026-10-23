@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs';
 import { Resend } from 'resend';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { EMAIL_SENDER } from '@/lib/email';
 import { BCRYPT_COST } from '@/lib/auth/auth';
 import { profileUpdateLimiter, passwordChangeLimiter, emailChangeLimiter } from '@/lib/rateLimit';
 
@@ -99,7 +100,7 @@ export async function requestEmailChangeAction(newEmail: string): Promise<Action
 
   const resend = new Resend(process.env.RESEND_API_KEY);
   const sent = await resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL!,
+    from: EMAIL_SENDER,
     to: normalized,
     subject: 'Confirm your new email — Kurspektif',
     html: `<p>Click the link below to confirm your new email address:</p><p><a href="${link}">${link}</a></p><p>This link expires in 1 hour.</p>`,
