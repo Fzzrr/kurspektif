@@ -6,16 +6,15 @@ const columns = [
     title: "Produk",
     links: [
       { label: "Dashboard", href: "/dashboard" },
-      { label: "Pasangan saya", href: "/dashboard/pasangan-saya" },
-      { label: "Alert", href: "/dashboard/alert" },
+      { label: "Berita", href: "/dashboard/berita" },
+      { label: "Alert", href: "/dashboard#alert" },
     ],
   },
   {
     title: "Tentang",
     links: [
-      { label: "Metodologi", href: "/dashboard/tentang-sentimen" },
-      { label: "Sumber data", href: "/dashboard/tentang-sentimen" },
-      { label: "Kontak", href: "#" },
+      { label: "Metodologi", href: "/dashboard/metodologi" },
+      { label: "Sumber data", href: "/dashboard/metodologi#sumber-kurs" },
     ],
   },
 ];

@@ -74,7 +74,9 @@ export default function DashboardLiveSection({ title, currencies, news, userId }
 
   const { latest, series, isLoading, error } = useLiveRate(from, to, 365);
 
-  const updatedAt = latest ? `${dateFmt.format(new Date(latest.date))}` : 'Memuat…';
+  // Jujur soal sumbernya: kurs referensi bank sentral, terbit sekali per hari
+  // kerja — bukan kurs real-time atau kurs jual/beli bank.
+  const updatedAt = latest ? `Kurs referensi harian · ${dateFmt.format(new Date(latest.date))}` : 'Memuat…';
 
   const change = useMemo(() => {
     if (!latest || series.length < 2) return { changeAbsolute: '—', changePercent: 'Memuat…', changeDir: undefined };

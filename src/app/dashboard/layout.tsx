@@ -18,7 +18,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   const hasPassword = Boolean(dbUser?.password);
 
   return (
-    <div className="flex min-h-screen bg-paper text-ink">
+    <div className="flex min-h-screen flex-col bg-paper text-ink md:flex-row">
       <DashboardSidebar
         userName={displayName}
         userEmail={userEmail}
@@ -26,7 +26,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
         hasPassword={hasPassword}
       />
 
-      <main className="min-w-0 flex-1 px-6 py-8 md:px-10 md:py-10">
+      <main className="min-w-0 flex-1 px-4 pb-28 pt-6 sm:px-6 md:px-10 md:py-10">
         {children}
 
         <p className="mx-auto mt-12 max-w-6xl text-center font-mono text-[11px] text-muted">

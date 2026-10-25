@@ -28,7 +28,10 @@ export default async function DashboardPage() {
         news={news}
         userId={session?.user?.id ?? 'anon'}
       />
-      <AlertCard currencies={currencies} initialAlerts={alerts.map(toAlertDTO)} />
+      {/* Target tautan "Alert" di navigasi. scroll-mt: jangan tertutup header ponsel. */}
+      <section id="alert" className="scroll-mt-20 md:scroll-mt-8">
+        <AlertCard currencies={currencies} initialAlerts={alerts.map(toAlertDTO)} />
+      </section>
     </div>
   );
 }

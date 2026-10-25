@@ -115,7 +115,7 @@ export default function AlertCard({ currencies, initialAlerts }: Props) {
         harian.
       </p>
 
-      <div className="mt-6 grid gap-8 md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:gap-0 md:divide-x md:divide-line">
+      <div className="mt-6 grid grid-cols-1 gap-8 md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:gap-0 md:divide-x md:divide-line">
         {/* Komposer: satu keputusan per baris, berlabel — bukan kalimat
             panjang berisi enam kontrol berjejer. */}
         <form onSubmit={handleSubmit} className="space-y-5 md:pr-8">
@@ -219,7 +219,7 @@ export default function AlertCard({ currencies, initialAlerts }: Props) {
 
           {alerts.length === 0 ? (
             <p className="mt-4 rounded-xl border border-dashed border-line px-4 py-8 text-center font-mono text-xs text-muted">
-              Belum ada alert. Buat satu di samping — kami kirim email saat kurs melewati batasnya.
+              Belum ada alert. Kami kirim email saat kurs melewati batas yang kamu buat.
             </p>
           ) : (
             <ul className="mt-2 divide-y divide-line">

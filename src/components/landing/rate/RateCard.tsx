@@ -1,13 +1,9 @@
-import RateLineChart, { type ChartPoint } from "./RateLineChart";
-import { SENTIMENT } from "@/lib/sentiment";
+import RateLineChart, { PLAIN_RATE_SERIES, type ChartPoint } from "./RateLineChart";
 import CountUp from "../motion/CountUp";
 
 // Kartu "signature" — elemen visual khas Kurspektif.
-// Menampilkan kurs, perubahan, badge posisi historis, grafik, dan legenda.
+// Menampilkan kurs, perubahan, badge posisi historis, dan grafik.
 // Semua prop punya default (USD → IDR) agar pemakaian hero tetap <RateCard />.
-
-// Legenda diturunkan dari SENTIMENT (sumber tunggal warna+label) agar tak drift.
-const legend = Object.values(SENTIMENT);
 
 type RateCardProps = {
   pair?: string;
@@ -25,7 +21,7 @@ export default function RateCard({
   changePercent = "0,8%",
   changeDir = "up",
   historical = "Lebih tinggi dari 82% hari (90 hari terakhir)",
-  data,
+  data = PLAIN_RATE_SERIES,
   className = "",
 }: RateCardProps) {
   const isUp = changeDir === "up";
@@ -34,12 +30,11 @@ export default function RateCard({
     <div
       className={`rounded-2xl p-5 text-ink ${className}`}
     >
-      {/* Header: pasangan kurs + badge live */}
+      {/* Header: pasangan kurs + sumber data. Bukan "Live" — kursnya harian. */}
       <div className="flex items-center justify-between">
         <p className="font-mono text-xs text-muted">{pair}</p>
-        <span className="flex items-center gap-1.5 rounded-full bg-accent-soft px-2.5 py-1 font-mono text-[10px] uppercase tracking-wide text-muted">
-          <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-up" />
-          Live
+        <span className="rounded-full bg-accent-soft px-2.5 py-1 font-mono text-[10px] uppercase tracking-wide text-muted">
+          Kurs harian
         </span>
       </div>
 
@@ -58,18 +53,6 @@ export default function RateCard({
       </span>
 
       <RateLineChart data={data} className="mt-4" />
-
-      <div className="mt-1 flex gap-4 font-mono text-[10px] text-muted">
-        {legend.map((item) => (
-          <span key={item.label} className="flex items-center gap-1.5">
-            <span
-              className="inline-block h-2 w-2 rounded-full"
-              style={{ backgroundColor: item.color }}
-            />
-            {item.label}
-          </span>
-        ))}
-      </div>
     </div>
   );
 }
