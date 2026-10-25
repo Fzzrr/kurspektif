@@ -25,7 +25,7 @@ export default function PillTabs<T extends string>({
 
   return (
     <div
-      className={`inline-flex items-center gap-1 rounded-full bg-accent-soft p-1 ${className}`}
+      className={`inline-flex items-center gap-1 bg-accent-soft p-1 ${className}`}
     >
       {options.map((option) => {
         const isActive = option.value === value;
@@ -35,14 +35,14 @@ export default function PillTabs<T extends string>({
             type="button"
             onClick={() => onChange(option.value)}
             aria-pressed={isActive}
-            className={`relative rounded-full px-3 py-1.5 font-mono text-xs transition-colors ${
+            className={`relative px-3 py-1.5 font-mono text-[13px] transition-colors ${
               isActive ? 'text-paper' : 'text-muted hover:text-ink'
             }`}
           >
             {isActive && (
               <motion.span
                 layoutId={`pill-active-bg-${instanceId}`}
-                className="absolute inset-0 rounded-full bg-ink"
+                className="absolute inset-0 bg-ink"
                 transition={{ type: 'spring', stiffness: 500, damping: 35 }}
               />
             )}

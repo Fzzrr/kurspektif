@@ -86,9 +86,9 @@ export default function NewsBoard({ items, currencies, initialCurrency }: Props)
 
   return (
     <div className="space-y-6">
-      <NewsSearchBar value={search} onChange={updateSearch} />
-
       <NewsHeader />
+
+      <NewsSearchBar value={search} onChange={updateSearch} />
 
       <NewsFilterBar
         currency={currency}

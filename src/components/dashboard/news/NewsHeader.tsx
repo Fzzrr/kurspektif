@@ -1,12 +1,11 @@
 export default function NewsHeader() {
   return (
-      <div>
-        <p className="font-mono text-xs text-muted">Berita</p>
-        <h1 className="mt-2 font-display text-2xl font-semibold tracking-tight">Berita finansial dunia.</h1>
-        <p className="mt-2 max-w-2xl text-sm text-muted">
-          Mata uang, ekonomi makro, kebijakan bank sentral, dan komoditas — setiap berita ditandai
-          sentimen agar kamu bisa membaca arah, bukan cuma judul.
-        </p>
-      </div>
+    <div>
+      <h1 className="text-[34px] font-semibold leading-tight tracking-[-0.02em]">Berita kurs dan ekonomi</h1>
+      <p className="mt-3 max-w-2xl text-[15px] leading-relaxed">
+        Mata uang, kebijakan bank sentral, dan ekonomi makro, dari media Indonesia dan global. Setiap berita ditandai
+        sentimennya supaya kamu bisa membaca arah, bukan cuma judul.
+      </p>
+    </div>
   );
 }

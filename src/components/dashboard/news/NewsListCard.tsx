@@ -33,7 +33,7 @@ export default function NewsListCard({ related, others, currency }: Props) {
             <NewsRow key={item.id} item={item} />
           ))}
           {shownRelated.length > 0 && filler.length > 0 && (
-            <li className="py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted">Berita lainnya</li>
+            <li className="py-2 font-mono text-xs text-muted">Berita lainnya</li>
           )}
           {filler.map((item) => (
             <NewsRow key={item.id} item={item} />

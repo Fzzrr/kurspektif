@@ -19,6 +19,7 @@ import {
 import type { TooltipContentProps } from "recharts";
 import { usePrefersReducedMotion } from "@/lib/motion";
 import { SENTIMENT, type Sentiment } from "@/lib/sentiment";
+import { formatRate } from "@/lib/rateStats";
 
 export type ChartPoint = {
   day: string;
@@ -59,13 +60,6 @@ const DEFAULT_RATE_SERIES: ChartPoint[] = [
   { day: "H-2", rate: 16218 },
   { day: "H-1", rate: 16240 },
 ];
-
-// Seri yang sama tanpa titik sentimen — grafik di dashboard tidak memakainya,
-// jadi cuplikan "dashboard" di landing juga tidak boleh menampilkannya.
-export const PLAIN_RATE_SERIES: ChartPoint[] = DEFAULT_RATE_SERIES.map(({ day, rate }) => ({ day, rate }));
-
-export const formatRate = (value: number) =>
-  new Intl.NumberFormat("id-ID", { maximumSignificantDigits: 6 }).format(value);
 
 const percentFormatter = new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 });
 

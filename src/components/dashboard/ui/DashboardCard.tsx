@@ -1,9 +1,8 @@
 import type { ReactNode, CSSProperties } from 'react';
 
 // "Cangkang" kartu yang dipakai berulang di dashboard (kartu statistik, grafik,
-// berita, alert, dst). Diambil dari shell yang sama seperti RateCard di landing
-// page, supaya tampilan kartu konsisten di seluruh aplikasi tanpa menyalin
-// string class yang sama berkali-kali di tiap komponen.
+// berita, alert, dst). Satu cangkang supaya tampilan kartu konsisten di
+// seluruh aplikasi tanpa menyalin string class yang sama di tiap komponen.
 type Props = {
   children: ReactNode;
   className?: string;

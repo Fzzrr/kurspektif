@@ -50,7 +50,7 @@ export default function NewsHeadlineCard({ item }: Props) {
         <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-6">
           <div className="flex items-center gap-3 font-mono text-xs text-muted">
             <span>{item.source} · {formatTimeAgo(item.publishedAt)}</span>
-            {item.pair && <span className="rounded-full bg-accent-soft px-2.5 py-1 text-accent">{item.pair}</span>}
+            {item.pair && <span className="bg-accent-soft px-2.5 py-1 text-accent">{item.pair}</span>}
           </div>
 
           <div className="flex items-center gap-2">
@@ -59,7 +59,7 @@ export default function NewsHeadlineCard({ item }: Props) {
               onClick={() => setSaved((current) => !current)}
               aria-label={saved ? 'Hapus dari tersimpan' : 'Simpan berita'}
               aria-pressed={saved}
-              className="flex size-9 items-center justify-center rounded-full bg-accent-soft text-muted transition-colors hover:text-ink hover:text-ink"
+              className="flex size-9 items-center justify-center bg-accent-soft text-muted transition-colors hover:text-ink hover:text-ink"
             >
               <BookmarkIcon className="size-4" filled={saved} />
             </button>
@@ -67,7 +67,7 @@ export default function NewsHeadlineCard({ item }: Props) {
               href={item.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-lg bg-ink px-4 py-2 font-mono text-sm font-medium text-paper transition-opacity hover:opacity-90"
+              className="flex items-center gap-2 bg-ink px-4 py-2 font-mono text-sm font-medium text-paper transition-opacity hover:opacity-90"
             >
               Baca selengkapnya
               <ExternalLinkIcon className="size-4" />

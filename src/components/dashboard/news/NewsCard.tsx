@@ -42,7 +42,7 @@ export default function NewsCard({ item, wide = false }: Props) {
             grid, jadi baris sumber/pasangan selalu sejajar antar-kartu. */}
         <div className="mt-auto flex items-center justify-between border-t border-line pt-3 font-mono text-[10px] text-muted">
           <span>{item.source} · {formatTimeAgo(item.publishedAt)}</span>
-          {item.pair && <span className="rounded-full bg-accent-soft px-2 py-1 text-accent">{item.pair}</span>}
+          {item.pair && <span className="bg-accent-soft px-2 py-1 text-accent">{item.pair}</span>}
         </div>
       </DashboardCard>
     </Link>

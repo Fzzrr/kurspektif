@@ -34,7 +34,7 @@ export default function NewsGrid({ groups, totalCount, remaining, onLoadMore }: 
         <button
           type="button"
           onClick={onLoadMore}
-          className="w-full rounded-full py-2.5 font-mono text-sm text-muted hover:bg-accent-soft hover:text-ink"
+          className="w-full bg-surface py-3 font-mono text-sm text-muted hover:bg-accent-soft hover:text-ink"
         >
           Lebih Banyak
         </button>
