@@ -1,7 +1,7 @@
 import { SwapIcon } from '@/components/ui/icons';
 import PillTabs from '../ui/PillTabs';
 import SelectMenu from '../ui/SelectMenu';
-import { currencyToFlag } from '../rate/PairSelector';
+import { currencyToFlag } from '@/lib/flags';
 import type { Currency } from '@/lib/frankfurter';
 
 const SENTIMENT_OPTIONS = [

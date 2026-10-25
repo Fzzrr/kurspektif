@@ -5,7 +5,7 @@
 // otomatis ikut berubah setiap ketikan tanpa kode tambahan.
 import { useState } from 'react';
 import DashboardCard from '../ui/DashboardCard';
-import { formatRate } from '@/components/landing/rate/RateLineChart';
+import { formatRate } from '@/lib/rateStats';
 
 type Props = {
   rate?: number;
@@ -52,7 +52,7 @@ export default function StatCardQuickConvert({ rate = 16234, fromCode = 'USD', t
     <DashboardCard className="flex flex-col">
       <p className="font-mono text-xs text-muted">Konversi cepat</p>
 
-      <label className="mt-3 flex items-center rounded-lg bg-accent-soft transition-[box-shadow] focus-within:ring-2 focus-within:ring-accent/30">
+      <label className="mt-3 flex items-center bg-accent-soft transition-[box-shadow] focus-within:ring-2 focus-within:ring-accent/30">
         <input
           type="text"
           inputMode="numeric"
@@ -73,7 +73,7 @@ export default function StatCardQuickConvert({ rate = 16234, fromCode = 'USD', t
               key={value}
               type="button"
               onClick={() => setAmount(formatAmount(value))}
-              className={`rounded-full px-2.5 py-1 font-mono text-[11px] ${
+              className={`px-2.5 py-1 font-mono text-xs ${
                 isActive ? 'bg-ink text-paper' : 'bg-accent-soft text-muted hover:text-ink'
               }`}
             >
@@ -95,7 +95,7 @@ export default function StatCardQuickConvert({ rate = 16234, fromCode = 'USD', t
         <button
           type="button"
           onClick={copyResult}
-          className="shrink-0 rounded-full bg-accent-soft px-3 py-1.5 font-mono text-[11px] text-muted hover:text-ink"
+          className="shrink-0 bg-accent-soft px-3 py-1.5 font-mono text-xs text-muted hover:text-ink"
         >
           {copied ? 'Tersalin' : 'Salin'}
         </button>

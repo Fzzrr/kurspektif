@@ -19,6 +19,7 @@ import {
   changePasswordAction,
   requestEmailChangeAction,
 } from '@/app/dashboard/profile-actions';
+import { setWeeklyDigestAction } from '@/app/dashboard/watchlist-actions';
 
 const MAX_FILE_BYTES = 1.5 * 1024 * 1024; // 1.5MB
 
@@ -27,15 +28,16 @@ const MAX_FILE_BYTES = 1.5 * 1024 * 1024; // 1.5MB
 const TABS = [{ id: 'profil', label: 'Profil', icon: UserIcon }] as const;
 
 const ghostButtonClass =
-  'rounded-lg bg-accent-soft px-3 py-2 font-mono text-xs text-ink transition-colors hover:bg-accent-soft/70 disabled:opacity-60';
+  'bg-accent-soft px-3 py-2 font-mono text-xs text-ink transition-colors hover:bg-accent-soft/70 disabled:opacity-60';
 const solidButtonClass =
-  'rounded-lg bg-ink px-4 py-2 font-mono text-xs font-medium text-paper transition-opacity hover:opacity-90 disabled:opacity-60';
+  'bg-ink px-4 py-2 font-mono text-xs font-medium text-paper transition-opacity hover:opacity-90 disabled:opacity-60';
 
 type User = {
   name: string;
   email: string;
   image: string | null;
   hasPassword: boolean;
+  weeklyDigest: boolean;
 };
 
 type Props = {
@@ -54,7 +56,7 @@ export default function ProfileSettingsModal({ open, onClose, user }: Props) {
       <div className="flex max-h-[90vh] flex-col sm:flex-row">
         {/* Navigasi kiri — jadi baris tab horizontal di layar kecil. */}
         <nav className="shrink-0 bg-paper/60 p-3 sm:w-56 sm:p-4">
-          <p className="hidden px-3 pb-3 font-mono text-[11px] uppercase tracking-[0.15em] text-muted sm:block">
+          <p className="hidden px-3 pb-3 font-mono text-xs text-muted sm:block">
             Pengaturan
           </p>
           <div className="flex gap-1 sm:flex-col">
@@ -64,7 +66,7 @@ export default function ProfileSettingsModal({ open, onClose, user }: Props) {
                 type="button"
                 onClick={() => setTab(id)}
                 aria-current={tab === id}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 font-mono text-sm transition-colors ${
+                className={`flex items-center gap-3 px-3 py-2.5 font-mono text-sm transition-colors ${
                   tab === id
                     ? 'bg-surface font-medium text-ink shadow-sm'
                     : 'text-muted hover:bg-ink/5 hover:text-ink'
@@ -97,6 +99,7 @@ export default function ProfileSettingsModal({ open, onClose, user }: Props) {
             <NameRow user={user} onSaved={refresh} />
             <EmailRow user={user} />
             {user.hasPassword && <PasswordRow />}
+            <DigestRow initial={user.weeklyDigest} />
           </div>
         </div>
       </div>
@@ -155,6 +158,48 @@ function FormActions({ pending, submitLabel, pendingLabel, onCancel }: {
         {pending ? pendingLabel : submitLabel}
       </button>
     </div>
+  );
+}
+
+// --- Ringkasan mingguan ---------------------------------------------------
+
+function DigestRow({ initial }: { initial: boolean }) {
+  const [enabled, setEnabled] = useState(initial);
+  const [error, setError] = useState('');
+
+  async function toggle() {
+    const next = !enabled;
+    setEnabled(next); // optimistis
+    setError('');
+    const res = await setWeeklyDigestAction(next);
+    if (res.error) {
+      setEnabled(!next);
+      setError(res.error);
+    }
+  }
+
+  return (
+    <Row label="Ringkasan mingguan">
+      <RowValue
+        action={
+          <button
+            type="button"
+            role="switch"
+            aria-checked={enabled}
+            aria-label="Email ringkasan mingguan"
+            onClick={toggle}
+            className={`relative h-6 w-10 shrink-0 rounded-full transition-colors ${enabled ? 'bg-ink' : 'bg-accent-soft'}`}
+          >
+            <span
+              className={`absolute top-1 size-4 rounded-full transition-[left] ${enabled ? 'left-5 bg-paper' : 'left-1 bg-muted'}`}
+            />
+          </button>
+        }
+      >
+        <p className="text-sm text-muted">Email tiap Senin pagi untuk pasangan yang kamu simpan.</p>
+      </RowValue>
+      {error && <p className="mt-2 font-mono text-xs text-down">{error}</p>}
+    </Row>
   );
 }
 
@@ -327,7 +372,7 @@ function EmailRow({ user }: { user: User }) {
       <Row label="Email">
         <RowValue
           action={
-            <span className="shrink-0 rounded-full bg-accent-soft px-2 py-0.5 font-mono text-[11px] text-accent">
+            <span className="shrink-0 bg-accent-soft px-2 py-0.5 font-mono text-xs text-accent">
               Google
             </span>
           }

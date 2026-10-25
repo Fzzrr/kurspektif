@@ -1,9 +1,10 @@
 'use client';
 
 import { useMemo } from 'react';
-import { SwapIcon } from '@/components/ui/icons';
+import { BookmarkIcon, SwapIcon } from '@/components/ui/icons';
 import PillTabs from '../ui/PillTabs';
 import SelectMenu from '../ui/SelectMenu';
+import { currencyToFlag } from '@/lib/flags';
 
 type Currency = { code: string; name: string };
 
@@ -11,11 +12,14 @@ type Props = {
   from: string;
   to: string;
   currencies: Currency[];
-  recentPairs: string[];
+  /** Pasangan tersimpan (atau saran kalau belum ada) sebagai pintasan. */
+  quickPairs: string[];
+  saved: boolean;
+  onToggleSave: () => void;
   onChange: (next: { from: string; to: string }) => void;
 };
 
-export default function PairSelector({ from, to, currencies, recentPairs, onChange }: Props) {
+export default function PairSelector({ from, to, currencies, quickPairs, saved, onToggleSave, onChange }: Props) {
   const activePair = `${from}/${to}`;
 
   function handleSwap() {
@@ -27,7 +31,7 @@ export default function PairSelector({ from, to, currencies, recentPairs, onChan
     onChange({ from: nextFrom, to: nextTo });
   }
 
-  const quickPairOptions = recentPairs.map((pair) => ({ value: pair, label: pair }));
+  const quickPairOptions = quickPairs.map((pair) => ({ value: pair, label: pair }));
 
   // Daftarnya ~30 entri dan dipakai dua kali (from & to) — dibentuk sekali saja.
   const currencyOptions = useMemo(
@@ -59,7 +63,7 @@ export default function PairSelector({ from, to, currencies, recentPairs, onChan
           type="button"
           onClick={handleSwap}
           aria-label="Tukar pasangan mata uang"
-          className="flex size-9 shrink-0 items-center justify-center rounded-full bg-accent-soft text-muted transition-colors hover:text-ink hover:text-ink"
+          className="flex size-9 shrink-0 items-center justify-center bg-accent-soft text-muted transition-colors hover:text-ink"
         >
           <SwapIcon className="size-4" />
         </button>
@@ -71,6 +75,20 @@ export default function PairSelector({ from, to, currencies, recentPairs, onChan
           className="min-w-0 flex-1"
           searchable
         />
+
+        <button
+          type="button"
+          onClick={onToggleSave}
+          disabled={from === to}
+          aria-pressed={saved}
+          aria-label={saved ? `Hapus ${activePair} dari pasangan saya` : `Simpan ${activePair} ke pasangan saya`}
+          title={saved ? 'Tersimpan — klik untuk menghapus' : 'Simpan pasangan ini'}
+          className={`flex size-9 shrink-0 items-center justify-center bg-accent-soft transition-colors hover:text-ink disabled:opacity-40 ${
+            saved ? 'text-ink' : 'text-muted'
+          }`}
+        >
+          <BookmarkIcon className="size-4" filled={saved} />
+        </button>
       </div>
 
       {/* Pill tidak pernah dikompres — kalau tidak muat, digeser horizontal. */}
@@ -79,18 +97,4 @@ export default function PairSelector({ from, to, currencies, recentPairs, onChan
       </div>
     </div>
   );
-}
-
-// Kode ISO 4217 -> emoji bendera. Kebanyakan kode mata uang dibentuk dari
-// [kode negara][huruf mata uang] (IDR = ID + Rupiah, SGD = SG + Dollar),
-// jadi dua huruf pertamanya biasanya = kode negara ISO 3166-1 alpha-2.
-// Emoji bendera dibuat dari dua "regional indicator symbol" Unicode yang
-// berpadanan dengan huruf A-Z — bukan gambar/aset terpisah.
-export function currencyToFlag(code: string): string | null {
-  // Kode berawalan "X" (XAU, XDR, XAF, dst.) menurut ISO 4217 khusus untuk
-  // mata uang non-negara (emas, SDR, dsb.) — tidak ada benderanya.
-  if (code.startsWith('X')) return null;
-  const countryCode = code.slice(0, 2).toUpperCase();
-  const codePoints = [...countryCode].map((char) => 0x1f1e6 + char.charCodeAt(0) - 65);
-  return String.fromCodePoint(...codePoints);
 }

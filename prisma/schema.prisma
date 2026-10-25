@@ -21,6 +21,8 @@ model User {
   accounts      Account[]
   sessions      Session[]
   rateAlerts    RateAlert[]
+  watchedPairs  WatchedPair[]
+  weeklyDigest  Boolean   @default(true) // email ringkasan tiap Senin
   createdAt     DateTime  @default(now())
 }
 
@@ -58,8 +60,8 @@ model VerificationToken {
 }
 
 
-// Arsip berita Marketaux. Tiap fetch menumpuk ke sini (id = uuid Marketaux,
-// jadi artikel yang sama tidak pernah dobel); halaman berita membaca dari
+// Arsip berita Marketaux + RSS lokal. Tiap fetch menumpuk ke sini (id = uuid
+// Marketaux atau "rss-<hash url>", jadi artikel yang sama tidak pernah dobel); halaman berita membaca dari
 // tabel ini, bukan langsung dari API — arsip terus bertambah antar-hari.
 model NewsArticle {
   id          String   @id
@@ -85,7 +87,9 @@ model RateAlert {
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   base          String
   quote         String
-  direction     String    // 'atas' | 'bawah'
+  // 'atas' | 'bawah' → threshold = kurs; 'murah' | 'mahal' → threshold =
+  // persen (mis. 20 = masuk 20% hari termurah/termahal dalam setahun).
+  direction     String
   threshold     Float
   triggeredAt   DateTime?
   triggeredRate Float?
@@ -93,4 +97,17 @@ model RateAlert {
 
   @@index([userId])
   @@index([triggeredAt])
+}
+
+// Pasangan favorit pengguna — tampil sebagai pintasan di dashboard dan jadi
+// isi email ringkasan mingguan.
+model WatchedPair {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  base      String
+  quote     String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, base, quote])
 }

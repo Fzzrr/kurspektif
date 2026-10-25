@@ -7,39 +7,29 @@ import { useEffect, useState } from 'react';
 import DashboardCard from '../ui/DashboardCard';
 import type { NewsItem } from '@/lib/marketaux';
 import type { WeeklyMovers } from '@/lib/movers';
-import { dayLabel, isWithinDays } from '@/lib/timeAgo';
+import { dayLabel, isWithinDays, todayKey } from '@/lib/timeAgo';
+import { explain, fmtPct, isMoving } from '@/lib/moversText';
+import { CALENDAR_CURRENCIES, eventsFor } from '@/lib/calendar';
 
-// ponytail: ambang tetap 0,2%/minggu; ganti ke volatilitas historis per pasangan
-// kalau mata uang yang sangat stabil/volatil terasa salah label.
-const STABLE_PCT = 0.2;
-
-const pctFormatter = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 2, signDisplay: 'exceptZero' });
-const fmtPct = (value: number) => `${pctFormatter.format(value)}%`;
 const signTone = (value: number) => (value > 0 ? 'text-up' : value < 0 ? 'text-down' : 'text-muted');
-const isMoving = (value: number) => Math.abs(value) > STABLE_PCT;
 // Di bawah ambang "stabil" warnanya netral — hijau/merah untuk +0,03% berlebihan.
 const moveTone = (value: number) => (isMoving(value) ? signTone(value) : 'text-muted');
 const moveBar = (value: number) => (!isMoving(value) ? 'bg-neutral' : value > 0 ? 'bg-up' : 'bg-down');
-const verb = (value: number) => (value > 0 ? 'menguat' : 'melemah');
+type Props = {
+  news: NewsItem[];
+  pair: string;
+  /** Hasil yang sudah dihitung di server (halaman kurs publik) — lewati fetch. */
+  initialMovers?: WeeklyMovers | null;
+};
 
-function explain({ pairChangePct, sides: [base, quote] }: WeeklyMovers): string {
-  if (!isMoving(pairChangePct)) return 'Pasangan ini nyaris tidak berubah minggu ini.';
-  const opposite = Math.sign(base.strengthPct) !== Math.sign(quote.strengthPct);
-  if (isMoving(base.strengthPct) && isMoving(quote.strengthPct) && opposite) {
-    return `Kedua sisi mendorong ke arah yang sama: ${base.code} ${verb(base.strengthPct)}, ${quote.code} ${verb(quote.strengthPct)}.`;
-  }
-  const driver = Math.abs(base.strengthPct) >= Math.abs(quote.strengthPct) ? base : quote;
-  return `Pergerakan minggu ini terutama datang dari sisi ${driver.code}.`;
-}
-
-type Props = { news: NewsItem[]; pair: string };
-
-export default function MarketMoversCard({ news, pair }: Props) {
+export default function MarketMoversCard({ news, pair, initialMovers }: Props) {
   const [base, quote] = pair.split('/');
-  const [result, setResult] = useState<{ pair: string; data: WeeklyMovers | null } | null>(null);
+  const [result, setResult] = useState<{ pair: string; data: WeeklyMovers | null } | null>(
+    initialMovers === undefined ? null : { pair, data: initialMovers },
+  );
 
   useEffect(() => {
-    if (base === quote) return;
+    if (base === quote || initialMovers !== undefined) return;
     let cancelled = false; // respons lama tidak boleh menimpa pasangan yang lebih baru
     fetch(`/api/movers?base=${base}&quote=${quote}`)
       .then((res) => (res.ok ? res.json() : null))
@@ -52,7 +42,7 @@ export default function MarketMoversCard({ news, pair }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [pair, base, quote]);
+  }, [pair, base, quote, initialMovers]);
 
   const loading = !result || result.pair !== pair;
   const movers = loading ? null : result.data;
@@ -124,6 +114,49 @@ export default function MarketMoversCard({ news, pair }: Props) {
           </div>
         </>
       )}
+
+      {base !== quote && <Agenda base={base} quote={quote} />}
     </DashboardCard>
+  );
+}
+
+// Jadwal resmi yang menyangkut pasangan ini: 7 hari ke belakang (bisa jadi
+// penyebab pergerakan minggu ini) dan 14 hari ke depan.
+function Agenda({ base, quote }: { base: string; quote: string }) {
+  const today = todayKey();
+  const events = [...eventsFor([base, quote], today, -7), ...eventsFor([base, quote], today, 14)].filter(
+    (event, i, all) => all.indexOf(event) === i, // hari ini masuk ke dua jendela
+  );
+  const covered = [base, quote].some((code) => CALENDAR_CURRENCIES.includes(code));
+
+  return (
+    <div className="mt-6">
+      <p className="font-mono text-xs text-muted">Agenda yang bisa menggerakkan kurs</p>
+      {events.length === 0 ? (
+        <p className="mt-2 text-xs text-muted">
+          {covered
+            ? 'Tidak ada jadwal besar dalam 7 hari terakhir dan 14 hari ke depan.'
+            : `Kalender baru mencakup ${CALENDAR_CURRENCIES.join(', ')}.`}
+        </p>
+      ) : (
+        <ul className="mt-2 space-y-2">
+          {events.map((event) => {
+            const past = event.date < today;
+            return (
+              <li key={`${event.date}${event.title}`} className={`flex gap-3 text-xs ${past ? 'text-muted' : 'text-ink'}`}>
+                <span className="w-24 shrink-0 font-mono text-muted">
+                  {dayLabel(event.date)}
+                  {event.time && <span className="block">{event.time} WIB</span>}
+                </span>
+                <span className="min-w-0">
+                  {event.title}
+                  <span className="block text-muted">{past ? 'Sudah lewat. ' : ''}{event.why}</span>
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
   );
 }

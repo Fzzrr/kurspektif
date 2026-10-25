@@ -8,6 +8,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.APP_URL || 'http://localhost:3000'),
   title: "Kurspektif — Pahami kenapa kurs bergerak",
   description:
     "Pantau nilai tukar untuk pasangan mata uang apa pun, lalu baca berita yang sudah ditandai sentimennya agar kamu paham kenapa kurs bergerak.",

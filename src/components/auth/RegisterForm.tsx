@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import AuthHeader from './AuthHeader';
@@ -8,7 +9,6 @@ import FormField from '../ui/FormField';
 import PasswordInput from '../ui/PasswordInput';
 import AuthDivider from '../ui/AuthDivider';
 import SocialAuthButtons from './SocialAuthButtons';
-import AuthHeroHeading from './AuthHeroHeading';
 import { primaryButtonClass } from '../ui/styles';
 import {
   strengthOf,
@@ -48,7 +48,7 @@ export default function RegisterForm() {
     });
     setPending(false);
     if (login?.error) {
-      setError('Account created, but automatic sign-in failed. Please sign in manually.');
+      setError('Akun berhasil dibuat, tapi gagal masuk otomatis. Silakan masuk manual.');
       return;
     }
     router.push('/dashboard');
@@ -57,24 +57,18 @@ export default function RegisterForm() {
 
   return (
     <div className="font-sans space-y-4">
-      <AuthHeader prompt="Already have an account?" linkLabel="Sign in" linkHref="/login" />
+      <AuthHeader />
 
       {/* Konten utama (hero + form) — kolom lebih sempit, ter-center, & diperkecil */}
       <div className="auth-zoom mx-auto w-full max-w-md space-y-4">
         {/* Hero text */}
         <div className="space-y-2">
-          <p className="font-mono font-normal text-xs uppercase tracking-[0.18em] text-accent">
-            Join for Free
-          </p>
-          <AuthHeroHeading ariaLabel="Understand your rates.">
-            <tspan fill="var(--color-ink)">Understand </tspan>
-            <tspan fill="var(--color-accent)">
-              your rates<tspan fill="var(--color-ink)">.</tspan>
-            </tspan>
-          </AuthHeroHeading>
-          <p className="text-neutral">
-            Create an account to save favorite pairs, set alerts, and receive
-            weekly summaries.
+          <h1 className="text-[clamp(40px,5vw,64px)] font-black leading-[0.92] tracking-[-0.035em]">
+            Daftar gratis
+          </h1>
+          <p className="pt-2 text-[17px] leading-relaxed">
+            Buat akun untuk menyimpan pasangan favorit, memasang alert, dan
+            menerima ringkasan mingguan lewat email.
           </p>
         </div>
 
@@ -83,8 +77,8 @@ export default function RegisterForm() {
             id="name"
             name="name"
             type="text"
-            label="Full Name"
-            placeholder="John Doe"
+            label="Nama lengkap"
+            placeholder="Nama kamu"
             required
           />
 
@@ -93,7 +87,7 @@ export default function RegisterForm() {
             name="email"
             type="email"
             label="Email"
-            placeholder="username@email.com"
+            placeholder="kamu@email.com"
             required
           />
 
@@ -101,7 +95,7 @@ export default function RegisterForm() {
             <PasswordInput
               id="password"
               name="password"
-              label="Password"
+              label="Kata sandi"
               value={password}
               onChange={setPassword}
             />
@@ -125,24 +119,11 @@ export default function RegisterForm() {
               </p>
             ) : (
               <p className="mt-2 mb-5 text-xs text-muted">
-                Use 8+ characters with a mix of uppercase &amp; lowercase
-                letters, numbers, and symbols.
+                Minimal 8 karakter, campurkan huruf besar &amp; kecil, angka,
+                dan simbol.
               </p>
             )}
           </div>
-
-          {/* Persetujuan */}
-          <p className="text-center text-xs text-muted">
-            I agree to the{' '}
-            <a href="#" className="text-accent hover:underline">
-              Terms of Service
-            </a>{' '}
-            and{' '}
-            <a href="#" className="text-accent hover:underline">
-              Privacy Policy
-            </a>
-            .
-          </p>
 
           {error && <p className="text-center text-sm text-down">{error}</p>}
 
@@ -151,12 +132,19 @@ export default function RegisterForm() {
             disabled={pending}
             className= {`${primaryButtonClass} disabled:opacity-60`}
           >
-            {pending ? 'Processing…' : 'Create account'}
+            {pending ? 'Memproses…' : 'Buat akun'}
           </button>
         </form>
 
         <AuthDivider />
         <SocialAuthButtons />
+
+        <p className="text-center text-[15px] text-muted">
+          Sudah punya akun?{' '}
+          <Link href="/login" className="font-semibold text-ink underline-offset-4 hover:underline">
+            Masuk
+          </Link>
+        </p>
       </div>
     </div>
   );

@@ -5,10 +5,9 @@ import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { prisma } from '@/lib/prisma';
 import { fetchUsdRates, toISODate } from '@/lib/frankfurter';
-import { isHit, type AlertDirection } from '@/lib/alerts';
+import { POSITION_DAYS, describeCondition, isHit, isPositional, percentileOf, type AlertDirection } from '@/lib/alerts';
 import { EMAIL_SENDER } from '@/lib/email';
-
-const rateFormatter = new Intl.NumberFormat('id-ID', { maximumSignificantDigits: 6 });
+import { formatRate } from '@/lib/rateStats';
 
 export async function GET(request: Request) {
   // Vercel Cron mengirim "Authorization: Bearer <CRON_SECRET>". Tanpa secret
@@ -24,15 +23,19 @@ export async function GET(request: Request) {
   });
   if (alerts.length === 0) return NextResponse.json({ checked: 0, triggered: 0, failed: 0 });
 
-  // Satu permintaan ke Frankfurter untuk semua mata uang yang dipakai.
+  // Satu permintaan ke Frankfurter untuk semua mata uang yang dipakai —
+  // setahun penuh, karena alert posisi butuh riwayatnya.
   const codes = [...new Set(alerts.flatMap((alert) => [alert.base, alert.quote]))].filter((code) => code !== 'USD');
   const to = new Date();
   const from = new Date(to);
-  from.setDate(from.getDate() - 7);
+  from.setDate(from.getDate() - POSITION_DAYS);
   const byDate = codes.length > 0 ? await fetchUsdRates(codes, toISODate(from), toISODate(to)) : new Map();
-  // Nilai terbaru per mata uang — tiap mata uang bisa diperbarui di hari berbeda.
-  const usdRate: Record<string, number> = { USD: 1 };
-  for (const date of [...byDate.keys()].sort()) Object.assign(usdRate, byDate.get(date));
+  const days = [...byDate.keys()].sort().map((date) => ({ USD: 1, ...byDate.get(date) }) as Record<string, number>);
+
+  // Kurs pasangan per hari, hanya hari yang punya kedua sisi — mata uang di
+  // luar ECB kadang diperbarui di hari berbeda.
+  const pairSeries = (base: string, quote: string) =>
+    days.filter((day) => day[base] && day[quote]).map((day) => day[quote] / day[base]);
 
   const resend = new Resend(process.env.RESEND_API_KEY);
   const dashboardUrl = `${process.env.APP_URL || new URL(request.url).origin}/dashboard`;
@@ -42,23 +45,29 @@ export async function GET(request: Request) {
   // ponytail: kirim satu per satu; free tier Resend ~2 email/detik — tambah
   // jeda atau batch API kalau banyak alert tercapai di hari yang sama.
   for (const alert of alerts) {
-    const baseRate = usdRate[alert.base];
-    const quoteRate = usdRate[alert.quote];
-    if (!baseRate || !quoteRate) continue;
-    const rate = quoteRate / baseRate;
-    if (!isHit(alert.direction as AlertDirection, rate, alert.threshold)) continue;
+    const series = pairSeries(alert.base, alert.quote);
+    if (series.length === 0) continue;
+    const rate = series[series.length - 1];
+    const direction = alert.direction as AlertDirection;
+    const percentile = isPositional(direction) ? percentileOf(rate, series) : null;
+    if (!isHit(direction, rate, alert.threshold, percentile)) continue;
 
     const pair = `${alert.base}/${alert.quote}`;
-    const condition = alert.direction === 'atas' ? 'naik di atas' : 'turun di bawah';
-    const target = rateFormatter.format(alert.threshold);
-    const now = rateFormatter.format(rate);
+    const condition = describeCondition(
+      direction,
+      isPositional(direction) ? String(alert.threshold) : formatRate(alert.threshold),
+      alert.quote,
+    );
+    const now = formatRate(rate);
     const sent = await resend.emails.send({
       from: EMAIL_SENDER,
       to: alert.user.email,
-      subject: `${pair} ${condition} ${target} — Kurspektif`,
+      subject: `${pair} ${condition} — Kurspektif`,
       html:
-        `<p>Alert kurs kamu tercapai: <strong>${pair}</strong> ${condition} ${target} ${alert.quote}.</p>` +
-        `<p>Kurs referensi terbaru: <strong>${now} ${alert.quote}</strong>.</p>` +
+        `<p>Alert kurs kamu tercapai: <strong>${pair}</strong> ${condition}.</p>` +
+        `<p>Kurs referensi terbaru: <strong>${now} ${alert.quote}</strong>` +
+        (percentile !== null ? ` — lebih tinggi dari ${percentile}% hari dalam setahun terakhir.` : '.') +
+        `</p>` +
         `<p><a href="${dashboardUrl}">Buka dashboard Kurspektif</a></p>` +
         `<p style="color:#888">Alert ini tidak akan dikirim lagi sampai kamu mengeditnya.</p>`,
     });

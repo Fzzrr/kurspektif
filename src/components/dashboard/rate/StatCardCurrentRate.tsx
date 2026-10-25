@@ -9,7 +9,7 @@ import DashboardCard from '../ui/DashboardCard';
 type Props = {
   rate?: string;
   changePercent?: string;
-  changeDir?: 'up' | 'down';
+  changeDir?: 'up' | 'down' | 'flat';
   pair?: string;
   /** Kurs harian terakhir (urut lama → baru) untuk sparkline. */
   sparkline?: number[];
@@ -22,16 +22,15 @@ export default function StatCardCurrentRate({
   pair,
   sparkline = [],
 }: Props) {
-  const isUp = changeDir === 'up';
   const loaded = changeDir !== undefined;
-  const tone = !loaded ? 'text-muted' : isUp ? 'text-up' : 'text-down';
+  const tone = changeDir === 'up' ? 'text-up' : changeDir === 'down' ? 'text-down' : 'text-muted';
 
   return (
     <DashboardCard className="relative overflow-hidden">
       <div className="flex items-center justify-between gap-2">
-        <p className="font-mono text-xs text-muted">Kurs Saat Ini</p>
+        <p className="font-mono text-xs text-muted">Kurs saat ini</p>
         {pair && (
-          <span className="rounded-full bg-accent-soft px-2 py-0.5 font-mono text-[10px] text-muted">{pair}</span>
+          <span className="bg-accent-soft px-2 py-0.5 font-mono text-xs text-muted">{pair}</span>
         )}
       </div>
 
@@ -41,12 +40,12 @@ export default function StatCardCurrentRate({
 
       <div className="mt-2 flex flex-wrap items-center gap-2">
         <span className={`font-mono text-xs font-medium ${tone}`}>
-          {loaded && (isUp ? '+' : '−')}
+          {changeDir === 'up' ? '+' : changeDir === 'down' ? '−' : ''}
           {changePercent}
         </span>
-        {loaded && <span className="font-mono text-xs text-muted">Hari Ini</span>}
+        {loaded && <span className="font-mono text-xs text-muted">hari ini</span>}
       </div>
-      {sparkline.length > 1 && <Sparkline values={sparkline} up={isUp} />}
+      {sparkline.length > 1 && <Sparkline values={sparkline} up={changeDir !== 'down'} />}
     </DashboardCard>
   );
 }

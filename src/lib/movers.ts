@@ -77,11 +77,23 @@ export function analyzeWeek(byDate: Map<string, DayRates>, base: string, quote: 
   };
 }
 
-export async function fetchWeeklyMovers(base: string, quote: string): Promise<WeeklyMovers | null> {
+function weekRange() {
   const to = new Date();
   const from = new Date(to);
   // 14 hari, bukan 7 — cadangan untuk akhir pekan dan hari libur bursa.
   from.setDate(from.getDate() - 14);
+  return [toISODate(from), toISODate(to)] as const;
+}
+
+export async function fetchWeeklyMovers(base: string, quote: string): Promise<WeeklyMovers | null> {
   const quotes = codesFor(base, quote).filter((code) => code !== 'USD');
-  return analyzeWeek(await fetchUsdRates(quotes, toISODate(from), toISODate(to)), base, quote);
+  return analyzeWeek(await fetchUsdRates(quotes, ...weekRange()), base, quote);
+}
+
+/** Banyak pasangan sekaligus dengan satu request — untuk email ringkasan. */
+export async function fetchWeeklyMoversMany(pairs: string[]): Promise<Map<string, WeeklyMovers | null>> {
+  const split = pairs.map((pair) => pair.split('/') as [string, string]);
+  const quotes = [...new Set(split.flatMap(([base, quote]) => codesFor(base, quote)))].filter((code) => code !== 'USD');
+  const byDate = await fetchUsdRates(quotes, ...weekRange());
+  return new Map(split.map(([base, quote]) => [`${base}/${quote}`, analyzeWeek(byDate, base, quote)]));
 }

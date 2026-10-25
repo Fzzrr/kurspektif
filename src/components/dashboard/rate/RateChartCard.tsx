@@ -1,7 +1,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import RateLineChart, { formatRate } from '@/components/landing/rate/RateLineChart';
+import RateLineChart from '@/components/landing/rate/RateLineChart';
+import { formatRate } from '@/lib/rateStats';
 import DashboardCard from '../ui/DashboardCard';
 import PillTabs from '../ui/PillTabs';
 import type { RatePoint } from '@/lib/frankfurter';

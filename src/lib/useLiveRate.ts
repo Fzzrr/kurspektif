@@ -10,34 +10,37 @@ export type LiveRateState = {
   error: string | null;
 };
 
-const POLL_INTERVAL_MS = 60_000; // 1 minute — "always updating" without hammering a free API
+type Result = { key: string; latest: RatePoint | null; series: RatePoint[]; error: string | null };
 
+// Diambil sekali per pasangan — kurs referensi hanya terbit sekali per hari
+// kerja, jadi polling berkala cuma membuang request.
 export function useLiveRate(base: string, quote: string, days = 365): LiveRateState {
-  const [state, setState] = useState<LiveRateState>({ latest: null, series: [], isLoading: true, error: null });
+  const key = `${base}/${quote}/${days}`;
+  const [result, setResult] = useState<Result | null>(null);
 
   useEffect(() => {
-    let cancelled = false; // guards against a slow old request overwriting a newer one
-
-    async function load() {
-      try {
-        const res = await fetch(`/api/rates?base=${base}&quote=${quote}&days=${days}`);
-        if (!res.ok) throw new Error('Failed to load rate');
-        const data = await res.json();
-        if (!cancelled) setState({ latest: data.latest, series: data.series, isLoading: false, error: null });
-      } catch {
-        if (!cancelled) setState((s) => ({ ...s, isLoading: false, error: 'Failed to refresh rate' }));
-      }
-    }
-
-    setState((s) => ({ ...s, isLoading: true }));
-    load();
-    const interval = setInterval(load, POLL_INTERVAL_MS);
-
+    let cancelled = false; // respons lama tidak boleh menimpa pasangan yang lebih baru
+    fetch(`/api/rates?base=${base}&quote=${quote}&days=${days}`)
+      .then((res) => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      })
+      .then((data) => {
+        if (!cancelled) setResult({ key, latest: data.latest, series: data.series, error: null });
+      })
+      .catch(() => {
+        if (!cancelled) setResult((prev) => ({ key, latest: prev?.latest ?? null, series: prev?.series ?? [], error: 'Gagal memuat kurs' }));
+      });
     return () => {
       cancelled = true;
-      clearInterval(interval);
     };
-  }, [base, quote, days]); // re-runs (and resets the interval) whenever the pair changes
+  }, [key, base, quote, days]);
 
-  return state;
+  // Data pasangan sebelumnya tetap tampil selama pasangan baru dimuat.
+  return {
+    latest: result?.latest ?? null,
+    series: result?.series ?? [],
+    isLoading: result?.key !== key,
+    error: result?.key === key ? result.error : null,
+  };
 }

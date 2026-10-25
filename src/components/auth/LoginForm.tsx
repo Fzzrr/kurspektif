@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import AuthHeader from './AuthHeader';
@@ -8,7 +9,6 @@ import FormField from '../ui/FormField';
 import PasswordInput from '../ui/PasswordInput';
 import AuthDivider from '../ui/AuthDivider';
 import SocialAuthButtons from './SocialAuthButtons';
-import AuthHeroHeading from './AuthHeroHeading';
 import { primaryButtonClass } from '../ui/styles';
 
 export default function LoginForm() {
@@ -28,7 +28,7 @@ export default function LoginForm() {
     });
     setPending(false);
     if (res?.error) {
-      setError('Incorrect email or password.');
+      setError('Email atau kata sandi salah.');
       return;
     }
     router.push('/dashboard');
@@ -37,24 +37,17 @@ export default function LoginForm() {
 
   return (
     <div className="font-sans space-y-6">
-      <AuthHeader prompt="Don't have an account?" linkLabel="Sign up" linkHref="/register" />
+      <AuthHeader />
 
       {/* Konten utama (hero + form) — kolom lebih sempit & ter-center */}
       <div className="mx-auto w-full max-w-md space-y-5">
         {/* Hero text */}
         <div className="space-y-2">
-          <p className="font-mono text-xs text-accent">
-            Welcome Back
-          </p>
-          <AuthHeroHeading ariaLabel="Sign in to Kurspektif.">
-            <tspan fill="var(--color-ink)">Sign in to </tspan>
-            <tspan fill="var(--color-accent)">
-              Kurspektif<tspan fill="var(--color-ink)">.</tspan>
-            </tspan>
-          </AuthHeroHeading>
-          <p className="text-neutral text-sm">
-            Keep tracking your favorite rates and read the latest summaries
-            waiting for you.
+          <h1 className="text-[clamp(40px,5vw,64px)] font-black leading-[0.92] tracking-[-0.035em]">
+            Masuk ke Kurspektif
+          </h1>
+          <p className="pt-2 text-[17px] leading-relaxed">
+            Lanjutkan memantau kurs rupiah dan alasan pergerakannya, serta alert yang sudah kamu pasang.
           </p>
         </div>
 
@@ -64,30 +57,32 @@ export default function LoginForm() {
             name="email"
             type="email"
             label="Email"
-            placeholder="you@email.com"
+            placeholder="kamu@email.com"
             required
           />
 
           <PasswordInput
             id="password"
             name="password"
-            label="Password"
-            labelAction={
-              <a href="#" className="text-xs text-accent hover:underline">
-                Forgot password?
-              </a>
-            }
+            label="Kata sandi"
           />
 
           {error && <p className="text-sm text-down">{error}</p>}
 
           <button type="submit" disabled={pending} className={`${primaryButtonClass} disabled:opacity-60`}>
-            {pending ? 'Processing…' : 'Sign in'}
+            {pending ? 'Memproses…' : 'Masuk'}
           </button>
         </form>
 
         <AuthDivider />
         <SocialAuthButtons />
+
+        <p className="text-center text-[15px] text-muted">
+          Belum punya akun?{' '}
+          <Link href="/register" className="font-semibold text-ink underline-offset-4 hover:underline">
+            Daftar
+          </Link>
+        </p>
       </div>
     </div>
   );

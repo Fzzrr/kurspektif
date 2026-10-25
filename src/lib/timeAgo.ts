@@ -37,10 +37,14 @@ export function dayKey(iso: string | number | Date): string {
   return dayKeyFormatter.format(new Date(iso));
 }
 
-/** "Hari ini" / "Kemarin" / "Sen, 14 Sep" untuk kunci dari dayKey(). */
+/** Kunci hari ini (Jakarta). */
+export const todayKey = () => dayKey(Date.now());
+
+/** "Hari ini" / "Kemarin" / "Besok" / "Sen, 14 Sep" untuk kunci dari dayKey(). */
 export function dayLabel(key: string): string {
   const now = Date.now();
   if (key === dayKey(now)) return 'Hari ini';
   if (key === dayKey(now - 86_400_000)) return 'Kemarin';
+  if (key === dayKey(now + 86_400_000)) return 'Besok';
   return dayLabelFormatter.format(new Date(`${key}T12:00:00+07:00`));
 }

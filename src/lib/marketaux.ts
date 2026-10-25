@@ -1,6 +1,8 @@
 import { after } from 'next/server';
 import type { Sentiment } from '@/lib/sentiment';
 import { prisma } from '@/lib/prisma';
+import { fetchIndonesianNews } from '@/lib/rssNews';
+import { byRelevance } from '@/lib/pairs';
 
 const MARKETAUX_BASE = 'https://api.marketaux.com/v1/news/all';
 
@@ -81,21 +83,44 @@ const ARCHIVE_LIMIT = 90;
 // artikel baru muncul mulai kunjungan berikutnya, bukan yang ini.
 export async function fetchCurrencyNews(): Promise<NewsItem[]> {
   after(async () => {
+    // Dua sumber berdiri sendiri — satu gagal tidak menghalangi yang lain.
+    const sources = await Promise.allSettled([fetchFromMarketaux(), fetchIndonesianNews()]);
+    const fresh = sources.flatMap((source, i) => {
+      if (source.status === 'fulfilled') return source.value;
+      console.error(`${i === 0 ? 'Marketaux' : 'RSS'} gagal, arsip dari sumber ini tidak bertambah:`, source.reason);
+      return [];
+    });
+    if (fresh.length === 0) return;
     try {
-      const fresh = await fetchFromMarketaux();
-      if (fresh.length > 0) {
-        await prisma.newsArticle.createMany({
-          data: fresh.map((item) => ({ ...item, publishedAt: new Date(item.publishedAt) })),
-          skipDuplicates: true,
-        });
-      }
+      await prisma.newsArticle.createMany({
+        data: fresh.map((item) => ({ ...item, publishedAt: new Date(item.publishedAt) })),
+        skipDuplicates: true,
+      });
     } catch (err) {
-      console.error('Marketaux gagal, arsip tidak bertambah:', err);
+      console.error('Gagal menyimpan arsip berita:', err);
     }
   });
 
   const rows = await prisma.newsArticle.findMany({ orderBy: { publishedAt: 'desc' }, take: ARCHIVE_LIMIT });
-  return rows.map((row) => ({
+  return rows.map(toNewsItem);
+}
+
+/**
+ * Berita dari arsip yang pasangannya memuat salah satu `codes`. Yang memuat
+ * lebih banyak `codes` didahulukan — untuk USD/IDR, berita rupiah lebih
+ * relevan daripada berita USD/JPY yang kebetulan memuat USD.
+ */
+export async function newsForCurrencies(codes: string[], take: number): Promise<NewsItem[]> {
+  const rows = await prisma.newsArticle.findMany({
+    where: { OR: codes.map((code) => ({ pair: { contains: code } })) },
+    orderBy: { publishedAt: 'desc' },
+    take: take * 10,
+  });
+  return byRelevance(rows, (row) => row.pair, codes).slice(0, take).map(toNewsItem);
+}
+
+function toNewsItem(row: Awaited<ReturnType<typeof prisma.newsArticle.findMany>>[number]): NewsItem {
+  return {
     id: row.id,
     headline: row.headline,
     summary: row.summary,
@@ -105,7 +130,7 @@ export async function fetchCurrencyNews(): Promise<NewsItem[]> {
     sentiment: row.sentiment as Sentiment,
     pair: row.pair ?? undefined,
     image: row.image ?? undefined,
-  }));
+  };
 }
 
 async function fetchFromMarketaux(): Promise<NewsItem[]> {

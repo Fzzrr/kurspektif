@@ -2,29 +2,18 @@
 
 import { signIn } from 'next-auth/react';
 import { socialButtonClass } from '../ui/styles';
-import { GoogleIcon, AppleIcon } from '../ui/icons';
+import { GoogleIcon } from '../ui/icons';
 
-// Tombol login sosial. Google aktif (OAuth); Apple dibiarkan disabled.
+// Tombol login sosial (Google OAuth).
 export default function SocialAuthButtons() {
   return (
-    <div className="grid grid-cols-2 gap-3">
-      <button
-        type="button"
-        onClick={() => signIn('google', { redirectTo: '/dashboard' })}
-        className={socialButtonClass}
-      >
-        <GoogleIcon className="h-5 w-5" />
-        Google
-      </button>
-      <button
-        type="button"
-        disabled
-        title="Coming soon"
-        className={`${socialButtonClass} cursor-not-allowed opacity-50`}
-      >
-        <AppleIcon className="h-5 w-5" />
-        Apple
-      </button>
-    </div>
+    <button
+      type="button"
+      onClick={() => signIn('google', { redirectTo: '/dashboard' })}
+      className={`${socialButtonClass} w-full`}
+    >
+      <GoogleIcon className="h-5 w-5" />
+      Lanjutkan dengan Google
+    </button>
   );
 }

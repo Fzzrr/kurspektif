@@ -3,15 +3,19 @@ import { fetchSupportedCurrencies } from '@/lib/frankfurter';
 import { fetchCurrencyNews, type NewsItem } from '@/lib/marketaux';
 import { prisma } from '@/lib/prisma';
 import { toAlertDTO } from '@/lib/alerts';
+import { watchedPairs } from '@/lib/watchlist';
 import DashboardLiveSection from '@/components/dashboard/DashboardLiveSection';
 import AlertCard from '@/components/dashboard/AlertCard';
 
 export default async function DashboardPage() {
   const [session, currencies] = await Promise.all([auth(), fetchSupportedCurrencies()]);
   const userId = session?.user?.id;
-  const alerts = userId
-    ? await prisma.rateAlert.findMany({ where: { userId }, orderBy: { createdAt: 'asc' } })
-    : [];
+  const [alerts, watchlist] = userId
+    ? await Promise.all([
+        prisma.rateAlert.findMany({ where: { userId }, orderBy: { createdAt: 'asc' } }),
+        watchedPairs(userId),
+      ])
+    : [[], []];
 
   let news: NewsItem[] = [];
   try {
@@ -23,10 +27,10 @@ export default async function DashboardPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-5">
       <DashboardLiveSection
-        title="Pantau kurs Anda Saat Ini"
+        title="Kurs hari ini"
         currencies={currencies}
         news={news}
-        userId={session?.user?.id ?? 'anon'}
+        initialWatchlist={watchlist}
       />
       {/* Target tautan "Alert" di navigasi. scroll-mt: jangan tertutup header ponsel. */}
       <section id="alert" className="scroll-mt-20 md:scroll-mt-8">

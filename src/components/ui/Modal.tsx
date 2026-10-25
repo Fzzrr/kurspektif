@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 
 type Size = 'sm' | 'md' | 'lg' | 'xl';
@@ -25,11 +25,8 @@ const sizeClass: Record<Size, string> = {
 };
 
 export default function Modal({ open, onClose, title, size = 'md', padded = true, children }: Props) {
-  const [mounted, setMounted] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<Element | null>(null);
-
-  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     if (!open) return;
@@ -67,7 +64,9 @@ export default function Modal({ open, onClose, title, size = 'md', padded = true
     };
   }, [open, onClose]);
 
-  if (!mounted || !open) return null;
+  // Modal hanya dibuka lewat interaksi (setelah hidrasi), jadi `document`
+  // selalu ada saat portal dibuat.
+  if (!open || typeof document === 'undefined') return null;
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-paper/60 p-4 backdrop-blur-sm" onClick={onClose}>

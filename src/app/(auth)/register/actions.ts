@@ -16,18 +16,18 @@ export async function registerUser(
   // Server Action = endpoint publik, jadi tetap perlu rate limit.
   const ip = (await headers()).get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
   if (!(await registerLimiter.check(`register:${ip}`)).success) {
-    return { error: 'Too many attempts. Please try again later.' };
+    return { error: 'Terlalu banyak percobaan. Coba lagi nanti.' };
   }
   
   const name = String(formData.get('name') ?? '').trim();
   const email = String(formData.get('email') ?? '').toLowerCase().trim();
   const password = String(formData.get('password') ?? '');
 
-  if (!name || !email || !password) return { error: 'All fields are required.' };
-  if (password.length < 8) return { error: 'Password must be at least 8 characters.' };
+  if (!name || !email || !password) return { error: 'Semua kolom wajib diisi.' };
+  if (password.length < 8) return { error: 'Kata sandi minimal 8 karakter.' };
 
   const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) return { error: 'Email is already registered.' };
+  if (existing) return { error: 'Email sudah terdaftar.' };
 
   const hashed = await bcrypt.hash(password, BCRYPT_COST);
   await prisma.user.create({ data: { name, email, password: hashed } });

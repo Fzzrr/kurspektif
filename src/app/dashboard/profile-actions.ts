@@ -20,16 +20,16 @@ export async function updateProfileAction(name: string, image?: string): Promise
   if (!userId) return { error: 'Unauthorized' };
 
   if (!(await profileUpdateLimiter.check(`profile:${userId}`)).success) {
-    return { error: 'Too many requests. Please try again shortly.' };
+    return { error: 'Terlalu banyak permintaan. Coba lagi sebentar lagi.' };
   }
 
   const trimmedName = name.trim();
-  if (!trimmedName) return { error: 'Name is required.' };
-  if (trimmedName.length > 100) return { error: 'Name is too long.' };
+  if (!trimmedName) return { error: 'Nama wajib diisi.' };
+  if (trimmedName.length > 100) return { error: 'Nama terlalu panjang.' };
 
   if (image !== undefined) {
-    if (!IMAGE_DATA_URI.test(image)) return { error: 'Unsupported image format.' };
-    if (image.length > MAX_IMAGE_BYTES) return { error: 'Image is too large.' };
+    if (!IMAGE_DATA_URI.test(image)) return { error: 'Format gambar tidak didukung.' };
+    if (image.length > MAX_IMAGE_BYTES) return { error: 'Ukuran gambar terlalu besar.' };
   }
 
   await prisma.user.update({
@@ -50,26 +50,26 @@ export async function changePasswordAction(
   if (!userId) return { error: 'Unauthorized' };
 
   if (!(await passwordChangeLimiter.check(`password:${userId}`)).success) {
-    return { error: 'Too many requests. Please try again shortly.' };
+    return { error: 'Terlalu banyak permintaan. Coba lagi sebentar lagi.' };
   }
 
   const user = await prisma.user.findUnique({ where: { id: userId } });
   // Cek `password !== null`, BUKAN "apakah akun ini terhubung ke Google" — user
   // kredensial bisa juga menautkan Google tapi tetap punya password sendiri.
   if (!user?.password) {
-    return { error: 'This account signs in with Google and has no password to change.' };
+    return { error: 'Akun ini masuk lewat Google dan tidak punya kata sandi untuk diubah.' };
   }
 
   const isCorrect = await bcrypt.compare(currentPassword, user.password);
-  if (!isCorrect) return { error: 'Current password is incorrect.' };
+  if (!isCorrect) return { error: 'Kata sandi saat ini salah.' };
 
-  if (newPassword.length < 8) return { error: 'New password must be at least 8 characters.' };
-  if (newPassword !== confirmNewPassword) return { error: 'New passwords do not match.' };
+  if (newPassword.length < 8) return { error: 'Kata sandi baru minimal 8 karakter.' };
+  if (newPassword !== confirmNewPassword) return { error: 'Konfirmasi kata sandi baru tidak cocok.' };
 
   const hashed = await bcrypt.hash(newPassword, BCRYPT_COST);
   await prisma.user.update({ where: { id: userId }, data: { password: hashed } });
 
-  return { success: 'Password updated.' };
+  return { success: 'Kata sandi diperbarui.' };
 }
 
 export async function requestEmailChangeAction(newEmail: string): Promise<ActionState> {
@@ -78,20 +78,20 @@ export async function requestEmailChangeAction(newEmail: string): Promise<Action
   if (!userId) return { error: 'Unauthorized' };
 
   if (!(await emailChangeLimiter.check(`email:${userId}`)).success) {
-    return { error: 'Too many requests. Please try again later.' };
+    return { error: 'Terlalu banyak permintaan. Coba lagi nanti.' };
   }
 
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user?.password) {
-    return { error: 'Google-linked accounts cannot change their email here.' };
+    return { error: 'Akun yang masuk lewat Google tidak bisa mengganti email di sini.' };
   }
 
   const normalized = newEmail.trim().toLowerCase();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)) return { error: 'Invalid email address.' };
-  if (normalized === user.email) return { error: 'That is already your current email.' };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)) return { error: 'Alamat email tidak valid.' };
+  if (normalized === user.email) return { error: 'Itu sudah email kamu saat ini.' };
 
   const taken = await prisma.user.findUnique({ where: { email: normalized } });
-  if (taken) return { error: 'That email is already in use.' };
+  if (taken) return { error: 'Email itu sudah dipakai akun lain.' };
 
   const identifier = `email-change:${userId}`;
   const token = crypto.randomBytes(32).toString('base64url');
@@ -102,15 +102,15 @@ export async function requestEmailChangeAction(newEmail: string): Promise<Action
   const sent = await resend.emails.send({
     from: EMAIL_SENDER,
     to: normalized,
-    subject: 'Confirm your new email — Kurspektif',
-    html: `<p>Click the link below to confirm your new email address:</p><p><a href="${link}">${link}</a></p><p>This link expires in 1 hour.</p>`,
+    subject: 'Konfirmasi email baru — Kurspektif',
+    html: `<p>Klik tautan di bawah untuk mengonfirmasi alamat email barumu:</p><p><a href="${link}">${link}</a></p><p>Tautan ini berlaku 1 jam.</p>`,
   });
 
-  if (sent.error) return { error: 'Failed to send verification email. Please try again.' };
+  if (sent.error) return { error: 'Gagal mengirim email verifikasi. Coba lagi.' };
 
   // Hapus token lama dulu supaya cuma satu token aktif per user.
   await prisma.verificationToken.deleteMany({ where: { identifier } });
   await prisma.verificationToken.create({ data: { identifier, token, newEmail: normalized, expires } });
 
-  return { success: `Check ${normalized} to confirm the change.` };
+  return { success: `Cek ${normalized} untuk mengonfirmasi perubahan.` };
 }

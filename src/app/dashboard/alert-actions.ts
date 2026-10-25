@@ -3,7 +3,15 @@
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { alertLimiter } from '@/lib/rateLimit';
-import { parseThreshold, toAlertDTO, type AlertInput, type RateAlertDTO } from '@/lib/alerts';
+import {
+  DIRECTIONS,
+  POSITION_PERCENTS,
+  isPositional,
+  parseThreshold,
+  toAlertDTO,
+  type AlertInput,
+  type RateAlertDTO,
+} from '@/lib/alerts';
 
 type Result = { alert: RateAlertDTO; error?: undefined } | { error: string };
 
@@ -22,10 +30,14 @@ function validate(input: AlertInput) {
   const quote = input.quote.toUpperCase();
   if (!CURRENCY_CODE.test(base) || !CURRENCY_CODE.test(quote)) return { error: 'Kode mata uang tidak valid.' };
   if (base === quote) return { error: 'Pilih dua mata uang yang berbeda.' };
-  if (input.direction !== 'atas' && input.direction !== 'bawah') return { error: 'Kondisi tidak valid.' };
+  if (!DIRECTIONS.includes(input.direction)) return { error: 'Kondisi tidak valid.' };
   const threshold = parseThreshold(input.threshold);
-  if (threshold === null) return { error: 'Batas kurs harus angka lebih dari 0.' };
-  return { data: { base, quote, direction: input.direction, threshold } };
+  if (isPositional(input.direction)) {
+    if (!POSITION_PERCENTS.some((p) => p === threshold)) return { error: 'Pilih 10%, 20%, atau 30%.' };
+  } else if (threshold === null) {
+    return { error: 'Batas kurs harus angka lebih dari 0.' };
+  }
+  return { data: { base, quote, direction: input.direction, threshold: threshold! } };
 }
 
 export async function createAlertAction(input: AlertInput): Promise<Result> {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import DashboardHeader from './layout/DashboardHeader';
 import PairSelector from './rate/PairSelector';
 import StatCardsRow from './rate/StatCardsRow';
@@ -8,67 +8,45 @@ import RateChartCard from './rate/RateChartCard';
 import MarketMoversCard from './rate/MarketMoversCard';
 import NewsListCard from './news/NewsListCard';
 import { useLiveRate } from '@/lib/useLiveRate';
-import { formatRate } from '@/components/landing/rate/RateLineChart';
+import { toggleWatchAction } from '@/app/dashboard/watchlist-actions';
+import { byRelevance } from '@/lib/pairs';
+import { dailyChange, formatRate, historicalPosition as positionOf } from '@/lib/rateStats';
 import type { Currency } from '@/lib/frankfurter';
 import type { NewsItem } from '@/lib/marketaux';
 
-const fmt = (value: number, opts?: Intl.NumberFormatOptions) => new Intl.NumberFormat('id-ID', opts).format(value);
 const dateFmt = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
 
-const DEFAULT_RECENT_PAIRS = ['USD/IDR', 'EUR/IDR', 'JPY/IDR', 'SGD/IDR'];
-const MAX_RECENT_PAIRS = 4;
+// Pintasan untuk pengguna yang belum menyimpan pasangan apa pun.
+const SUGGESTED_PAIRS = ['USD/IDR', 'EUR/IDR', 'JPY/IDR', 'SGD/IDR'];
 
-type Props = { title: string; currencies: Currency[]; news: NewsItem[]; userId: string };
+type Props = { title: string; currencies: Currency[]; news: NewsItem[]; initialWatchlist: string[] };
 
-export default function DashboardLiveSection({ title, currencies, news, userId }: Props) {
-  const [from, setFrom] = useState('USD');
-  const [to, setTo] = useState('IDR');
+export default function DashboardLiveSection({ title, currencies, news, initialWatchlist }: Props) {
+  const [initialFrom, initialTo] = (initialWatchlist[0] ?? 'USD/IDR').split('/');
+  const [from, setFrom] = useState(initialFrom);
+  const [to, setTo] = useState(initialTo);
+  const [watchlist, setWatchlist] = useState(initialWatchlist);
+  const [watchError, setWatchError] = useState<string | null>(null);
+  const activePair = `${from}/${to}`;
 
-  // Kunci diberi id pengguna: localStorage milik browser, bukan akun — tanpa
-  // ini dua akun yang login bergantian di browser yang sama berbagi riwayat.
-  const recentPairsKey = `kurspektif:recentPairs:${userId}`;
-
-  const [recentPairs, setRecentPairs] = useState<string[]>(DEFAULT_RECENT_PAIRS);
-
-  // Sesaat setelah mount: baca riwayat tersimpan, lalu pulihkan pasangan
-  // PALING BARU (elemen terakhir — daftar ini FIFO, bukan MRU-di-depan)
-  // sebagai pasangan yang aktif sekarang. Harus di useEffect, bukan di
-  // initializer useState — localStorage tidak ada saat komponen ini
-  // pertama kali dirender di server.
-  useEffect(() => {
-    const saved = localStorage.getItem(recentPairsKey);
-    if (!saved) return;
-    try {
-      const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0 && parsed.every((p) => typeof p === 'string')) {
-        const trimmed = parsed.slice(-MAX_RECENT_PAIRS);
-        setRecentPairs(trimmed);
-        const [savedFrom, savedTo] = trimmed[trimmed.length - 1].split('/');
-        if (savedFrom) setFrom(savedFrom);
-        if (savedTo) setTo(savedTo);
-      }
-    } catch {
-      // data tersimpan rusak/format lama -> abaikan, pakai default
-    }
-  }, [recentPairsKey]);
-
-  // Pilih pasangan aktif. Posisi pill yang SUDAH ada di daftar tidak pernah
-  // digeser saat diklik — itu supaya animasi slide di PillTabs punya target
-  // yang stabil, bukan ikut lompat karena urutan berubah. Daftar hanya
-  // bertambah saat user memilih pasangan yang benar-benar baru (lewat
-  // dropdown pencarian mata uang); yang lama otomatis tergeser keluar
-  // kalau sudah penuh (FIFO, maksimal MAX_RECENT_PAIRS). Semua state
-  // diubah di satu handler (bukan useEffect terpisah) supaya React
-  // membatch jadi satu render per klik.
   function updatePair(next: { from: string; to: string }) {
     setFrom(next.from);
     setTo(next.to);
-    const current = `${next.from}/${next.to}`;
-    setRecentPairs((prevList) => {
-      if (prevList.includes(current)) return prevList;
-      const updated = [...prevList, current].slice(-MAX_RECENT_PAIRS);
-      localStorage.setItem(recentPairsKey, JSON.stringify(updated));
-      return updated;
+    setWatchError(null);
+  }
+
+  // Optimistis: tombol langsung berubah, dikembalikan kalau server menolak.
+  function toggleWatch() {
+    const previous = watchlist;
+    setWatchlist(previous.includes(activePair) ? previous.filter((p) => p !== activePair) : [...previous, activePair]);
+    setWatchError(null);
+    toggleWatchAction(from, to).then((result) => {
+      if ('error' in result) {
+        setWatchlist(previous);
+        setWatchError(result.error);
+      } else {
+        setWatchlist(result.pairs);
+      }
     });
   }
 
@@ -78,33 +56,19 @@ export default function DashboardLiveSection({ title, currencies, news, userId }
   // kerja — bukan kurs real-time atau kurs jual/beli bank.
   const updatedAt = latest ? `Kurs referensi harian · ${dateFmt.format(new Date(latest.date))}` : 'Memuat…';
 
-  const change = useMemo(() => {
-    if (!latest || series.length < 2) return { changeAbsolute: '—', changePercent: 'Memuat…', changeDir: undefined };
-    const prev = series[series.length - 2].rate;
-    const diff = latest.rate - prev;
-    return {
-      changeAbsolute: formatRate(Math.abs(diff)),
-      changePercent: `${fmt(Math.abs((diff / prev) * 100), { maximumFractionDigits: 3 })}%`,
-      changeDir: diff >= 0 ? ('up' as const) : ('down' as const),
-    };
-  }, [latest, series]);
+  const change = useMemo(() => dailyChange(series, latest), [latest, series]);
 
   // Berita yang pasangannya memuat salah satu sisi pasangan aktif — sama
   // seperti filter mata uang di halaman berita.
   const { relatedNews, otherNews } = useMemo(() => {
     const isRelated = (item: NewsItem) => item.pair?.split('/').some((code) => code === from || code === to) ?? false;
-    return { relatedNews: news.filter(isRelated), otherNews: news.filter((item) => !isRelated(item)) };
+    return {
+      relatedNews: byRelevance(news.filter(isRelated), (item) => item.pair, [from, to]),
+      otherNews: news.filter((item) => !isRelated(item)),
+    };
   }, [news, from, to]);
 
-  const historicalPosition = useMemo(() => {
-    const window = series.slice(-90);
-    if (!latest || window.length < 2) return { label: 'Memuat…', min: '-', max: '-', percentile: 50 };
-    const rates = window.map((p) => p.rate);
-    const min = Math.min(...rates);
-    const max = Math.max(...rates);
-    const percentile = Math.round((rates.filter((r) => r < latest.rate).length / rates.length) * 100);
-    return { label: `Lebih tinggi dari ${percentile}% hari (${window.length} hari terakhir)`, min: formatRate(min), max: formatRate(max), percentile };
-  }, [latest, series]);
+  const historicalPosition = useMemo(() => positionOf(series, latest), [latest, series]);
 
   return (
     <>
@@ -113,9 +77,12 @@ export default function DashboardLiveSection({ title, currencies, news, userId }
         from={from}
         to={to}
         currencies={currencies}
-        recentPairs={recentPairs}
+        quickPairs={watchlist.length > 0 ? watchlist : SUGGESTED_PAIRS}
+        saved={watchlist.includes(activePair)}
+        onToggleSave={toggleWatch}
         onChange={updatePair}
       />
+      {watchError && <p className="font-mono text-xs text-down">{watchError}</p>}
       {error && (
         <p className="rounded-lg border border-down/30 bg-down/5 px-4 py-2 font-mono text-xs text-down">{error}</p>
       )}
@@ -123,18 +90,18 @@ export default function DashboardLiveSection({ title, currencies, news, userId }
         currentRate={{
           rate: latest ? formatRate(latest.rate) : '—',
           ...change,
-          pair: `${from}/${to}`,
+          pair: activePair,
           sparkline: series.slice(-30).map((p) => p.rate),
         }}
         quickConvert={{ rate: latest?.rate ?? 0, fromCode: from, toCode: to }}
         historicalPosition={historicalPosition}
       />
-      <RateChartCard series={series} pair={`${from}/${to}`} isLoading={isLoading && series.length === 0} />
+      <RateChartCard series={series} pair={activePair} isLoading={isLoading && series.length === 0} />
 
       {/* 3fr/2fr ~= proporsi 60/40 dari desain — kartu movers lebih lebar
           dari kartu daftar berita. */}
       <div className="grid gap-4 md:grid-cols-[3fr_2fr]">
-        <MarketMoversCard news={relatedNews} pair={`${from}/${to}`} />
+        <MarketMoversCard news={relatedNews} pair={activePair} />
         <NewsListCard related={relatedNews} others={otherNews} currency={from} />
       </div>
     </>

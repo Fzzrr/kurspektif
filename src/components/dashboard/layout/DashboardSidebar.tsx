@@ -32,6 +32,7 @@ type Props = {
   userEmail: string;
   userImage: string | null;
   hasPassword: boolean;
+  weeklyDigest: boolean;
 };
 
 export default function DashboardSidebar({
@@ -39,6 +40,7 @@ export default function DashboardSidebar({
   userEmail,
   userImage,
   hasPassword,
+  weeklyDigest,
 }: Props) {
   const pathname = usePathname();
   const [profileOpen, setProfileOpen] = useState(false);
@@ -123,10 +125,8 @@ export default function DashboardSidebar({
                 key={href}
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`relative flex items-center gap-3 rounded-lg px-3 py-2.5 font-mono text-sm transition-colors ${
-                  active
-                    ? "bg-accent-soft font-medium text-accent before:absolute before:left-0 before:top-1/2 before:h-5 before:w-0.5 before:-translate-y-1/2 before:rounded-full before:bg-accent"
-                    : "text-muted hover:bg-ink/5 hover:text-ink"
+                className={`flex items-center gap-3 px-3 py-2 text-[15px] transition-colors ${
+                  active ? "font-medium text-ink" : "text-muted hover:text-ink"
                 }`}
               >
                 <Icon className="size-4" />
@@ -150,10 +150,10 @@ export default function DashboardSidebar({
             </div>
           </button>
 
-          <form action={signOutAction} className="mt-4">
+          <form action={signOutAction} className="mt-3 px-1.5">
             <button
               type="submit"
-              className="w-full rounded-lg border border-line py-2 font-mono text-xs text-muted transition-colors hover:bg-ink/5 hover:text-ink"
+              className="text-sm text-muted underline-offset-4 transition-colors hover:text-ink hover:underline"
             >
               Keluar
             </button>
@@ -169,6 +169,7 @@ export default function DashboardSidebar({
           email: userEmail,
           image: userImage,
           hasPassword,
+          weeklyDigest,
         }}
       />
     </>
