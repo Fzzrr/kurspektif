@@ -1,109 +1,31 @@
-import RateCard from "../rate/RateCard";
-import ScrollCue from "../visuals/ScrollCue";
-import Coin from "../visuals/Coin";
-import CtaLink from "../ui/CtaLink";
-import { PulseDot } from "../ui/decor";
+import type { PairSnapshot } from "@/lib/landing";
+import HeroRates from "./HeroRates";
 
-// Koin emas yang melayang di sekitar kartu hero. `rotate` diterapkan pada
-// elemen dalam sementara animasi float menggerakkan elemen luar — jadi rotate
-// & translateY tidak saling menimpa transform. Delay negatif membuat tiap koin
-// mulai di fase berbeda, sehingga tidak mengambang serempak.
-const floatingCoins = [
-  { glyph: "$", code: "USD", rotate: -14, delay: -0.6, duration: 6.5, position: "-right-6 -top-12 z-20 w-16 sm:w-[4.75rem]" },
-  { glyph: "€", code: "EUR", rotate: 11, delay: -2.4, duration: 7.5, position: "-left-7 top-12 z-20 w-12 sm:w-14" },
-  { glyph: "¥", rotate: -9, delay: -1.3, duration: 6.8, position: "-bottom-8 left-12 z-20 w-12 sm:w-16" },
-  { glyph: "£", rotate: 17, delay: -3.2, duration: 8, position: "-right-8 bottom-16 -z-10 hidden w-12 sm:block" },
-];
-
-export default function Hero() {
+// "Garis air": dua bidang bertemu tepat di tengah layar. Di atas garis, di
+// bidang gelap, ada angkanya; di bawah garis, di bidang terang, alasannya.
+// Satu h1 dengan mix-blend-mode difference: putih di atas bidang gelap,
+// otomatis gelap di atas bidang terang — jadi baris kedua terbelah garis itu.
+// Hanya bekerja karena paletnya monokrom; warna lain akan menghasilkan rona acak.
+export default function Hero({ pairs }: { pairs: PairSnapshot[] }) {
   return (
-    <section className="relative overflow-hidden">
-      {/* Dekor: glow emas + grid titik (tidak mengganggu interaksi) */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-24 right-[-6rem] -z-10 h-80 w-80 rounded-full bg-accent/15 blur-[90px]"
-      />
-      <div aria-hidden className="hero-grid pointer-events-none absolute inset-0 -z-10" />
+    <section className="relative h-[calc(100svh-4rem)] min-h-[600px] overflow-hidden bg-paper">
+      <div aria-hidden className="absolute inset-x-0 bottom-0 h-[62%] bg-ink sm:h-1/2" />
 
-      <div className="mx-auto grid max-w-6xl items-center gap-10 px-6 py-14 sm:py-20 md:grid-cols-2 md:gap-14">
-        {/* Kolom kiri — pesan utama */}
-        <div>
-          <p className="animate-fade-up flex items-center gap-2 font-mono text-xs uppercase tracking-[0.18em] text-accent">
-            <PulseDot />
-            Monitor kurs &amp; konteks berita
-          </p>
+      <h1 className="absolute inset-x-5 top-[38%] z-10 -translate-y-[75%] sm:top-1/2 text-center text-[clamp(38px,9.4vw,136px)] font-black uppercase leading-[0.86] tracking-[-0.035em] text-ink mix-blend-difference sm:inset-x-10">
+        <span className="mask-line block">
+          <span>Kurs rupiah</span>
+        </span>
+        <span className="mask-line block">
+          <span style={{ animationDelay: "110ms" }}>dan alasannya</span>
+        </span>
+      </h1>
 
-          <h1
-            className="animate-fade-up mt-4 font-display text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl"
-            style={{ animationDelay: ".08s" }}
-          >
-            Bukan sekadar angka kurs — tapi{" "}
-            <span className="draw-underline text-accent">alasan</span> di baliknya.
-          </h1>
-
-          <p
-            className="animate-fade-up mt-5 max-w-md text-lg text-muted"
-            style={{ animationDelay: ".16s" }}
-          >
-            Lacak nilai tukar untuk pasangan mata uang apa pun, lalu baca berita
-            yang sudah ditandai sentimennya agar kamu paham kenapa kurs bergerak —
-            bukan cuma seberapa.
-          </p>
-
-          <div
-            className="animate-fade-up mt-7 flex flex-wrap gap-3"
-            style={{ animationDelay: ".24s" }}
-          >
-            <CtaLink href="/dashboard">Coba sekarang</CtaLink>
-            <a
-              href="#cara"
-              className="rounded-xl bg-accent-soft px-6 py-3 text-sm font-medium transition-colors hover:bg-surface"
-            >
-              Lihat cara kerja
-            </a>
-          </div>
-
-          <p
-            className="animate-fade-up mt-6 font-mono text-xs text-muted"
-            style={{ animationDelay: ".32s" }}
-          >
-            {/* {" "} wajib: spasi di ujung baris akan dipangkas JSX. */}
-            165 mata uang <span className="text-accent">·</span>{" "}
-            Berita bertanda sentimen <span className="text-accent">·</span> Gratis
-          </p>
-        </div>
-
-        {/* Kolom kanan — kartu signature dikelilingi koin emas melayang */}
-        <div className="animate-fade-up relative" style={{ animationDelay: ".2s" }}>
-          <div
-            aria-hidden
-            className="animate-glow pointer-events-none absolute -inset-6 -z-10 rounded-[2.5rem] bg-accent/15 blur-2xl"
-          />
-
-          {floatingCoins.map((coin) => (
-            <div
-              key={coin.code ?? coin.glyph}
-              aria-hidden
-              className={`coin-float pointer-events-none absolute ${coin.position}`}
-              style={{
-                animationDelay: `${coin.delay}s`,
-                animationDuration: `${coin.duration}s`,
-              }}
-            >
-              <div
-                style={{ transform: `rotate(${coin.rotate}deg)` }}
-                className="drop-shadow-[0_12px_22px_rgba(184,144,42,0.35)]"
-              >
-                <Coin glyph={coin.glyph} code={coin.code} />
-              </div>
-            </div>
-          ))}
-
-          <RateCard />
-        </div>
+      <div className="hero-after absolute inset-x-5 top-[calc(38%+3.5rem)] z-20 sm:inset-x-10 sm:bottom-10 sm:top-auto">
+        <p className="mb-6 max-w-[52ch] text-[17px] leading-relaxed text-paper sm:mx-auto sm:text-center">
+          Kurs harian 165 mata uang, dan penjelasan sisi mana yang benar‑benar menggerakkannya minggu ini.
+        </p>
+        <HeroRates pairs={pairs} />
       </div>
-
-      <ScrollCue />
     </section>
   );
 }
