@@ -16,6 +16,8 @@ const columns = [
     links: [
       { label: "Metodologi", href: "/metodologi" },
       { label: "Sumber data", href: "/metodologi#sumber-kurs" },
+      { label: "Syarat & Ketentuan", href: "/syarat" },
+      { label: "Kebijakan Privasi", href: "/privasi" },
     ],
   },
   {
@@ -27,31 +29,32 @@ const columns = [
   },
 ];
 
-// Foto arsip yang dipakai landing — kredit wajib (CC BY / CC BY-SA).
+// Gambar arsip yang dipakai landing. Semuanya domain publik (CC0/PD), jadi
+// kredit tidak wajib, tapi tetap dicantumkan.
 const credits = [
   {
-    title: "Het gebouw van de Javasche Bank te Batavia",
-    href: "https://commons.wikimedia.org/w/index.php?curid=104603063",
-    license: "CC BY 4.0",
-    licenseHref: "https://creativecommons.org/licenses/by/4.0/",
+    title: "Gezicht op het Oude Stadhuis, de Wisselbank, de Nieuwe Kerk en de Waag op de Dam te Amsterdam",
+    source: "Rijksmuseum",
+    href: "https://commons.wikimedia.org/w/index.php?curid=85275523",
+    license: "CC0",
   },
   {
-    title: "Kali Besar te Batavia, ter hoogte van de Javasche Bank",
-    href: "https://commons.wikimedia.org/w/index.php?curid=105711056",
-    license: "CC BY 4.0",
-    licenseHref: "https://creativecommons.org/licenses/by/4.0/",
+    title: "A New Map of the Terraqueous Globe (1700), Edward Wells dan Michael Burghers",
+    source: "Wikimedia Commons",
+    href: "https://commons.wikimedia.org/wiki/File:Antique_World_Map_of_Continents_and_Oceans_1700.png",
+    license: "domain publik",
   },
   {
-    title: "Biljetten uit de collectie van het Museum van het Bataviaasch Genootschap",
-    href: "https://commons.wikimedia.org/wiki/File:KITLV_A679_-_Biljetten_uit_de_collectie_van_het_Museum_van_het_Bataviaasch_Genootschap_voor_Kunsten_en_Wetenschappen_te_Batavia,_KITLV_89072.tiff",
-    license: "CC BY 4.0",
-    licenseHref: "https://creativecommons.org/licenses/by/4.0/",
+    title: "Money changer's box",
+    source: "The Metropolitan Museum of Art",
+    href: "https://www.metmuseum.org/art/collection/search/199839",
+    license: "CC0",
   },
   {
-    title: "MDDS 06.0005 Oeang 10 Rupiah 01, oleh Museumdaerah.deliserdang",
-    href: "https://commons.wikimedia.org/w/index.php?curid=104099493",
-    license: "CC BY-SA 4.0",
-    licenseHref: "https://creativecommons.org/licenses/by-sa/4.0/",
+    title: "Geldkist van de Amsterdamse Wisselbank",
+    source: "Amsterdam Museum",
+    href: "https://commons.wikimedia.org/w/index.php?curid=86835963",
+    license: "CC0",
   },
 ];
 
@@ -75,18 +78,14 @@ export default function Footer({ showCredits = false }: { showCredits?: boolean 
         ))}
         {showCredits && (
           <div className="col-span-2 md:col-span-5 md:col-start-8">
-            <h2 className="font-semibold">Foto arsip</h2>
+            <h2 className="font-semibold">Gambar arsip</h2>
             <ul className="mt-3 space-y-2 text-muted">
               {credits.map((credit) => (
                 <li key={credit.href}>
                   <a href={credit.href} className="hover:text-ink">
                     “{credit.title}”
                   </a>
-                  ,{" "}
-                  <a href={credit.licenseHref} className="hover:text-ink">
-                    {credit.license}
-                  </a>
-                  , via Wikimedia Commons
+                  , {credit.source}, {credit.license}
                 </li>
               ))}
             </ul>

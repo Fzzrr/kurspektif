@@ -13,7 +13,7 @@ import { currencyToFlag } from '@/lib/flags';
 import { fetchLatestRate, fetchRateSeries, fetchSupportedCurrencies, toISODate } from '@/lib/frankfurter';
 import { fetchWeeklyMovers } from '@/lib/movers';
 import { newsForCurrencies } from '@/lib/marketaux';
-import { POPULAR_PAIRS, pairToSlug, slugToPair } from '@/lib/pairs';
+import { FEATURED_PAIRS, pairToSlug, slugToPair } from '@/lib/pairs';
 import { dailyChange, formatRate, historicalPosition } from '@/lib/rateStats';
 import { SENTIMENT } from '@/lib/sentiment';
 import { dayKey, dayLabel } from '@/lib/timeAgo';
@@ -24,7 +24,7 @@ export const revalidate = 3600;
 type Props = { params: Promise<{ pair: string }> };
 
 export function generateStaticParams() {
-  return POPULAR_PAIRS.map((pair) => ({ pair: pairToSlug(pair) }));
+  return FEATURED_PAIRS.map((pair) => ({ pair: pairToSlug(pair) }));
 }
 
 async function resolvePair(slug: string) {

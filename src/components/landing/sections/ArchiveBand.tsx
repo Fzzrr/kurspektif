@@ -1,50 +1,53 @@
 import Image from "next/image";
 import Reveal from "../motion/Reveal";
 
-// Jeda di antara section tipografi: foto arsip selebar layar, lalu dua uang
-// kertas dari kota yang sama. Semua dari koleksi terbuka, kreditnya di footer.
+// Jeda di antara section tipografi: peta dunia selebar layar, lalu dua benda
+// dari sejarah penukaran uang. Semua dari koleksi terbuka, kreditnya di footer.
+const objects = [
+  {
+    src: "/arsip/kotak-penukar-uang.jpg",
+    w: 1932,
+    h: 1648,
+    alt: "Kotak kayu penukar uang yang terbuka, dengan cekungan untuk timbangan dan anak timbangan.",
+    caption: "Kotak penukar uang untuk timbangan koin. Koleksi The Metropolitan Museum of Art.",
+  },
+  {
+    src: "/arsip/peti-wisselbank.jpg",
+    w: 1920,
+    h: 1443,
+    alt: "Peti uang kayu berlapis besi dengan pegangan di sisinya.",
+    caption: "Peti uang Wisselbank Amsterdam. Koleksi Amsterdam Museum.",
+  },
+];
+
 export default function ArchiveBand() {
   return (
     <section className="py-28 sm:py-40">
       <figure>
         <Image
-            src="/arsip/kali-besar.jpg"
-            alt="Foto arsip Kali Besar di Batavia: kanal lebar dengan perahu, deretan gudang beratap genteng di tepinya."
-            width={1920}
-            height={1491}
-            sizes="100vw"
-            loading="eager"
-            className="archive-photo archive-open aspect-[4/3] h-auto w-full object-cover lg:aspect-auto lg:h-[70svh]"
-          />
+          src="/arsip/peta-dunia-1700.jpg"
+          alt="Peta dunia tahun 1700 dengan dua belahan bumi, bertuliskan A New Map of the Terraqueous Globe."
+          width={1600}
+          height={1173}
+          sizes="100vw"
+          loading="eager"
+          className="archive-photo archive-open aspect-[4/3] h-auto w-full object-cover lg:aspect-auto lg:h-[70svh]"
+        />
         <figcaption className="mt-3 px-5 text-[14px] text-muted sm:px-10">
-          Kali Besar, Batavia, di sekitar gedung De Javasche Bank. Foto arsip KITLV.
+          A New Map of the Terraqueous Globe, Edward Wells dan Michael Burghers, 1700.
         </figcaption>
       </figure>
 
       <div className="mt-28 grid gap-10 px-5 sm:mt-40 sm:px-10 lg:grid-cols-12 lg:gap-6">
         <Reveal className="lg:col-span-4">
-          <h2 className="text-[34px] font-semibold leading-tight tracking-[-0.02em]">Uang di kota yang sama</h2>
+          <h2 className="text-[34px] font-semibold leading-tight tracking-[-0.02em]">Menukar uang sejak dulu</h2>
           <p className="mt-4 text-[17px] leading-relaxed">
-            Uang kertas Batavia bertanggal 1799 dan 1810, dan Oeang Republik Indonesia sepuluh rupiah yang dicetak
-            di Djakarta. Nilai tukarnya selalu punya cerita.
+            Jauh sebelum ada grafik kurs, penukar uang menimbang koin asing satu per satu. Amsterdam mendirikan
+            Wisselbank pada 1609 untuk menertibkan ratusan jenis koin yang beredar di kotanya. Pertanyaannya masih sama:
+            berapa nilai uang ini dibanding uang itu, dan kenapa berubah.
           </p>
         </Reveal>
-        {[
-          {
-            src: "/arsip/biljetten-batavia.jpg",
-            w: 1920,
-            h: 1414,
-            alt: "Tiga lembar uang kertas Batavia, bertanggal 1799 dan 1810, dengan cap dan tanda tangan.",
-            caption: "Uang kertas Batavia, koleksi Museum Bataviaasch Genootschap. Foto arsip KITLV.",
-          },
-          {
-            src: "/arsip/ori-10-rupiah.jpg",
-            w: 1920,
-            h: 1440,
-            alt: "Uang kertas Oeang Republik Indonesia sepuluh rupiah yang lusuh, dengan potret dan tulisan Sepuluh Rupiah.",
-            caption: "Oeang Republik Indonesia, 10 rupiah. Koleksi Museum Daerah Deli Serdang.",
-          },
-        ].map((photo, i) => (
+        {objects.map((photo, i) => (
           <Reveal key={photo.src} delay={90 + i * 90} className="lg:col-span-4">
             <figure>
               <Image

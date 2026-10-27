@@ -80,9 +80,9 @@ const SECTIONS: { id: string; title: string; body: ReactNode }[] = [
     title: 'Agenda ekonomi',
     body: (
       <p>
-        Jadwal keputusan suku bunga Bank Indonesia, The Fed, dan ECB, serta rilis inflasi AS, disalin dari situs resmi
+        Jadwal keputusan suku bunga The Fed, ECB, Bank of England, Bank of Japan, dan Bank Indonesia, serta rilis inflasi AS, disalin dari situs resmi
         masing-masing lembaga dan dikonversi ke WIB. Peristiwa ini sering menggerakkan kurs, tapi tidak selalu — dan
-        arahnya tidak bisa ditebak dari jadwalnya saja. Kalender baru mencakup USD, EUR, dan IDR.
+        arahnya tidak bisa ditebak dari jadwalnya saja. Kalender mencakup USD, EUR, GBP, JPY, dan IDR.
       </p>
     ),
   },

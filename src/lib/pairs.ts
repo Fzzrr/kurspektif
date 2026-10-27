@@ -1,7 +1,12 @@
-// Pasangan untuk halaman kurs publik (/kurs/usd-idr). Daftar populer =
-// mata uang yang paling sering ditukar orang Indonesia, semuanya ke rupiah.
+// Pasangan untuk halaman kurs publik (/kurs/usd-idr): pasangan utama dunia,
+// plus mata uang yang paling sering ditukar orang Indonesia ke rupiah.
 export const POPULAR_BASES = ['USD', 'SGD', 'EUR', 'JPY', 'MYR', 'SAR', 'AUD', 'CNY', 'GBP', 'KRW', 'HKD', 'CHF'];
 export const POPULAR_PAIRS = POPULAR_BASES.map((code) => `${code}/IDR`);
+
+/** Pasangan utama dunia, yang paling banyak diperdagangkan. */
+export const WORLD_PAIRS = ['EUR/USD', 'USD/JPY', 'GBP/USD', 'USD/CHF', 'AUD/USD', 'USD/CNY', 'USD/SGD'];
+/** Semua halaman kurs yang dibuat lebih dulu dan masuk sitemap. */
+export const FEATURED_PAIRS = [...WORLD_PAIRS, ...POPULAR_PAIRS];
 
 export const pairToSlug = (pair: string) => pair.replace('/', '-').toLowerCase();
 

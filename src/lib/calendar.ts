@@ -7,11 +7,13 @@
 //   ECB    https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html (14.15 CET)
 //   CPI AS https://www.bls.gov/schedule/news_release/cpi.htm (08.30 ET)
 //   RDG BI https://www.bi.go.id/id/publikasi/ruang-media/news-release/Pages/sp_2730825.aspx
+//   BoE    https://www.bankofengland.co.uk/monetary-policy/upcoming-mpc-dates (jam tidak dicantumkan)
+//   BoJ    https://www.boj.or.jp/en/mopo/mpmsche_minu/index.htm (hari terakhir rapat; jam tidak tetap)
 //
 // ponytail: tabel manual — perbarui tiap akhir tahun. Jadwal RDG BI 2027
 // belum terbit saat ini ditulis (Okt 2026); tambahkan begitu BI mengumumkannya.
 
-type Kind = 'fomc' | 'ecb' | 'uscpi' | 'birdg';
+type Kind = 'fomc' | 'ecb' | 'uscpi' | 'birdg' | 'boe' | 'boj';
 
 const KINDS: Record<Kind, { currency: string; title: string; why: string }> = {
   fomc: {
@@ -29,6 +31,16 @@ const KINDS: Record<Kind, { currency: string; title: string; why: string }> = {
     title: 'Rilis inflasi AS (CPI)',
     why: 'Inflasi tinggi membuat The Fed cenderung menahan atau menaikkan suku bunga.',
   },
+  boe: {
+    currency: 'GBP',
+    title: 'Keputusan suku bunga Bank of England',
+    why: 'Suku bunga Inggris memengaruhi nilai pound sterling.',
+  },
+  boj: {
+    currency: 'JPY',
+    title: 'Keputusan suku bunga Bank of Japan',
+    why: 'Kebijakan BoJ sering menggerakkan yen dengan tajam.',
+  },
   birdg: {
     currency: 'IDR',
     title: 'Keputusan suku bunga Bank Indonesia (RDG)',
@@ -42,40 +54,60 @@ const EVENTS: [string, Kind][] = [
   ['2026-10-21', 'birdg'],
   ['2026-10-29T01:00', 'fomc'],
   ['2026-10-29T20:15', 'ecb'],
+  ['2026-10-30', 'boj'],
+  ['2026-11-05', 'boe'],
   ['2026-11-10T20:30', 'uscpi'],
   ['2026-11-18', 'birdg'],
   ['2026-12-10T02:00', 'fomc'],
   ['2026-12-10T20:30', 'uscpi'],
   ['2026-12-16', 'birdg'],
+  ['2026-12-17', 'boe'],
   ['2026-12-17T20:15', 'ecb'],
+  ['2026-12-18', 'boj'],
   ['2027-01-13T20:30', 'uscpi'],
+  ['2027-01-22', 'boj'],
   ['2027-01-28T02:00', 'fomc'],
+  ['2027-02-04', 'boe'],
   ['2027-02-04T20:15', 'ecb'],
   ['2027-02-11T20:30', 'uscpi'],
   ['2027-03-10T20:30', 'uscpi'],
+  ['2027-03-18', 'boe'],
+  ['2027-03-18', 'boj'],
   ['2027-03-18T01:00', 'fomc'],
   ['2027-03-18T20:15', 'ecb'],
   ['2027-04-13T19:30', 'uscpi'],
+  ['2027-04-28', 'boj'],
+  ['2027-04-29', 'boe'],
   ['2027-04-29T01:00', 'fomc'],
   ['2027-04-29T19:15', 'ecb'],
   ['2027-05-12T19:30', 'uscpi'],
   ['2027-06-10T01:00', 'fomc'],
   ['2027-06-10T19:15', 'ecb'],
   ['2027-06-10T19:30', 'uscpi'],
+  ['2027-06-11', 'boj'],
+  ['2027-06-17', 'boe'],
   ['2027-07-14T19:30', 'uscpi'],
+  ['2027-07-22', 'boj'],
   ['2027-07-22T19:15', 'ecb'],
+  ['2027-07-29', 'boe'],
   ['2027-07-29T01:00', 'fomc'],
   ['2027-08-11T19:30', 'uscpi'],
   ['2027-09-09T19:15', 'ecb'],
   ['2027-09-14T19:30', 'uscpi'],
+  ['2027-09-16', 'boe'],
   ['2027-09-16T01:00', 'fomc'],
+  ['2027-09-22', 'boj'],
   ['2027-10-14T19:30', 'uscpi'],
   ['2027-10-28T01:00', 'fomc'],
   ['2027-10-28T19:15', 'ecb'],
+  ['2027-10-29', 'boj'],
+  ['2027-11-04', 'boe'],
   ['2027-11-10T20:30', 'uscpi'],
   ['2027-12-09T02:00', 'fomc'],
   ['2027-12-10T20:30', 'uscpi'],
+  ['2027-12-16', 'boe'],
   ['2027-12-16T20:15', 'ecb'],
+  ['2027-12-17', 'boj'],
 ];
 
 export type EconomicEvent = {

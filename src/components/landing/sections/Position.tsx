@@ -1,9 +1,10 @@
 import type { Position as PositionData } from "@/lib/landing";
 import { formatRate } from "@/lib/rateStats";
+import { currencyName } from "@/lib/currencyNames";
 import Reveal from "../motion/Reveal";
 
 // Total raksasa di kiri, "struk" yang menjumlahkannya di kanan: berapa hari
-// dalam tiap bulan kurs USD/IDR lebih rendah dari hari ini. Baris-barisnya
+// dalam tiap bulan kurs pasangan ini lebih rendah dari hari ini. Baris-barisnya
 // benar‑benar berjumlah sama dengan totalnya.
 const dateFormatter = new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short", timeZone: "UTC" });
 const day = (date: string) => dateFormatter.format(new Date(date));
@@ -18,13 +19,14 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 export default function Position({ position }: { position: PositionData }) {
+  const base = position.pair.split("/")[0];
   return (
     <section className="grid gap-16 bg-surface px-5 py-28 sm:px-10 sm:py-40 lg:grid-cols-12 lg:gap-6">
       <div className="flex flex-col justify-between gap-16 lg:col-span-6">
         <Reveal>
           <h2 className="text-[34px] font-semibold leading-tight tracking-[-0.02em]">Mahal atau murah?</h2>
           <p className="mt-4 max-w-[40ch] text-[17px] leading-relaxed">
-            Kurs USD/IDR hari ini dibanding {position.total} hari kerja terakhir, dihitung ulang setiap hari.
+            Kurs {position.pair} hari ini dibanding {position.total} hari kerja terakhir, dihitung ulang setiap hari.
           </p>
         </Reveal>
         <Reveal delay={100}>
@@ -32,7 +34,7 @@ export default function Position({ position }: { position: PositionData }) {
             {position.percentile}%
           </p>
           <p className="mt-5 max-w-[38ch] text-[17px]">
-            hari dalam periode itu kursnya lebih rendah dari hari ini. Makin tinggi, makin mahal dolar saat ini.
+            hari dalam periode itu kursnya lebih rendah dari hari ini. Makin tinggi, makin mahal {currencyName(base)} saat ini.
           </p>
         </Reveal>
       </div>

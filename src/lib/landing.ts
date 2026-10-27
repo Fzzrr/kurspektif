@@ -1,28 +1,29 @@
-// Data nyata untuk landing page: kurs hari ini, penggerak minggu ini, posisi
-// historis USD/IDR, agenda, dan berita rupiah. Semua bagian boleh gagal sendiri
-// — landing tetap tampil, bagian yang datanya tidak ada disembunyikan.
-import { fetchRateSeries, fetchUsdRates, toISODate, type RatePoint } from './frankfurter';
-import { fetchWeeklyMoversMany, type WeeklyMovers } from './movers';
-import { explain } from './moversText';
-import { eventsFor, type EconomicEvent } from './calendar';
+// Data nyata untuk landing page: kurs pasangan utama dunia, penggerak minggu
+// ini, posisi historis, agenda, dan berita. Semua bagian boleh gagal sendiri —
+// landing tetap tampil, bagian yang datanya tidak ada disembunyikan.
+import { fetchRateSeries, toISODate, type RatePoint } from './frankfurter';
+import { CALENDAR_CURRENCIES, eventsFor, type EconomicEvent } from './calendar';
 import { newsForCurrencies, type NewsItem } from './marketaux';
 import { percentileOf } from './alerts';
 import { todayKey } from './timeAgo';
+import { watchlistSnapshot, type WatchedSnapshot } from './watchlist';
+import { WORLD_PAIRS } from './pairs';
 
-/** Pilihan di hero (pasangan ke rupiah yang paling sering dicari). */
-export const HERO_CODES = ['USD', 'SGD', 'SAR', 'MYR', 'JPY'];
+/** Pilihan di hero: pasangan yang paling banyak diperdagangkan, plus rupiah. */
+export const HERO_PAIRS = ['EUR/USD', 'USD/JPY', 'GBP/USD', 'USD/CNY', 'AUD/USD', 'USD/IDR'];
 /** Daftar kurs di bagian bawah landing. */
-export const LIST_CODES = ['USD', 'SGD', 'EUR', 'JPY', 'SAR', 'MYR', 'AUD'];
+export const LIST_PAIRS = [...WORLD_PAIRS, 'USD/IDR'];
+// Tanpa IDR: berita rupiah sudah banyak di arsip dan akan mendominasi; yang
+// didahulukan di landing adalah berita pasangan mata uang utama.
+const NEWS_CODES = ['USD', 'EUR', 'JPY', 'GBP', 'CNY', 'CHF', 'AUD'];
+// Marketaux kadang menandai laporan perusahaan dengan mata uang; di landing
+// hanya tampilkan yang judulnya memang soal kurs.
+const ABOUT_FX = /\b(dollar|dolar|euro|yen|pound|sterling|yuan|franc|rupiah|currenc|forex|fx|exchange rate|kurs|[A-Z]{3}\/[A-Z]{3})/i;
 
-export type PairSnapshot = {
-  code: string;
-  rate: number;
-  date: string;
-  weekPct: number | null;
-  reason: string | null;
-};
+export type PairSnapshot = WatchedSnapshot;
 
 export type Position = {
+  pair: string;
   percentile: number;
   lower: number;
   total: number;
@@ -35,7 +36,8 @@ export type Position = {
 
 export type LandingData = {
   pairs: PairSnapshot[];
-  usdIdr: WeeklyMovers | null;
+  /** Pasangan hero yang paling banyak bergerak minggu ini — jadi contoh di landing. */
+  featured: PairSnapshot | null;
   position: Position | null;
   agenda: EconomicEvent[];
   news: NewsItem[];
@@ -43,41 +45,12 @@ export type LandingData = {
 
 const monthFormatter = new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric', timeZone: 'UTC' });
 
-/** Kurs X→IDR terbaru plus perubahan & penyebab minggu ini, untuk `codes`. */
-export async function loadPairs(
-  codes: string[] = [...new Set([...HERO_CODES, ...LIST_CODES])],
-): Promise<{ pairs: PairSnapshot[]; usdIdr: WeeklyMovers | null }> {
-  const to = new Date();
-  const from = new Date(to);
-  from.setDate(from.getDate() - 10);
-  const [byDate, movers] = await Promise.all([
-    fetchUsdRates(['IDR', ...codes.filter((c) => c !== 'USD')], toISODate(from), toISODate(to)),
-    fetchWeeklyMoversMany(codes.map((code) => `${code}/IDR`)),
-  ]);
-  const days = [...byDate.keys()].sort().map((date) => ({ date, rates: { USD: 1, ...byDate.get(date) } as Record<string, number> }));
-
-  const pairs = codes.flatMap((code) => {
-    const day = days.findLast((d) => d.rates[code] && d.rates.IDR);
-    if (!day) return [];
-    const week = movers.get(`${code}/IDR`) ?? null;
-    return [
-      {
-        code,
-        rate: day.rates.IDR / day.rates[code],
-        date: day.date,
-        weekPct: week?.pairChangePct ?? null,
-        reason: week ? explain(week) : null,
-      },
-    ];
-  });
-  return { pairs, usdIdr: movers.get('USD/IDR') ?? null };
-}
-
-async function loadPosition(): Promise<Position | null> {
+async function loadPosition(pair: string): Promise<Position | null> {
+  const [base, quote] = pair.split('/');
   const to = new Date();
   const from = new Date(to);
   from.setDate(from.getDate() - 140); // cukup untuk 90 hari kerja
-  const series = (await fetchRateSeries('USD', 'IDR', toISODate(from), toISODate(to))).slice(-90);
+  const series = (await fetchRateSeries(base, quote, toISODate(from), toISODate(to))).slice(-90);
   if (series.length < 10) return null;
   const today = series[series.length - 1];
   const history = series.map((p) => p.rate);
@@ -92,6 +65,7 @@ async function loadPosition(): Promise<Position | null> {
   }
 
   return {
+    pair,
     percentile: percentileOf(today.rate, history),
     lower: history.filter((rate) => rate < today.rate).length,
     total: history.length,
@@ -104,15 +78,23 @@ async function loadPosition(): Promise<Position | null> {
 
 export async function loadLandingData(): Promise<LandingData> {
   const today = todayKey();
-  const [pairs, position, news] = await Promise.all([
-    loadPairs().catch(() => ({ pairs: [], usdIdr: null })),
-    loadPosition().catch(() => null),
-    newsForCurrencies(['IDR'], 4).catch(() => []),
+  const [pairs, news] = await Promise.all([
+    watchlistSnapshot([...new Set([...HERO_PAIRS, ...LIST_PAIRS])]).catch(() => []),
+    newsForCurrencies(NEWS_CODES, 40)
+      .then((items) => items.filter((item) => ABOUT_FX.test(item.headline)).slice(0, 4))
+      .catch(() => []),
   ]);
+  const featured =
+    pairs
+      .filter((p) => HERO_PAIRS.includes(p.pair) && p.movers)
+      .sort((a, b) => Math.abs(b.weekPct ?? 0) - Math.abs(a.weekPct ?? 0))[0] ?? null;
+  const position = featured ? await loadPosition(featured.pair).catch(() => null) : null;
+
   return {
-    ...pairs,
+    pairs,
+    featured,
     position,
-    agenda: [...eventsFor(['IDR', 'USD'], today, -14), ...eventsFor(['IDR', 'USD'], today, 45)]
+    agenda: [...eventsFor(CALENDAR_CURRENCIES, today, -14), ...eventsFor(CALENDAR_CURRENCIES, today, 45)]
       .filter((event, i, all) => all.indexOf(event) === i)
       .slice(0, 5),
     news,

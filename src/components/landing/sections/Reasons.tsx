@@ -7,19 +7,20 @@ import { SENTIMENT } from "@/lib/sentiment";
 import { dayKey, dayLabel, todayKey } from "@/lib/timeAgo";
 import Reveal from "../motion/Reveal";
 
-// Foto arsip gedung De Javasche Bank di separuh kiri (menempel saat digulir),
-// tiga potongan antarmuka asli di kanan: peringkat kekuatan, agenda, berita.
-// Semua angkanya data minggu ini.
+// Ukiran Lapangan Dam di Amsterdam, tempat Wisselbank beroperasi, di separuh
+// kiri (menempel saat digulir); tiga potongan antarmuka asli di kanan:
+// peringkat kekuatan, agenda, berita. Semua angkanya data minggu ini.
 const panel = "rounded-2xl bg-surface p-5 sm:p-6";
 
 export function Ranking({ movers }: { movers: WeeklyMovers }) {
+  const highlighted = movers.sides.map((side) => side.code);
   const max = Math.max(...movers.ranking.map((s) => Math.abs(s.strengthPct)), 0.01);
   return (
     <div data-ui className={panel}>
       <p className="text-[14px] font-medium">Kekuatan terhadap mata uang utama, 7 hari</p>
       <ul className="mt-4 space-y-2.5">
         {movers.ranking.map(({ code, strengthPct }) => {
-          const inPair = code === "USD" || code === "IDR";
+          const inPair = highlighted.includes(code);
           const tone = !isMoving(strengthPct) ? "bg-neutral" : strengthPct > 0 ? "bg-up" : "bg-down";
           const width = `${(Math.abs(strengthPct) / max) * 50}%`;
           return (
@@ -44,7 +45,7 @@ export function Agenda({ events }: { events: EconomicEvent[] }) {
   const today = todayKey();
   return (
     <div data-ui className={panel}>
-      <p className="text-[14px] font-medium">Agenda yang bisa menggerakkan rupiah</p>
+      <p className="text-[14px] font-medium">Agenda bank sentral</p>
       <ul className="mt-4 space-y-3">
         {events.map((event) => (
           <li key={`${event.date}${event.title}`} className="grid grid-cols-[7.5rem_1fr] gap-3 text-[14px]">
@@ -66,7 +67,7 @@ export function Agenda({ events }: { events: EconomicEvent[] }) {
 export function Headlines({ news }: { news: NewsItem[] }) {
   return (
     <div data-ui className={panel}>
-      <p className="text-[14px] font-medium">Berita rupiah terbaru</p>
+      <p className="text-[14px] font-medium">Berita kurs terbaru</p>
       <ul className="mt-4 space-y-4">
         {news.map((item) => (
           <li key={item.id}>
@@ -91,15 +92,16 @@ export default function Reasons({ movers, agenda, news }: Props) {
     <section className="grid gap-10 px-5 py-28 sm:px-10 sm:py-40 lg:grid-cols-2 lg:gap-10">
       <figure className="lg:sticky lg:top-8 lg:self-start">
         <Image
-          src="/arsip/javasche-bank.jpg"
-          alt="Foto arsip gedung De Javasche Bank di Batavia: bangunan bertiang dengan menara jam kecil di tengah."
+          src="/arsip/wisselbank-dam.jpg"
+          alt="Ukiran Lapangan Dam di Amsterdam yang ramai, dengan balai kota lama, Nieuwe Kerk, dan rumah timbang."
           width={1920}
-          height={1426}
+          height={1384}
           sizes="(min-width: 1024px) 50vw, 100vw"
           className="archive-photo h-auto w-full"
         />
         <figcaption className="mt-3 text-[14px] text-muted">
-          Gedung De Javasche Bank di Batavia, bank sirkulasi yang kemudian menjadi Bank Indonesia.
+          Lapangan Dam di Amsterdam. Di balai kota lama di kiri beroperasi Wisselbank, bank penukaran yang berdiri pada
+          1609. Cetakan koleksi Rijksmuseum.
         </figcaption>
       </figure>
 

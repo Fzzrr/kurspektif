@@ -1,6 +1,6 @@
 # Kurspektif
 
-Kurs rupiah dan alasannya. Kurspektif menampilkan kurs harian 165 mata uang, lalu menjelaskan sisi mana yang
+Kurs dunia dan alasannya. Kurspektif menampilkan kurs harian 165 mata uang, lalu menjelaskan sisi mana yang
 sebenarnya menggerakkan sebuah pasangan minggu ini, lengkap dengan agenda bank sentral dan berita yang ditandai
 sentimennya.
 
@@ -13,12 +13,16 @@ bukan kurs jual/beli bank atau money changer.
   dibanding 90 hari kerja terakhir.
 - **Penggerak mingguan.** Kekuatan tiap mata uang terhadap sekeranjang mata uang utama (USD, EUR, JPY, GBP, CNY,
   SGD), sehingga terlihat apakah USD/IDR naik karena dolar menguat atau rupiah melemah.
-- **Agenda ekonomi.** Jadwal keputusan BI, The Fed, dan ECB, serta rilis inflasi AS, dalam WIB.
+- **Agenda ekonomi.** Jadwal keputusan The Fed, ECB, Bank of England, Bank of Japan, dan Bank Indonesia, serta
+  rilis inflasi AS.
 - **Berita bertanda sentimen.** Berita global dari Marketaux dan berita rupiah dari RSS CNBC Indonesia, Antara,
   dan CNN Indonesia, diarsipkan di database.
 - **Alert ke email.** Saat kurs melewati batas tertentu, atau masuk 10/20/30% hari termurah atau termahal setahun.
-- **Watchlist dan ringkasan mingguan.** Simpan pasangan favorit dan terima email ringkasannya tiap Senin pagi.
-- **Halaman publik.** `/kurs`, `/kurs/usd-idr`, dan `/metodologi` bisa dibuka tanpa login.
+- **Watchlist dan ringkasan mingguan.** Simpan pasangan favorit, lihat semuanya di halaman Pasangan saya, dan
+  terima email ringkasannya tiap Senin pagi. Email ringkasan punya tautan berhenti berlangganan sekali klik.
+- **Akun.** Daftar dengan email atau Google, lupa kata sandi, ganti email dengan verifikasi, dan hapus akun.
+- **Halaman publik.** `/kurs`, `/kurs/usd-idr`, `/metodologi`, `/syarat`, dan `/privasi` bisa dibuka tanpa
+  login.
 
 Cara tiap angka dihitung dijelaskan di halaman `/metodologi`.
 
@@ -54,7 +58,7 @@ Penjelasan lengkap ada di [`.env.example`](.env.example).
 | --- | --- | --- |
 | `DATABASE_URL` | Koneksi pooled untuk aplikasi (Supabase: port 6543) | Ya |
 | `DIRECT_URL` | Koneksi langsung untuk migrasi Prisma (Supabase: port 5432) | Ya |
-| `AUTH_SECRET` | Kunci sesi Auth.js, buat dengan `npx auth secret` | Ya |
+| `AUTH_SECRET` | Kunci sesi Auth.js dan tanda tangan tautan berhenti berlangganan, buat dengan `npx auth secret` | Ya |
 | `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` | Login dengan Google | Untuk login Google |
 | `RESEND_API_KEY` | Mengirim email alert, ringkasan, dan verifikasi | Untuk email |
 | `RESEND_FROM_EMAIL` | Alamat pengirim dari domain terverifikasi di Resend | Untuk email ke siapa pun |
@@ -76,6 +80,7 @@ Google Cloud Console.
 | `npm run build` | Build produksi |
 | `npm run start` | Menjalankan hasil build |
 | `npm run lint` | ESLint |
+| `npm test` | Test unit untuk alert, penggerak mingguan, parser RSS, statistik kurs, dan kalender |
 | `npx prisma migrate deploy` | Menerapkan migrasi ke database |
 
 ## Tugas terjadwal
@@ -85,7 +90,7 @@ Didefinisikan di [`vercel.json`](vercel.json) dan dijalankan Vercel Cron dengan 
 
 | Endpoint | Jadwal | Fungsi |
 | --- | --- | --- |
-| `/api/cron/check-alerts` | Tiap hari 01.00 UTC (08.00 WIB) | Mengecek alert dan mengirim email saat tercapai |
+| `/api/cron/check-alerts` | Tiap hari 01.00 UTC (08.00 WIB) | Mengecek alert, mengirim email saat tercapai, dan memperbarui arsip berita |
 | `/api/cron/weekly-digest` | Tiap Senin 00.00 UTC (07.00 WIB) | Mengirim ringkasan mingguan untuk pasangan tersimpan |
 
 Menjalankannya secara manual saat pengembangan:
@@ -103,7 +108,7 @@ public/arsip/            foto arsip yang dipakai halaman publik
 src/app/                 halaman dan route API (App Router)
   (auth)/                masuk dan daftar
   dashboard/             dashboard setelah login, beserta server action-nya
-  kurs/, metodologi/     halaman publik
+  kurs/, metodologi/     halaman publik, juga syarat/, privasi/, berhenti-langganan/
   api/                   kurs, penggerak mingguan, cron, verifikasi email
 src/components/          komponen UI per area: landing, dashboard, auth, ui
 src/lib/                 logika tanpa UI: sumber data, perhitungan, autentikasi
@@ -123,8 +128,8 @@ File yang paling sering disentuh:
 
 - Kurs referensi terbit sekali per hari kerja, jadi alert dicek sekali sehari dan pergerakan di tengah hari tidak
   terdeteksi.
-- Paket gratis Marketaux membatasi 3 artikel per request dan 100 request per hari. Arsip berita diperbarui di latar
-  belakang saat dashboard atau halaman berita dibuka.
+- Paket gratis Marketaux membatasi 3 artikel per request dan 100 request per hari. Arsip berita diperbarui oleh cron
+  harian dan di latar belakang saat dashboard atau halaman berita dibuka.
 - Sentimen berita RSS ditentukan dari kata kerja di dekat kata "rupiah" pada judul, sehingga bisa keliru.
 - Pembatas percobaan login masih disimpan di memori; untuk produksi di Vercel, ganti dengan Upstash Redis
   (lihat [`src/lib/rateLimit.ts`](src/lib/rateLimit.ts)).
@@ -135,15 +140,17 @@ File yang paling sering disentuh:
 - Berita: [Marketaux](https://www.marketaux.com), CNBC Indonesia, Antara, dan CNN Indonesia.
 - Jadwal agenda: [Federal Reserve](https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm),
   [Bank Indonesia](https://www.bi.go.id), [ECB](https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html),
-  dan [BLS](https://www.bls.gov/schedule/news_release/cpi.htm).
-- Foto arsip dari Wikimedia Commons:
-  - [Het gebouw van de Javasche Bank te Batavia](https://commons.wikimedia.org/w/index.php?curid=104603063), KITLV,
-    CC BY 4.0.
-  - [Kali Besar te Batavia, ter hoogte van de Javasche Bank](https://commons.wikimedia.org/w/index.php?curid=105711056),
-    KITLV, CC BY 4.0.
-  - [Biljetten uit de collectie van het Museum van het Bataviaasch Genootschap](https://commons.wikimedia.org/wiki/File:KITLV_A679_-_Biljetten_uit_de_collectie_van_het_Museum_van_het_Bataviaasch_Genootschap_voor_Kunsten_en_Wetenschappen_te_Batavia,_KITLV_89072.tiff),
-    KITLV, CC BY 4.0.
-  - [MDDS 06.0005 Oeang 10 Rupiah 01](https://commons.wikimedia.org/w/index.php?curid=104099493),
-    Museumdaerah.deliserdang, CC BY-SA 4.0.
+  [Bank of England](https://www.bankofengland.co.uk/monetary-policy/upcoming-mpc-dates),
+  [Bank of Japan](https://www.boj.or.jp/en/mopo/mpmsche_minu/index.htm), dan
+  [BLS](https://www.bls.gov/schedule/news_release/cpi.htm).
+- Gambar arsip (semuanya domain publik):
+  - [Gezicht op het Oude Stadhuis, de Wisselbank, ... op de Dam te Amsterdam](https://commons.wikimedia.org/w/index.php?curid=85275523),
+    Rijksmuseum, CC0.
+  - [A New Map of the Terraqueous Globe](https://commons.wikimedia.org/wiki/File:Antique_World_Map_of_Continents_and_Oceans_1700.png),
+    Edward Wells dan Michael Burghers, 1700, domain publik.
+  - [Money changer's box](https://www.metmuseum.org/art/collection/search/199839), The Metropolitan Museum of Art,
+    CC0.
+  - [Geldkist van de Amsterdamse Wisselbank](https://commons.wikimedia.org/w/index.php?curid=86835963), Amsterdam
+    Museum, CC0.
 
-  Semua foto ditampilkan hitam-putih.
+  Semua gambar ditampilkan hitam-putih.

@@ -23,20 +23,20 @@ export default async function MetodologiPage() {
           'sumber-kurs': (
             <figure>
               <Image
-                src="/arsip/javasche-bank.jpg"
-                alt="Foto arsip gedung De Javasche Bank di Batavia."
+                src="/arsip/wisselbank-dam.jpg"
+                alt="Ukiran Lapangan Dam di Amsterdam dengan balai kota lama tempat Wisselbank beroperasi."
                 width={1920}
-                height={1426}
+                height={1384}
                 sizes="(min-width: 1024px) 50vw, 100vw"
                 className="archive-photo h-auto w-full"
               />
               <figcaption className="mt-3 text-[14px] text-muted">
-                Gedung De Javasche Bank di Batavia, bank sirkulasi yang kemudian menjadi Bank Indonesia. Foto arsip
-                KITLV, CC BY 4.0.
+                Lapangan Dam di Amsterdam, tempat Wisselbank (bank penukaran, berdiri 1609) beroperasi. Cetakan
+                koleksi Rijksmuseum, CC0.
               </figcaption>
             </figure>
           ),
-          penggerak: data.usdIdr && <Ranking movers={data.usdIdr} />,
+          penggerak: data.featured?.movers && <Ranking movers={data.featured.movers} />,
           sentimen: data.news.length > 0 && <Headlines news={data.news} />,
           agenda: data.agenda.length > 0 && <Agenda events={data.agenda} />,
         }}
