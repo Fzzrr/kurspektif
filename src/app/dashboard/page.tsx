@@ -7,7 +7,12 @@ import { watchedPairs } from '@/lib/watchlist';
 import DashboardLiveSection from '@/components/dashboard/DashboardLiveSection';
 import AlertCard from '@/components/dashboard/AlertCard';
 
-export default async function DashboardPage() {
+// `?pair=USD-IDR` membuka pasangan tertentu (dipakai halaman Pasangan saya).
+type Props = { searchParams: Promise<{ pair?: string }> };
+
+export default async function DashboardPage({ searchParams }: Props) {
+  const { pair } = await searchParams;
+  const initialPair = pair && /^[A-Z]{3}-[A-Z]{3}$/.test(pair) ? pair.replace('-', '/') : undefined;
   const [session, currencies] = await Promise.all([auth(), fetchSupportedCurrencies()]);
   const userId = session?.user?.id;
   const [alerts, watchlist] = userId
@@ -31,6 +36,7 @@ export default async function DashboardPage() {
         currencies={currencies}
         news={news}
         initialWatchlist={watchlist}
+        initialPair={initialPair}
       />
       {/* Target tautan "Alert" di navigasi. scroll-mt: jangan tertutup header ponsel. */}
       <section id="alert" className="scroll-mt-20 md:scroll-mt-8">

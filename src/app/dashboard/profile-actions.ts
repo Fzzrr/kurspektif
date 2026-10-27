@@ -3,7 +3,7 @@
 import crypto from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import { Resend } from 'resend';
-import { auth } from '@/lib/auth';
+import { auth, signOut } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { EMAIL_SENDER } from '@/lib/email';
 import { BCRYPT_COST } from '@/lib/auth/auth';
@@ -113,4 +113,20 @@ export async function requestEmailChangeAction(newEmail: string): Promise<Action
   await prisma.verificationToken.create({ data: { identifier, token, newEmail: normalized, expires } });
 
   return { success: `Cek ${normalized} untuk mengonfirmasi perubahan.` };
+}
+// Hapus akun beserta semua datanya. Alert, watchlist, sesi, dan akun Google
+// ikut terhapus lewat onDelete: Cascade; token verifikasi tidak punya relasi,
+// jadi dihapus manual.
+export async function deleteAccountAction(confirmation: string): Promise<ActionState> {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return { error: 'Sesi berakhir. Masuk lagi untuk menghapus akun.' };
+  if (confirmation.trim() !== 'HAPUS') return { error: 'Ketik HAPUS untuk mengonfirmasi.' };
+
+  await prisma.verificationToken.deleteMany({
+    where: { identifier: { in: [`email-change:${userId}`, `password-reset:${userId}`] } },
+  });
+  await prisma.user.delete({ where: { id: userId } });
+  await signOut({ redirectTo: '/' });
+  return undefined;
 }

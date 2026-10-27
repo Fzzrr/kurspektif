@@ -82,27 +82,37 @@ const ARCHIVE_LIMIT = 90;
 // user). Halaman jadi tidak pernah menunggu 8 fetch paralel + tulis DB —
 // artikel baru muncul mulai kunjungan berikutnya, bukan yang ini.
 export async function fetchCurrencyNews(): Promise<NewsItem[]> {
-  after(async () => {
-    // Dua sumber berdiri sendiri — satu gagal tidak menghalangi yang lain.
-    const sources = await Promise.allSettled([fetchFromMarketaux(), fetchIndonesianNews()]);
-    const fresh = sources.flatMap((source, i) => {
-      if (source.status === 'fulfilled') return source.value;
-      console.error(`${i === 0 ? 'Marketaux' : 'RSS'} gagal, arsip dari sumber ini tidak bertambah:`, source.reason);
-      return [];
-    });
-    if (fresh.length === 0) return;
-    try {
-      await prisma.newsArticle.createMany({
-        data: fresh.map((item) => ({ ...item, publishedAt: new Date(item.publishedAt) })),
-        skipDuplicates: true,
-      });
-    } catch (err) {
-      console.error('Gagal menyimpan arsip berita:', err);
-    }
-  });
+  after(refreshNewsArchive);
 
   const rows = await prisma.newsArticle.findMany({ orderBy: { publishedAt: 'desc' }, take: ARCHIVE_LIMIT });
   return rows.map(toNewsItem);
+}
+
+/**
+ * Tarik berita terbaru dari kedua sumber dan simpan yang belum ada di arsip.
+ * Dipanggil di latar belakang saat halaman berita dibuka, dan oleh cron harian
+ * supaya arsip tetap segar walau tidak ada yang membuka dashboard.
+ * Mengembalikan jumlah artikel baru yang tersimpan.
+ */
+export async function refreshNewsArchive(): Promise<number> {
+  // Dua sumber berdiri sendiri — satu gagal tidak menghalangi yang lain.
+  const sources = await Promise.allSettled([fetchFromMarketaux(), fetchIndonesianNews()]);
+  const fresh = sources.flatMap((source, i) => {
+    if (source.status === 'fulfilled') return source.value;
+    console.error(`${i === 0 ? 'Marketaux' : 'RSS'} gagal, arsip dari sumber ini tidak bertambah:`, source.reason);
+    return [];
+  });
+  if (fresh.length === 0) return 0;
+  try {
+    const { count } = await prisma.newsArticle.createMany({
+      data: fresh.map((item) => ({ ...item, publishedAt: new Date(item.publishedAt) })),
+      skipDuplicates: true,
+    });
+    return count;
+  } catch (err) {
+    console.error('Gagal menyimpan arsip berita:', err);
+    return 0;
+  }
 }
 
 /**

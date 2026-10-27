@@ -65,6 +65,11 @@ export default function LoginForm() {
             id="password"
             name="password"
             label="Kata sandi"
+            labelAction={
+              <Link href="/lupa-kata-sandi" className="text-sm text-muted underline-offset-4 hover:text-ink hover:underline">
+                Lupa kata sandi?
+              </Link>
+            }
           />
 
           {error && <p className="text-sm text-down">{error}</p>}

@@ -1,6 +1,7 @@
 // Dipanggil Vercel Cron sekali sehari (lihat vercel.json). Mengecek semua alert
 // yang belum tercapai terhadap kurs referensi terbaru, mengirim email, lalu
-// menandai alert tercapai supaya tidak terkirim berulang.
+// menandai alert tercapai supaya tidak terkirim berulang. Sekalian memperbarui
+// arsip berita — paket Hobby Vercel hanya memberi dua cron.
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { prisma } from '@/lib/prisma';
@@ -8,6 +9,7 @@ import { fetchUsdRates, toISODate } from '@/lib/frankfurter';
 import { POSITION_DAYS, describeCondition, isHit, isPositional, percentileOf, type AlertDirection } from '@/lib/alerts';
 import { EMAIL_SENDER } from '@/lib/email';
 import { formatRate } from '@/lib/rateStats';
+import { refreshNewsArchive } from '@/lib/marketaux';
 
 export async function GET(request: Request) {
   // Vercel Cron mengirim "Authorization: Bearer <CRON_SECRET>". Tanpa secret
@@ -17,11 +19,14 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const alerts = await prisma.rateAlert.findMany({
-    where: { triggeredAt: null },
-    include: { user: { select: { email: true } } },
-  });
-  if (alerts.length === 0) return NextResponse.json({ checked: 0, triggered: 0, failed: 0 });
+  const [newArticles, alerts] = await Promise.all([
+    refreshNewsArchive(),
+    prisma.rateAlert.findMany({
+      where: { triggeredAt: null },
+      include: { user: { select: { email: true } } },
+    }),
+  ]);
+  if (alerts.length === 0) return NextResponse.json({ newArticles, checked: 0, triggered: 0, failed: 0 });
 
   // Satu permintaan ke Frankfurter untuk semua mata uang yang dipakai —
   // setahun penuh, karena alert posisi butuh riwayatnya.
@@ -83,5 +88,5 @@ export async function GET(request: Request) {
   }
 
   // Rute ini dilindungi CRON_SECRET, jadi aman menyertakan alasan kegagalan.
-  return NextResponse.json({ checked: alerts.length, triggered, failed: errors.length, errors });
+  return NextResponse.json({ newArticles, checked: alerts.length, triggered, failed: errors.length, errors });
 }

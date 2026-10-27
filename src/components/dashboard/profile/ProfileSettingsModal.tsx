@@ -18,6 +18,7 @@ import {
   updateProfileAction,
   changePasswordAction,
   requestEmailChangeAction,
+  deleteAccountAction,
 } from '@/app/dashboard/profile-actions';
 import { setWeeklyDigestAction } from '@/app/dashboard/watchlist-actions';
 
@@ -100,6 +101,7 @@ export default function ProfileSettingsModal({ open, onClose, user }: Props) {
             <EmailRow user={user} />
             {user.hasPassword && <PasswordRow />}
             <DigestRow initial={user.weeklyDigest} />
+            <DeleteAccountRow />
           </div>
         </div>
       </div>
@@ -158,6 +160,71 @@ function FormActions({ pending, submitLabel, pendingLabel, onCancel }: {
         {pending ? pendingLabel : submitLabel}
       </button>
     </div>
+  );
+}
+
+// --- Hapus akun -------------------------------------------------------------
+
+function DeleteAccountRow() {
+  const [open, setOpen] = useState(false);
+  const [confirmation, setConfirmation] = useState('');
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState('');
+
+  async function submit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setPending(true);
+    setError('');
+    const res = await deleteAccountAction(confirmation); // sukses = redirect, tidak kembali
+    setPending(false);
+    if (res?.error) setError(res.error);
+  }
+
+  if (!open) {
+    return (
+      <Row label="Hapus akun">
+        <RowValue
+          action={
+            <button type="button" onClick={() => setOpen(true)} className={ghostButtonClass}>
+              Hapus akun
+            </button>
+          }
+        >
+          <p className="text-sm text-muted">Menghapus akun, alert, dan pasangan tersimpan secara permanen.</p>
+        </RowValue>
+      </Row>
+    );
+  }
+
+  return (
+    <Row label="Hapus akun">
+      <form onSubmit={submit} className="space-y-3">
+        <p className="text-sm">
+          Semua data akunmu dihapus permanen dan tidak bisa dikembalikan. Ketik <strong>HAPUS</strong> untuk
+          melanjutkan.
+        </p>
+        <input
+          value={confirmation}
+          onChange={(e) => setConfirmation(e.target.value)}
+          aria-label="Ketik HAPUS untuk mengonfirmasi"
+          className="block w-full bg-accent-soft px-4 py-3 text-[15px] text-ink focus:outline-none focus:ring-2 focus:ring-accent/30"
+          autoComplete="off"
+        />
+        {error && <p className="font-mono text-xs text-down">{error}</p>}
+        <div className="flex justify-end gap-2">
+          <button type="button" onClick={() => setOpen(false)} className={ghostButtonClass}>
+            Batal
+          </button>
+          <button
+            type="submit"
+            disabled={pending || confirmation.trim() !== 'HAPUS'}
+            className="bg-down px-4 py-2 font-mono text-xs font-medium text-ink disabled:opacity-40"
+          >
+            {pending ? 'Menghapus…' : 'Hapus permanen'}
+          </button>
+        </div>
+      </form>
+    </Row>
   );
 }
 

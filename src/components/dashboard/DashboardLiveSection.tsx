@@ -19,10 +19,17 @@ const dateFmt = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short
 // Pintasan untuk pengguna yang belum menyimpan pasangan apa pun.
 const SUGGESTED_PAIRS = ['USD/IDR', 'EUR/IDR', 'JPY/IDR', 'SGD/IDR'];
 
-type Props = { title: string; currencies: Currency[]; news: NewsItem[]; initialWatchlist: string[] };
+type Props = {
+  title: string;
+  currencies: Currency[];
+  news: NewsItem[];
+  initialWatchlist: string[];
+  /** "USD/IDR" — dibuka dari tautan; kalau kosong, pasangan tersimpan pertama. */
+  initialPair?: string;
+};
 
-export default function DashboardLiveSection({ title, currencies, news, initialWatchlist }: Props) {
-  const [initialFrom, initialTo] = (initialWatchlist[0] ?? 'USD/IDR').split('/');
+export default function DashboardLiveSection({ title, currencies, news, initialWatchlist, initialPair }: Props) {
+  const [initialFrom, initialTo] = (initialPair ?? initialWatchlist[0] ?? 'USD/IDR').split('/');
   const [from, setFrom] = useState(initialFrom);
   const [to, setTo] = useState(initialTo);
   const [watchlist, setWatchlist] = useState(initialWatchlist);

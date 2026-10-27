@@ -9,6 +9,7 @@ import { explain, fmtPct } from '@/lib/moversText';
 import { eventsFor } from '@/lib/calendar';
 import { dayLabel, todayKey } from '@/lib/timeAgo';
 import { EMAIL_SENDER } from '@/lib/email';
+import { unsubscribeApiUrl, unsubscribePageUrl } from '@/lib/unsubscribe';
 
 const BATCH_SIZE = 100; // batas batch API Resend
 
@@ -22,13 +23,14 @@ export async function GET(request: Request) {
 
   const users = await prisma.user.findMany({
     where: { weeklyDigest: true, watchedPairs: { some: {} } },
-    select: { email: true, name: true, watchedPairs: { orderBy: { createdAt: 'asc' }, select: { base: true, quote: true } } },
+    select: { id: true, email: true, name: true, watchedPairs: { orderBy: { createdAt: 'asc' }, select: { base: true, quote: true } } },
   });
   if (users.length === 0) return NextResponse.json({ users: 0, sent: 0, failed: 0 });
 
   const pairsOf = (user: (typeof users)[number]) => user.watchedPairs.map((p) => `${p.base}/${p.quote}`);
   const movers = await fetchWeeklyMoversMany([...new Set(users.flatMap(pairsOf))]);
-  const dashboardUrl = `${process.env.APP_URL || new URL(request.url).origin}/dashboard`;
+  const baseUrl = process.env.APP_URL || new URL(request.url).origin;
+  const dashboardUrl = `${baseUrl}/dashboard`;
   const today = todayKey();
 
   const emails = users.map((user) => {
@@ -51,6 +53,10 @@ export async function GET(request: Request) {
     return {
       from: EMAIL_SENDER,
       to: user.email,
+      headers: {
+        'List-Unsubscribe': `<${unsubscribeApiUrl(baseUrl, user.id)}>`,
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+      },
       subject: `Ringkasan minggu ini: ${pairs
         .slice(0, 3)
         .map((pair) => `${pair} ${movers.get(pair) ? fmtPct(movers.get(pair)!.pairChangePct) : '—'}`)
@@ -63,12 +69,10 @@ export async function GET(request: Request) {
           : '') +
         `<p><a href="${dashboardUrl}">Buka dashboard Kurspektif</a></p>` +
         `<p style="color:#888;font-size:12px">Kurs referensi harian, bukan kurs jual/beli bank. ` +
-        `Matikan email ini di dashboard: Profil → Ringkasan mingguan.</p>`,
+        `<a href="${unsubscribePageUrl(baseUrl, user.id)}" style="color:#888">Berhenti menerima ringkasan ini</a>.</p>`,
     };
   });
 
-  // ponytail: tanpa tautan berhenti-berlangganan sekali klik (List-Unsubscribe);
-  // tambahkan token per pengguna kalau penerimanya sudah banyak.
   const resend = new Resend(process.env.RESEND_API_KEY);
   let sent = 0;
   const errors: string[] = [];

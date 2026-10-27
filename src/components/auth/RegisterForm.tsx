@@ -125,6 +125,18 @@ export default function RegisterForm() {
             )}
           </div>
 
+          <p className="text-center text-sm text-muted">
+            Dengan mendaftar, kamu menyetujui{' '}
+            <Link href="/syarat" className="text-ink underline underline-offset-4">
+              Syarat &amp; Ketentuan
+            </Link>{' '}
+            dan{' '}
+            <Link href="/privasi" className="text-ink underline underline-offset-4">
+              Kebijakan Privasi
+            </Link>
+            .
+          </p>
+
           {error && <p className="text-center text-sm text-down">{error}</p>}
 
           <button
