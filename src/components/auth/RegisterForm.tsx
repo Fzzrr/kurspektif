@@ -2,8 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { signIn } from 'next-auth/react';
 import AuthHeader from './AuthHeader';
 import FormField from '../ui/FormField';
 import PasswordInput from '../ui/PasswordInput';
@@ -20,9 +18,9 @@ import {
 import { registerUser } from '@/app/(auth)/register/actions';
 
 export default function RegisterForm() {
-  const router = useRouter();
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [sentTo, setSentTo] = useState('');
   const [pending, setPending] = useState(false);
   const score = strengthOf(password);
 
@@ -32,27 +30,40 @@ export default function RegisterForm() {
     setPending(true);
     const formData = new FormData(e.currentTarget);
 
-    // 1) Buat user di database lewat server action.
+    // Akun baru belum bisa dipakai masuk sampai emailnya diverifikasi.
     const res = await registerUser(undefined, formData);
+    setPending(false);
     if (res?.error) {
       setError(res.error);
-      setPending(false);
       return;
     }
+    setSentTo(res?.sentTo ?? '');
+  }
 
-    // 2) Langsung login otomatis dengan kredensial yang sama.
-    const login = await signIn('credentials', {
-      redirect: false,
-      email: String(formData.get('email')),
-      password,
-    });
-    setPending(false);
-    if (login?.error) {
-      setError('Akun berhasil dibuat, tapi gagal masuk otomatis. Silakan masuk manual.');
-      return;
-    }
-    router.push('/dashboard');
-    router.refresh();
+  if (sentTo) {
+    return (
+      <div className="font-sans space-y-4">
+        <AuthHeader />
+        <div className="auth-zoom mx-auto w-full max-w-md space-y-4">
+          <h1 className="text-[clamp(40px,5vw,64px)] font-black leading-[0.92] tracking-[-0.035em]">Cek email kamu</h1>
+          <p className="pt-2 text-[17px] leading-relaxed">
+            Kami mengirim tautan aktivasi ke <strong>{sentTo}</strong>. Klik tautannya untuk mengaktifkan akun, lalu
+            masuk. Tidak ada di inbox? Cek folder spam.
+          </p>
+          <p className="text-[15px] leading-relaxed text-muted">
+            Kalau email ini sudah punya akun, kamu tidak akan menerima apa-apa:{' '}
+            <Link href="/login" className="text-ink underline underline-offset-4">
+              masuk
+            </Link>{' '}
+            saja, atau pakai{' '}
+            <Link href="/lupa-kata-sandi" className="text-ink underline underline-offset-4">
+              Lupa kata sandi
+            </Link>
+            .
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (

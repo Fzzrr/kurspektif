@@ -124,7 +124,7 @@ export async function deleteAccountAction(confirmation: string): Promise<ActionS
   if (confirmation.trim() !== 'HAPUS') return { error: 'Ketik HAPUS untuk mengonfirmasi.' };
 
   await prisma.verificationToken.deleteMany({
-    where: { identifier: { in: [`email-change:${userId}`, `password-reset:${userId}`] } },
+    where: { identifier: { in: [`email-change:${userId}`, `password-reset:${userId}`, `email-verify:${userId}`] } },
   });
   await prisma.user.delete({ where: { id: userId } });
   await signOut({ redirectTo: '/' });

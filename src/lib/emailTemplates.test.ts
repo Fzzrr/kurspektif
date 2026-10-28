@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { alertEmail, digestEmail, emailChangeEmail } from './emailTemplates';
+import { alertEmail, digestEmail, emailChangeEmail, verifyEmailEmail } from './emailTemplates';
 
 test('email alert memuat kondisi, kurs, dan posisi', () => {
   const email = alertEmail({
@@ -52,4 +52,11 @@ test('konfirmasi email menyebut email lama dan baru', () => {
   const email = emailChangeEmail({ link: 'https://contoh.id/x', oldEmail: 'lama@contoh.id', newEmail: 'baru@contoh.id' });
   assert.match(email.html, /lama@contoh\.id/);
   assert.match(email.html, /baru@contoh\.id/);
+});
+
+test('verifikasi email meng-escape alamat dan memuat tautan', () => {
+  const email = verifyEmailEmail({ email: '<x>@contoh.id', link: 'https://contoh.id/verifikasi-email?token=abc' });
+  assert.match(email.html, /&lt;x&gt;@contoh\.id/);
+  assert.match(email.html, /token=abc/);
+  assert.match(email.text, /token=abc/);
 });

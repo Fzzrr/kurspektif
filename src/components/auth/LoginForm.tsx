@@ -28,7 +28,11 @@ export default function LoginForm() {
     });
     setPending(false);
     if (res?.error) {
-      setError('Email atau kata sandi salah.');
+      setError(
+        res.code === 'unverified'
+          ? 'Email ini belum diverifikasi. Klik tautan aktivasi di inbox-mu, atau daftar lagi dengan email yang sama untuk menerima tautan baru.'
+          : 'Email atau kata sandi salah.',
+      );
       return;
     }
     router.push('/dashboard');

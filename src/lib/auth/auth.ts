@@ -1,6 +1,7 @@
 import NextAuth from 'next-auth';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import Credentials from 'next-auth/providers/credentials';
+import { CredentialsSignin } from 'next-auth';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { authConfig } from './config';
@@ -10,6 +11,11 @@ import { loginLimiter, loginIpLimiter } from '@/lib/rateLimit';
 // di bawah punya timing setara compare asli (pertahanan timing-attack).
 export const BCRYPT_COST = 12;
 const DUMMY_HASH = bcrypt.hashSync('dummy-password-for-timing', BCRYPT_COST);
+
+// Kode ini sampai ke client lewat `signIn(...).code` → LoginForm.
+class UnverifiedEmail extends CredentialsSignin {
+  code = 'unverified';
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
@@ -38,10 +44,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const ok = await bcrypt.compare(password, user.password);
         if (!ok) return null;
+        // Dicek setelah kata sandi benar, supaya pesan "belum diverifikasi"
+        // tidak membocorkan email mana yang terdaftar.
+        if (!user.emailVerified) throw new UnverifiedEmail();
         return { id: user.id, name: user.name, email: user.email, image: user.image };
       },
     }),
   ],
+  events: {
+    // Google sudah membuktikan pemilik email (lihat callback signIn). Kalau
+    // akunnya didaftarkan dengan kata sandi tapi belum pernah diverifikasi,
+    // kata sandi itu bisa jadi milik orang lain yang mendaftarkan email ini:
+    // buang, supaya hanya pemilik asli yang bisa masuk. Pemiliknya tetap bisa
+    // membuat kata sandi lewat "Lupa kata sandi".
+    async linkAccount({ user }) {
+      await prisma.user.updateMany({
+        where: { id: user.id, emailVerified: null },
+        data: { emailVerified: new Date(), password: null },
+      });
+    },
+  },
   callbacks: {
     ...authConfig.callbacks,
     async signIn({ account, profile }) {

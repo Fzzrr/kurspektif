@@ -5,7 +5,7 @@ import bcrypt from 'bcryptjs';
 import { headers } from 'next/headers';
 import { Resend } from 'resend';
 import { prisma } from '@/lib/prisma';
-import { EMAIL_SENDER } from '@/lib/email';
+import { EMAIL_SENDER, devLinkFallback } from '@/lib/email';
 import { passwordResetEmail } from '@/lib/emailTemplates';
 import { BCRYPT_COST } from '@/lib/auth/auth';
 import { passwordResetLimiter } from '@/lib/rateLimit';
@@ -49,6 +49,7 @@ export async function requestPasswordResetAction(_prev: ResetState, formData: Fo
     to: email,
     ...passwordResetEmail({ email, link, hasPassword: Boolean(user.password) }),
   });
+  if (sent.error && devLinkFallback('Atur ulang kata sandi', email, link, sent.error.message)) return { message: SENT_MESSAGE };
   if (sent.error) {
     console.error('Email atur ulang kata sandi gagal:', sent.error.message);
     return { error: 'Gagal mengirim email. Coba lagi beberapa saat lagi.' };
@@ -75,7 +76,11 @@ export async function resetPasswordAction(_prev: ResetState, formData: FormData)
   }
 
   const userId = record.identifier.slice('password-reset:'.length);
-  await prisma.user.update({ where: { id: userId }, data: { password: await bcrypt.hash(password, BCRYPT_COST) } });
+  // Tautan ini hanya sampai ke pemilik email, jadi sekaligus memverifikasinya.
+  await prisma.user.update({
+    where: { id: userId },
+    data: { password: await bcrypt.hash(password, BCRYPT_COST), emailVerified: new Date() },
+  });
   await prisma.verificationToken.deleteMany({ where: { identifier: record.identifier } });
   return { done: true };
 }

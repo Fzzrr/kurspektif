@@ -354,3 +354,34 @@ export function emailChangeEmail({ link: url, oldEmail, newEmail }: { link: stri
 
   return { subject: 'Konfirmasi email baru — Kurspektif', html, text };
 }
+
+// ---------------------------------------------------------------------------
+// Verifikasi email pendaftaran
+// ---------------------------------------------------------------------------
+
+export function verifyEmailEmail({ email, link: url }: { email: string; link: string }): EmailContent {
+  const html = layout({
+    title: 'Verifikasi email',
+    preheader: 'Satu langkah lagi untuk mengaktifkan akun Kurspektif.',
+    body:
+      h1('Verifikasi email') +
+      p(`Ada pendaftaran akun Kurspektif dengan alamat <strong>${escapeHtml(email)}</strong>. Klik tombol di bawah untuk mengaktifkannya.`) +
+      button('Aktifkan akun', url) +
+      note(`Tautan berlaku 24 jam. Tombol tidak berfungsi? Salin tautan ini ke browser:<br><a href="${url}" style="color:${MUTED};word-break:break-all;">${url}</a>`) +
+      note('Tidak merasa mendaftar? Jangan klik tombolnya, abaikan saja. Akun yang tidak diverifikasi tidak bisa dipakai masuk.'),
+    footer: 'Email ini dikirim karena alamat ini dipakai untuk mendaftar di Kurspektif.',
+  });
+
+  const text = [
+    'Verifikasi email',
+    '',
+    `Ada pendaftaran akun Kurspektif dengan alamat ${email}.`,
+    '',
+    `Aktifkan akun: ${url}`,
+    'Tautan berlaku 24 jam.',
+    '',
+    'Tidak merasa mendaftar? Jangan buka tautannya, abaikan saja. Akun yang tidak diverifikasi tidak bisa dipakai masuk.',
+  ].join('\n');
+
+  return { subject: 'Verifikasi email — Kurspektif', html, text };
+}
