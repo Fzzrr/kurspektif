@@ -1,5 +1,6 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { watchlistLimiter } from '@/lib/rateLimit';
@@ -32,6 +33,7 @@ export async function toggleWatchAction(base: string, quote: string): Promise<{ 
     }
     await prisma.watchedPair.create({ data: { userId, base, quote } });
   }
+  revalidatePath('/dashboard', 'layout'); // jumlah pantauan di menu akun
   return { pairs: await watchedPairs(userId) };
 }
 

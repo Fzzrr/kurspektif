@@ -327,7 +327,7 @@ function AvatarUpload({ user, onSaved }: { user: User; onSaved: () => void }) {
           // eslint-disable-next-line @next/next/no-img-element
           <img src={preview} alt="" className="size-20 rounded-full object-cover" />
         ) : (
-          <span className="flex size-20 items-center justify-center rounded-full bg-ink font-mono text-lg font-semibold text-paper">
+          <span className="flex size-20 items-center justify-center rounded-full bg-accent-soft font-mono text-lg font-semibold text-ink">
             {getInitials(user.name)}
           </span>
         )}

@@ -1,5 +1,6 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { alertLimiter } from '@/lib/rateLimit';
@@ -51,6 +52,7 @@ export async function createAlertAction(input: AlertInput): Promise<Result> {
   if (active >= MAX_ACTIVE_ALERTS) return { error: `Maksimal ${MAX_ACTIVE_ALERTS} alert aktif.` };
 
   const alert = await prisma.rateAlert.create({ data: { userId, ...parsed.data } });
+  revalidatePath('/dashboard', 'layout'); // jumlah alert aktif di menu akun
   return { alert: toAlertDTO(alert) };
 }
 
@@ -69,6 +71,7 @@ export async function updateAlertAction(id: string, input: AlertInput): Promise<
     where: { id },
     data: { ...parsed.data, triggeredAt: null, triggeredRate: null },
   });
+  revalidatePath('/dashboard', 'layout');
   return { alert: toAlertDTO(alert) };
 }
 
@@ -78,5 +81,6 @@ export async function deleteAlertAction(id: string): Promise<{ error?: string }>
 
   // deleteMany + userId: tidak bisa menghapus alert milik orang lain.
   await prisma.rateAlert.deleteMany({ where: { id, userId } });
+  revalidatePath('/dashboard', 'layout');
   return {};
 }
