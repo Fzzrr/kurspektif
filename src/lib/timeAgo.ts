@@ -32,6 +32,17 @@ const dayLabelFormatter = new Intl.DateTimeFormat('id-ID', {
   month: 'short',
 });
 
+const timeFormatter = new Intl.DateTimeFormat('id-ID', {
+  timeZone: 'Asia/Jakarta',
+  hour: '2-digit',
+  minute: '2-digit',
+});
+
+/** Jam terbit WIB, mis. "09.42". */
+export function timeOfDay(iso: string): string {
+  return timeFormatter.format(new Date(iso));
+}
+
 /** Kunci kalender "YYYY-MM-DD" (Jakarta) — bisa diurutkan sebagai string. */
 export function dayKey(iso: string | number | Date): string {
   return dayKeyFormatter.format(new Date(iso));
