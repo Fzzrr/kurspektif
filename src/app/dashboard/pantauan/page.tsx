@@ -3,11 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { MAX_PAIRS, watchedPairs, watchlistSnapshot, type WatchedSnapshot } from '@/lib/watchlist';
 import { fetchSupportedCurrencies } from '@/lib/frankfurter';
 import { toAlertDTO } from '@/lib/alerts';
-import { eventsFor } from '@/lib/calendar';
-import { todayKey } from '@/lib/timeAgo';
 import WatchRow from '@/components/dashboard/watchlist/WatchRow';
 import AddPair from '@/components/dashboard/watchlist/AddPair';
-import WeekAgenda from '@/components/dashboard/watchlist/WeekAgenda';
 
 export const metadata = { title: 'Pantauan — Kurspektif' };
 
@@ -31,8 +28,6 @@ export default async function PantauanPage() {
 
   const names = new Map(currencies.map((c) => [c.code, c.name]));
   const alertDTOs = alerts.map(toAlertDTO);
-  const codes = [...new Set(pairs.flatMap((pair) => pair.split('/')))];
-  const events = eventsFor(codes, todayKey(), 7);
   const addPair = <AddPair currencies={currencies} saved={pairs} max={MAX_PAIRS} />;
 
   return (
@@ -51,8 +46,8 @@ export default async function PantauanPage() {
             <section className="rounded-2xl bg-surface p-6">
               <h2 className="text-lg font-semibold">Belum ada pasangan dipantau</h2>
               <p className="mt-2 max-w-[56ch] text-[15px] text-muted">
-                Pasangan yang kamu pantau tampil di sini dengan posisi kursnya dalam 90 hari, alert, dan agenda bank
-                sentral yang bisa menggerakkannya. Mulai dari salah satu saran di bawah atau pilih sendiri.
+                Pasangan yang kamu pantau tampil di sini dengan posisi kursnya dalam 90 hari, penggerak minggu ini,
+                dan alertnya. Mulai dari salah satu saran di bawah atau pilih sendiri.
               </p>
               <div className="mt-6 max-w-md">{addPair}</div>
             </section>
@@ -72,15 +67,14 @@ export default async function PantauanPage() {
           )}
         </div>
 
-        <aside className="min-w-0 space-y-4 xl:sticky xl:top-10 xl:self-start">
-          {rows.length > 0 && (
+        {rows.length > 0 && (
+          <aside className="min-w-0 xl:sticky xl:top-10 xl:self-start">
             <section className="rounded-2xl bg-surface p-5">
               <h2 className="text-sm font-medium">Tambah pasangan</h2>
               <div className="mt-4">{addPair}</div>
             </section>
-          )}
-          <WeekAgenda events={events} pairs={pairs} />
-        </aside>
+          </aside>
+        )}
       </div>
     </div>
   );

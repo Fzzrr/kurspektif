@@ -1,8 +1,7 @@
 # Kurspektif
 
 Kurs dunia dan alasannya. Kurspektif menampilkan kurs harian 165 mata uang, lalu menjelaskan sisi mana yang
-sebenarnya menggerakkan sebuah pasangan minggu ini, lengkap dengan agenda bank sentral dan berita yang ditandai
-sentimennya.
+sebenarnya menggerakkan sebuah pasangan minggu ini, lengkap dengan berita yang ditandai sentimennya.
 
 Alat informasi dan edukasi, bukan nasihat keuangan. Kurs yang dipakai adalah kurs tengah referensi bank sentral,
 bukan kurs jual/beli bank atau money changer.
@@ -13,14 +12,11 @@ bukan kurs jual/beli bank atau money changer.
   dibanding 90 hari kerja terakhir.
 - **Penggerak mingguan.** Kekuatan tiap mata uang terhadap sekeranjang mata uang utama (USD, EUR, JPY, GBP, CNY,
   SGD), sehingga terlihat apakah USD/IDR naik karena dolar menguat atau rupiah melemah.
-- **Agenda ekonomi.** Jadwal keputusan The Fed, ECB, Bank of England, Bank of Japan, dan Bank Indonesia, serta
-  rilis inflasi AS.
 - **Berita bertanda sentimen.** Berita global dari Marketaux dan berita rupiah dari RSS CNBC Indonesia, Antara,
   dan CNN Indonesia, diarsipkan di database.
 - **Alert ke email.** Saat kurs melewati batas tertentu, atau masuk 10/20/30% hari termurah atau termahal setahun.
-- **Watchlist dan ringkasan mingguan.** Simpan pasangan favorit, lihat semuanya di halaman Pantauan (lengkap dengan posisi 90 hari, alert per pasangan,
-  dan agenda minggu ini), dan
-  terima email ringkasannya tiap Senin pagi. Email ringkasan punya tautan berhenti berlangganan sekali klik.
+- **Pantauan dan ringkasan mingguan.** Simpan pasangan favorit, lihat semuanya di halaman Pantauan lengkap dengan
+  posisi 90 hari dan alert per pasangan, dan terima email ringkasannya tiap Senin pagi. Email ringkasan punya tautan berhenti berlangganan sekali klik.
 - **Akun.** Daftar dengan email atau Google, lupa kata sandi, ganti email dengan verifikasi, dan hapus akun.
 - **Halaman publik.** `/kurs`, `/kurs/usd-idr`, `/metodologi`, `/syarat`, dan `/privasi` bisa dibuka tanpa
   login.
@@ -81,7 +77,7 @@ Google Cloud Console.
 | `npm run build` | Build produksi |
 | `npm run start` | Menjalankan hasil build |
 | `npm run lint` | ESLint |
-| `npm test` | Test unit untuk alert, penggerak mingguan, parser RSS, statistik kurs, dan kalender |
+| `npm test` | Test unit untuk alert, penggerak mingguan, parser RSS, dan statistik kurs |
 | `npx prisma migrate deploy` | Menerapkan migrasi ke database |
 
 ## Tugas terjadwal
@@ -122,8 +118,6 @@ File yang paling sering disentuh:
 - [`src/lib/marketaux.ts`](src/lib/marketaux.ts) dan [`src/lib/rssNews.ts`](src/lib/rssNews.ts): berita dan
   arsipnya.
 - [`src/lib/alerts.ts`](src/lib/alerts.ts): kondisi alert.
-- [`src/lib/calendar.ts`](src/lib/calendar.ts): agenda ekonomi. Jadwalnya diisi manual dari situs resmi tiap
-  lembaga dan perlu diperbarui tiap akhir tahun.
 
 ## Batasan yang perlu diketahui
 
@@ -139,11 +133,6 @@ File yang paling sering disentuh:
 
 - Kurs: [Frankfurter](https://frankfurter.dev).
 - Berita: [Marketaux](https://www.marketaux.com), CNBC Indonesia, Antara, dan CNN Indonesia.
-- Jadwal agenda: [Federal Reserve](https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm),
-  [Bank Indonesia](https://www.bi.go.id), [ECB](https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html),
-  [Bank of England](https://www.bankofengland.co.uk/monetary-policy/upcoming-mpc-dates),
-  [Bank of Japan](https://www.boj.or.jp/en/mopo/mpmsche_minu/index.htm), dan
-  [BLS](https://www.bls.gov/schedule/news_release/cpi.htm).
 - Gambar arsip (semuanya domain publik):
   - [Gezicht op het Oude Stadhuis, de Wisselbank, ... op de Dam te Amsterdam](https://commons.wikimedia.org/w/index.php?curid=85275523),
     Rijksmuseum, CC0.

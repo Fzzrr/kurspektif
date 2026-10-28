@@ -7,9 +7,8 @@ import { useEffect, useState } from 'react';
 import DashboardCard from '../ui/DashboardCard';
 import type { NewsItem } from '@/lib/marketaux';
 import type { WeeklyMovers } from '@/lib/movers';
-import { dayLabel, isWithinDays, todayKey } from '@/lib/timeAgo';
+import { dayLabel, isWithinDays } from '@/lib/timeAgo';
 import { explain, fmtPct, isMoving } from '@/lib/moversText';
-import { CALENDAR_CURRENCIES, eventsFor } from '@/lib/calendar';
 
 const signTone = (value: number) => (value > 0 ? 'text-up' : value < 0 ? 'text-down' : 'text-muted');
 // Di bawah ambang "stabil" warnanya netral — hijau/merah untuk +0,03% berlebihan.
@@ -115,48 +114,6 @@ export default function MarketMoversCard({ news, pair, initialMovers }: Props) {
         </>
       )}
 
-      {base !== quote && <Agenda base={base} quote={quote} />}
     </DashboardCard>
-  );
-}
-
-// Jadwal resmi yang menyangkut pasangan ini: 7 hari ke belakang (bisa jadi
-// penyebab pergerakan minggu ini) dan 14 hari ke depan.
-function Agenda({ base, quote }: { base: string; quote: string }) {
-  const today = todayKey();
-  const events = [...eventsFor([base, quote], today, -7), ...eventsFor([base, quote], today, 14)].filter(
-    (event, i, all) => all.indexOf(event) === i, // hari ini masuk ke dua jendela
-  );
-  const covered = [base, quote].some((code) => CALENDAR_CURRENCIES.includes(code));
-
-  return (
-    <div className="mt-6">
-      <p className="font-mono text-xs text-muted">Agenda yang bisa menggerakkan kurs</p>
-      {events.length === 0 ? (
-        <p className="mt-2 text-xs text-muted">
-          {covered
-            ? 'Tidak ada jadwal besar dalam 7 hari terakhir dan 14 hari ke depan.'
-            : `Kalender baru mencakup ${CALENDAR_CURRENCIES.join(', ')}.`}
-        </p>
-      ) : (
-        <ul className="mt-2 space-y-2">
-          {events.map((event) => {
-            const past = event.date < today;
-            return (
-              <li key={`${event.date}${event.title}`} className={`flex gap-3 text-xs ${past ? 'text-muted' : 'text-ink'}`}>
-                <span className="w-24 shrink-0 font-mono text-muted">
-                  {dayLabel(event.date)}
-                  {event.time && <span className="block">{event.time} WIB</span>}
-                </span>
-                <span className="min-w-0">
-                  {event.title}
-                  <span className="block text-muted">{past ? 'Sudah lewat. ' : ''}{event.why}</span>
-                </span>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </div>
   );
 }

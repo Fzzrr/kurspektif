@@ -4,7 +4,6 @@ import Reveal from "../motion/Reveal";
 // sejajar baseline-nya. Judul section adalah baris pertama daftar itu sendiri.
 const items = [
   { name: "Penggerak mingguan", desc: "Sisi mana yang benar‑benar bergerak, dihitung dari kurs terhadap enam mata uang utama." },
-  { name: "Agenda bank sentral", desc: "Jadwal keputusan The Fed, ECB, Bank of England, Bank of Japan, dan Bank Indonesia." },
   { name: "Berita & sentimen", desc: "Berita pasar mata uang dari media global dan Indonesia, masing-masing ditandai sentimennya." },
   { name: "165 mata uang", desc: "Pasangan apa pun, dari EUR/USD sampai yang jarang dilirik, dengan grafik sampai setahun." },
   { name: "Mahal atau murah", desc: "Posisi kurs hari ini dibanding 90 hari kerja terakhir." },

@@ -1,15 +1,14 @@
 import Image from "next/image";
 import type { WeeklyMovers } from "@/lib/movers";
-import type { EconomicEvent } from "@/lib/calendar";
 import type { NewsItem } from "@/lib/marketaux";
 import { fmtPct, isMoving } from "@/lib/moversText";
 import { SENTIMENT } from "@/lib/sentiment";
-import { dayKey, dayLabel, todayKey } from "@/lib/timeAgo";
+import { dayKey, dayLabel } from "@/lib/timeAgo";
 import Reveal from "../motion/Reveal";
 
 // Ukiran Lapangan Dam di Amsterdam, tempat Wisselbank beroperasi, di separuh
-// kiri (menempel saat digulir); tiga potongan antarmuka asli di kanan:
-// peringkat kekuatan, agenda, berita. Semua angkanya data minggu ini.
+// kiri (menempel saat digulir); dua potongan antarmuka asli di kanan:
+// peringkat kekuatan dan berita. Semua angkanya data minggu ini.
 const panel = "rounded-2xl bg-surface p-5 sm:p-6";
 
 export function Ranking({ movers }: { movers: WeeklyMovers }) {
@@ -41,29 +40,6 @@ export function Ranking({ movers }: { movers: WeeklyMovers }) {
   );
 }
 
-export function Agenda({ events }: { events: EconomicEvent[] }) {
-  const today = todayKey();
-  return (
-    <div data-ui className={panel}>
-      <p className="text-[14px] font-medium">Agenda bank sentral</p>
-      <ul className="mt-4 space-y-3">
-        {events.map((event) => (
-          <li key={`${event.date}${event.title}`} className="grid grid-cols-[7.5rem_1fr] gap-3 text-[14px]">
-            <span className="tabular-nums text-muted">
-              {dayLabel(event.date)}
-              {event.time && <span className="block">{event.time} WIB</span>}
-            </span>
-            <span className={event.date < today ? "text-muted" : "text-ink"}>
-              {event.title}
-              {event.date < today && " (sudah lewat)"}
-            </span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
 export function Headlines({ news }: { news: NewsItem[] }) {
   return (
     <div data-ui className={panel}>
@@ -85,9 +61,9 @@ export function Headlines({ news }: { news: NewsItem[] }) {
   );
 }
 
-type Props = { movers: WeeklyMovers | null; agenda: EconomicEvent[]; news: NewsItem[] };
+type Props = { movers: WeeklyMovers | null; news: NewsItem[] };
 
-export default function Reasons({ movers, agenda, news }: Props) {
+export default function Reasons({ movers, news }: Props) {
   return (
     <section className="grid gap-10 px-5 py-28 sm:px-10 sm:py-40 lg:grid-cols-2 lg:gap-10">
       <figure className="lg:sticky lg:top-8 lg:self-start">
@@ -111,8 +87,8 @@ export default function Reasons({ movers, agenda, news }: Props) {
         </Reveal>
         <Reveal delay={80}>
           <p className="mt-4 max-w-[52ch] text-[17px] leading-relaxed">
-            Kurs bergerak karena keputusan bank sentral, data ekonomi, dan kabar yang beredar. Kurspektif menaruh
-            ketiganya di sebelah angkanya.
+            Kurs bergerak karena salah satu sisinya menguat atau melemah, dan karena kabar yang beredar. Kurspektif
+            menaruh keduanya di sebelah angkanya.
           </p>
         </Reveal>
         <div className="mt-10 space-y-4">
@@ -121,13 +97,8 @@ export default function Reasons({ movers, agenda, news }: Props) {
               <Ranking movers={movers} />
             </Reveal>
           )}
-          {agenda.length > 0 && (
-            <Reveal delay={200}>
-              <Agenda events={agenda} />
-            </Reveal>
-          )}
           {news.length > 0 && (
-            <Reveal delay={260}>
+            <Reveal delay={200}>
               <Headlines news={news} />
             </Reveal>
           )}

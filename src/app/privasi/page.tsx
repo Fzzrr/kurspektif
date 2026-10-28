@@ -33,7 +33,7 @@ export default function PrivasiPage() {
           title: 'Data yang tidak kami kumpulkan',
           body: (
             <p>
-              Kurspektif tidak memakai alat analitik, iklan, atau pelacak. Kurs, berita, dan agenda yang kamu lihat
+              Kurspektif tidak memakai alat analitik, iklan, atau pelacak. Kurs dan berita yang kamu lihat
               diambil dari sumber publik tanpa mengirim data pribadimu ke sana.
             </p>
           ),

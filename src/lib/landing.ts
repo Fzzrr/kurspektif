@@ -1,11 +1,9 @@
 // Data nyata untuk landing page: kurs pasangan utama dunia, penggerak minggu
-// ini, posisi historis, agenda, dan berita. Semua bagian boleh gagal sendiri —
+// ini, posisi historis, dan berita. Semua bagian boleh gagal sendiri —
 // landing tetap tampil, bagian yang datanya tidak ada disembunyikan.
 import { fetchRateSeries, toISODate, type RatePoint } from './frankfurter';
-import { CALENDAR_CURRENCIES, eventsFor, type EconomicEvent } from './calendar';
 import { newsForCurrencies, type NewsItem } from './marketaux';
 import { percentileOf } from './alerts';
-import { todayKey } from './timeAgo';
 import { watchlistSnapshot, type WatchedSnapshot } from './watchlist';
 import { WORLD_PAIRS } from './pairs';
 
@@ -39,7 +37,6 @@ export type LandingData = {
   /** Pasangan hero yang paling banyak bergerak minggu ini — jadi contoh di landing. */
   featured: PairSnapshot | null;
   position: Position | null;
-  agenda: EconomicEvent[];
   news: NewsItem[];
 };
 
@@ -77,7 +74,6 @@ async function loadPosition(pair: string): Promise<Position | null> {
 }
 
 export async function loadLandingData(): Promise<LandingData> {
-  const today = todayKey();
   const [pairs, news] = await Promise.all([
     watchlistSnapshot([...new Set([...HERO_PAIRS, ...LIST_PAIRS])]).catch(() => []),
     newsForCurrencies(NEWS_CODES, 40)
@@ -94,9 +90,6 @@ export async function loadLandingData(): Promise<LandingData> {
     pairs,
     featured,
     position,
-    agenda: [...eventsFor(CALENDAR_CURRENCIES, today, -14), ...eventsFor(CALENDAR_CURRENCIES, today, 45)]
-      .filter((event, i, all) => all.indexOf(event) === i)
-      .slice(0, 5),
     news,
   };
 }

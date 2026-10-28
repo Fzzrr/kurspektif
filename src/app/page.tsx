@@ -25,7 +25,7 @@ export default async function Home() {
         <Hero pairs={pick(HERO_PAIRS)} initial={featured?.pair} />
         {featured && <WhoMoved pair={featured.pair} movers={featured.movers} />}
         <Capabilities />
-        <Reasons movers={featured?.movers ?? null} agenda={data.agenda} news={data.news} />
+        <Reasons movers={featured?.movers ?? null} news={data.news} />
         <ArchiveBand />
         {data.position && <Position position={data.position} />}
         <RatesPoster rows={pick(LIST_PAIRS)} />

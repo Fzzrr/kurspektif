@@ -1,13 +1,10 @@
 // Dipanggil Vercel Cron tiap Senin pagi (lihat vercel.json). Mengirim email
-// ringkasan minggu lalu untuk pasangan yang disimpan tiap pengguna, plus
-// agenda ekonomi minggu ini.
+// ringkasan minggu lalu untuk pasangan yang disimpan tiap pengguna.
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { prisma } from '@/lib/prisma';
 import { fetchWeeklyMoversMany } from '@/lib/movers';
 import { explain, fmtPct } from '@/lib/moversText';
-import { eventsFor } from '@/lib/calendar';
-import { dayLabel, todayKey } from '@/lib/timeAgo';
 import { EMAIL_SENDER } from '@/lib/email';
 import { unsubscribeApiUrl, unsubscribePageUrl } from '@/lib/unsubscribe';
 
@@ -31,7 +28,6 @@ export async function GET(request: Request) {
   const movers = await fetchWeeklyMoversMany([...new Set(users.flatMap(pairsOf))]);
   const baseUrl = process.env.APP_URL || new URL(request.url).origin;
   const dashboardUrl = `${baseUrl}/dashboard`;
-  const today = todayKey();
 
   const emails = users.map((user) => {
     const pairs = pairsOf(user);
@@ -45,10 +41,6 @@ export async function GET(request: Request) {
         `<span style="color:#444">${escape(explain(data))}</span></li>`
       );
     });
-    const codes = [...new Set(pairs.flatMap((pair) => pair.split('/')))];
-    const agenda = eventsFor(codes, today, 7).map(
-      (event) => `<li>${dayLabel(event.date)}${event.time ? ` ${event.time} WIB` : ''} — ${event.title}</li>`,
-    );
 
     return {
       from: EMAIL_SENDER,
@@ -64,9 +56,6 @@ export async function GET(request: Request) {
       html:
         `<p>Halo${user.name ? ` ${escape(user.name)}` : ''}, ini pergerakan pasangan yang kamu simpan selama 7 hari terakhir.</p>` +
         `<ul style="padding-left:18px">${rows.join('')}</ul>` +
-        (agenda.length > 0
-          ? `<p><strong>Agenda minggu ini</strong></p><ul style="padding-left:18px">${agenda.join('')}</ul>`
-          : '') +
         `<p><a href="${dashboardUrl}">Buka dashboard Kurspektif</a></p>` +
         `<p style="color:#888;font-size:12px">Kurs referensi harian, bukan kurs jual/beli bank. ` +
         `<a href="${unsubscribePageUrl(baseUrl, user.id)}" style="color:#888">Berhenti menerima ringkasan ini</a>.</p>`,

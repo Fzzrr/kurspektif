@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import PublicShell from '@/components/landing/PublicShell';
 import MethodologyContent from '@/components/methodology/MethodologyContent';
-import { Agenda, Headlines, Ranking } from '@/components/landing/sections/Reasons';
+import { Headlines, Ranking } from '@/components/landing/sections/Reasons';
 import { loadLandingData } from '@/lib/landing';
 
 export const revalidate = 3600;
@@ -38,7 +38,6 @@ export default async function MetodologiPage() {
           ),
           penggerak: data.featured?.movers && <Ranking movers={data.featured.movers} />,
           sentimen: data.news.length > 0 && <Headlines news={data.news} />,
-          agenda: data.agenda.length > 0 && <Agenda events={data.agenda} />,
         }}
       />
     </PublicShell>

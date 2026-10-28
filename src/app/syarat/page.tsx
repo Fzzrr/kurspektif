@@ -45,7 +45,7 @@ export default function SyaratPage() {
                 atau money changer, dan bisa berbeda dari kurs saat kamu bertransaksi.
               </p>
               <p>
-                Kurs, berita, dan jadwal agenda berasal dari pihak ketiga dan bisa terlambat, kurang lengkap, atau
+                Kurs dan berita berasal dari pihak ketiga dan bisa terlambat, kurang lengkap, atau
                 keliru. Sentimen berita dihitung mesin dan bisa salah membaca maksud artikel. Cara tiap angka dihitung
                 dijelaskan di{' '}
                 <Link href="/metodologi" className="underline underline-offset-4 hover:decoration-transparent">
