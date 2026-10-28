@@ -10,6 +10,9 @@ import { POSITION_DAYS, describeCondition, isHit, isPositional, percentileOf, ty
 import { EMAIL_SENDER } from '@/lib/email';
 import { formatRate } from '@/lib/rateStats';
 import { refreshNewsArchive } from '@/lib/marketaux';
+import { fetchWeeklyMoversMany } from '@/lib/movers';
+import { explain } from '@/lib/moversText';
+import { alertEmail } from '@/lib/emailTemplates';
 
 export async function GET(request: Request) {
   // Vercel Cron mengirim "Authorization: Bearer <CRON_SECRET>". Tanpa secret
@@ -35,47 +38,65 @@ export async function GET(request: Request) {
   const from = new Date(to);
   from.setDate(from.getDate() - POSITION_DAYS);
   const byDate = codes.length > 0 ? await fetchUsdRates(codes, toISODate(from), toISODate(to)) : new Map();
-  const days = [...byDate.keys()].sort().map((date) => ({ USD: 1, ...byDate.get(date) }) as Record<string, number>);
+  const days = [...byDate.keys()].sort().map((date) => ({ date, rates: { USD: 1, ...byDate.get(date) } as Record<string, number> }));
 
   // Kurs pasangan per hari, hanya hari yang punya kedua sisi — mata uang di
   // luar ECB kadang diperbarui di hari berbeda.
   const pairSeries = (base: string, quote: string) =>
-    days.filter((day) => day[base] && day[quote]).map((day) => day[quote] / day[base]);
+    days.filter(({ rates }) => rates[base] && rates[quote]).map(({ date, rates }) => ({ date, rate: rates[quote] / rates[base] }));
+
+  // Kumpulkan dulu alert yang tercapai, supaya penggerak mingguannya cukup
+  // diambil sekali untuk semua pasangan yang terlibat.
+  const hits = alerts.flatMap((alert) => {
+    const series = pairSeries(alert.base, alert.quote);
+    if (series.length === 0) return [];
+    const rates = series.map((point) => point.rate);
+    const rate = rates[rates.length - 1];
+    const percentile = percentileOf(rate, rates);
+    if (!isHit(alert.direction as AlertDirection, rate, alert.threshold, percentile)) return [];
+    const prev = rates.at(-2);
+    return [{
+      alert,
+      rate,
+      date: series[series.length - 1].date,
+      percentile,
+      dayPct: prev ? (rate / prev - 1) * 100 : null,
+      yearHigh: rate >= Math.max(...rates),
+      yearLow: rate <= Math.min(...rates),
+    }];
+  });
+  const hitPairs = [...new Set(hits.map(({ alert }) => `${alert.base}/${alert.quote}`))];
+  const movers = hitPairs.length > 0 ? await fetchWeeklyMoversMany(hitPairs).catch(() => new Map()) : new Map();
 
   const resend = new Resend(process.env.RESEND_API_KEY);
-  const dashboardUrl = `${process.env.APP_URL || new URL(request.url).origin}/dashboard`;
+  const baseUrl = process.env.APP_URL || new URL(request.url).origin;
   let triggered = 0;
   const errors: string[] = [];
 
   // ponytail: kirim satu per satu; free tier Resend ~2 email/detik — tambah
   // jeda atau batch API kalau banyak alert tercapai di hari yang sama.
-  for (const alert of alerts) {
-    const series = pairSeries(alert.base, alert.quote);
-    if (series.length === 0) continue;
-    const rate = series[series.length - 1];
-    const direction = alert.direction as AlertDirection;
-    const percentile = isPositional(direction) ? percentileOf(rate, series) : null;
-    if (!isHit(direction, rate, alert.threshold, percentile)) continue;
-
+  for (const { alert, rate, date, percentile, dayPct, yearHigh, yearLow } of hits) {
     const pair = `${alert.base}/${alert.quote}`;
-    const condition = describeCondition(
-      direction,
-      isPositional(direction) ? String(alert.threshold) : formatRate(alert.threshold),
-      alert.quote,
-    );
-    const now = formatRate(rate);
-    const sent = await resend.emails.send({
-      from: EMAIL_SENDER,
-      to: alert.user.email,
-      subject: `${pair} ${condition} — Kurspektif`,
-      html:
-        `<p>Alert kurs kamu tercapai: <strong>${pair}</strong> ${condition}.</p>` +
-        `<p>Kurs referensi terbaru: <strong>${now} ${alert.quote}</strong>` +
-        (percentile !== null ? ` — lebih tinggi dari ${percentile}% hari dalam setahun terakhir.` : '.') +
-        `</p>` +
-        `<p><a href="${dashboardUrl}">Buka dashboard Kurspektif</a></p>` +
-        `<p style="color:#888">Alert ini tidak akan dikirim lagi sampai kamu mengeditnya.</p>`,
+    const direction = alert.direction as AlertDirection;
+    const week = movers.get(pair);
+    const email = alertEmail({
+      pair,
+      condition: describeCondition(
+        direction,
+        isPositional(direction) ? String(alert.threshold) : formatRate(alert.threshold),
+        alert.quote,
+      ),
+      rate,
+      date,
+      dayPct,
+      yearPercentile: percentile,
+      yearHigh,
+      yearLow,
+      reason: week ? explain(week) : null,
+      pairUrl: `${baseUrl}/dashboard?pair=${alert.base}-${alert.quote}`,
+      manageUrl: `${baseUrl}/dashboard#alert`,
     });
+    const sent = await resend.emails.send({ from: EMAIL_SENDER, to: alert.user.email, ...email });
     // Gagal kirim → jangan tandai tercapai, supaya dicoba lagi besok.
     if (sent.error) {
       const reason = `${pair} (alert ${alert.id}): ${sent.error.message}`;

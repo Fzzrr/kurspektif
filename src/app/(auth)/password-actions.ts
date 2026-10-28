@@ -6,6 +6,7 @@ import { headers } from 'next/headers';
 import { Resend } from 'resend';
 import { prisma } from '@/lib/prisma';
 import { EMAIL_SENDER } from '@/lib/email';
+import { passwordResetEmail } from '@/lib/emailTemplates';
 import { BCRYPT_COST } from '@/lib/auth/auth';
 import { passwordResetLimiter } from '@/lib/rateLimit';
 
@@ -46,12 +47,7 @@ export async function requestPasswordResetAction(_prev: ResetState, formData: Fo
   const sent = await new Resend(process.env.RESEND_API_KEY).emails.send({
     from: EMAIL_SENDER,
     to: email,
-    subject: 'Atur ulang kata sandi — Kurspektif',
-    html:
-      `<p>Klik tautan di bawah untuk membuat kata sandi baru:</p><p><a href="${link}">${link}</a></p>` +
-      `<p>Tautan ini berlaku 1 jam dan hanya bisa dipakai sekali.</p>` +
-      (user.password ? '' : '<p>Akunmu selama ini masuk lewat Google; tautan ini akan menambahkan kata sandi.</p>') +
-      `<p style="color:#888">Kalau kamu tidak meminta ini, abaikan email ini. Kata sandimu tidak berubah.</p>`,
+    ...passwordResetEmail({ email, link, hasPassword: Boolean(user.password) }),
   });
   if (sent.error) {
     console.error('Email atur ulang kata sandi gagal:', sent.error.message);

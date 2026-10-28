@@ -6,6 +6,7 @@ import { Resend } from 'resend';
 import { auth, signOut } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { EMAIL_SENDER } from '@/lib/email';
+import { emailChangeEmail } from '@/lib/emailTemplates';
 import { BCRYPT_COST } from '@/lib/auth/auth';
 import { profileUpdateLimiter, passwordChangeLimiter, emailChangeLimiter } from '@/lib/rateLimit';
 
@@ -102,8 +103,7 @@ export async function requestEmailChangeAction(newEmail: string): Promise<Action
   const sent = await resend.emails.send({
     from: EMAIL_SENDER,
     to: normalized,
-    subject: 'Konfirmasi email baru — Kurspektif',
-    html: `<p>Klik tautan di bawah untuk mengonfirmasi alamat email barumu:</p><p><a href="${link}">${link}</a></p><p>Tautan ini berlaku 1 jam.</p>`,
+    ...emailChangeEmail({ link, oldEmail: user.email, newEmail: normalized }),
   });
 
   if (sent.error) return { error: 'Gagal mengirim email verifikasi. Coba lagi.' };

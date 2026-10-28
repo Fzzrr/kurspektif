@@ -3,14 +3,12 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { prisma } from '@/lib/prisma';
-import { fetchWeeklyMoversMany } from '@/lib/movers';
-import { explain, fmtPct } from '@/lib/moversText';
+import { watchlistSnapshot, type WatchedSnapshot } from '@/lib/watchlist';
 import { EMAIL_SENDER } from '@/lib/email';
+import { digestEmail } from '@/lib/emailTemplates';
 import { unsubscribeApiUrl, unsubscribePageUrl } from '@/lib/unsubscribe';
 
 const BATCH_SIZE = 100; // batas batch API Resend
-
-const escape = (text: string) => text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET;
@@ -20,26 +18,41 @@ export async function GET(request: Request) {
 
   const users = await prisma.user.findMany({
     where: { weeklyDigest: true, watchedPairs: { some: {} } },
-    select: { id: true, email: true, name: true, watchedPairs: { orderBy: { createdAt: 'asc' }, select: { base: true, quote: true } } },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      watchedPairs: { orderBy: { createdAt: 'asc' }, select: { base: true, quote: true } },
+      _count: { select: { rateAlerts: { where: { triggeredAt: null } } } },
+    },
   });
   if (users.length === 0) return NextResponse.json({ users: 0, sent: 0, failed: 0 });
 
   const pairsOf = (user: (typeof users)[number]) => user.watchedPairs.map((p) => `${p.base}/${p.quote}`);
-  const movers = await fetchWeeklyMoversMany([...new Set(users.flatMap(pairsOf))]);
+  // Satu snapshot untuk semua pasangan semua pengguna: kurs terbaru +
+  // penggerak mingguan, dua request total.
+  const snapshots = new Map<string, WatchedSnapshot>(
+    (await watchlistSnapshot([...new Set(users.flatMap(pairsOf))])).map((row) => [row.pair, row]),
+  );
   const baseUrl = process.env.APP_URL || new URL(request.url).origin;
-  const dashboardUrl = `${baseUrl}/dashboard`;
 
   const emails = users.map((user) => {
-    const pairs = pairsOf(user);
-    const rows = pairs.map((pair) => {
-      const data = movers.get(pair);
-      if (!data) return `<li><strong>${pair}</strong> — data minggu ini belum cukup.</li>`;
-      const color = data.pairChangePct > 0 ? '#16a34a' : data.pairChangePct < 0 ? '#dc2626' : '#666';
-      return (
-        `<li style="margin-bottom:10px"><strong>${pair}</strong> ` +
-        `<span style="color:${color}">${fmtPct(data.pairChangePct)}</span><br>` +
-        `<span style="color:#444">${escape(explain(data))}</span></li>`
-      );
+    const email = digestEmail({
+      name: user.name,
+      rows: pairsOf(user).map((pair) => {
+        const snapshot = snapshots.get(pair);
+        return {
+          pair,
+          rate: snapshot?.rate ?? null,
+          date: snapshot?.date ?? null,
+          movers: snapshot?.movers ?? null,
+          reason: snapshot?.reason ?? null,
+          url: `${baseUrl}/dashboard?pair=${pair.replace('/', '-')}`,
+        };
+      }),
+      activeAlerts: user._count.rateAlerts,
+      pantauanUrl: `${baseUrl}/dashboard/pantauan`,
+      unsubscribeUrl: unsubscribePageUrl(baseUrl, user.id),
     });
 
     return {
@@ -49,16 +62,7 @@ export async function GET(request: Request) {
         'List-Unsubscribe': `<${unsubscribeApiUrl(baseUrl, user.id)}>`,
         'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
       },
-      subject: `Ringkasan minggu ini: ${pairs
-        .slice(0, 3)
-        .map((pair) => `${pair} ${movers.get(pair) ? fmtPct(movers.get(pair)!.pairChangePct) : '—'}`)
-        .join(', ')}`,
-      html:
-        `<p>Halo${user.name ? ` ${escape(user.name)}` : ''}, ini pergerakan pasangan yang kamu simpan selama 7 hari terakhir.</p>` +
-        `<ul style="padding-left:18px">${rows.join('')}</ul>` +
-        `<p><a href="${dashboardUrl}">Buka dashboard Kurspektif</a></p>` +
-        `<p style="color:#888;font-size:12px">Kurs referensi harian, bukan kurs jual/beli bank. ` +
-        `<a href="${unsubscribePageUrl(baseUrl, user.id)}" style="color:#888">Berhenti menerima ringkasan ini</a>.</p>`,
+      ...email,
     };
   });
 
