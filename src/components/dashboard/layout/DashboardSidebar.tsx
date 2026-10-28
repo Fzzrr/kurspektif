@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Wordmark from "@/components/ui/Wordmark";
@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/icons";
 import { signOutAction } from "@/app/dashboard/actions";
 import { getInitials } from "@/lib/avatar";
+import { useDismiss } from "@/lib/useDismiss";
 import ProfileSettingsModal from "@/components/dashboard/profile/ProfileSettingsModal";
 
 const NAV_ITEMS = [
@@ -186,25 +187,8 @@ function AccountMenu({
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const compact = placement === "down";
-
-  // Klik di luar & Escape menutup panel — pola yang sama dengan SelectMenu.
-  useEffect(() => {
-    if (!open) return;
-    function handlePointerDown(event: PointerEvent) {
-      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
-    }
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setOpen(false);
-    }
-    document.addEventListener("pointerdown", handlePointerDown);
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("pointerdown", handlePointerDown);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [open]);
-
   const close = () => setOpen(false);
+  useDismiss(rootRef, open, close);
 
   return (
     <div ref={rootRef} className="relative">

@@ -7,12 +7,15 @@ import { auth, signOut } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { EMAIL_SENDER } from '@/lib/email';
 import { emailChangeEmail } from '@/lib/emailTemplates';
-import { BCRYPT_COST } from '@/lib/auth/auth';
+import { BCRYPT_COST } from '@/lib/auth';
 import { profileUpdateLimiter, passwordChangeLimiter, emailChangeLimiter } from '@/lib/rateLimit';
 
 export type ActionState = { error?: string; success?: string } | undefined;
 
-const MAX_IMAGE_BYTES = 2 * 1024 * 1024; // ~2MB dalam bentuk base64
+// Browser mengecilkan foto ke 256×256 sebelum dikirim (~10–40KB base64).
+// Foto disimpan di tabel User dan ikut terkirim ke setiap halaman dashboard,
+// jadi batas ini sengaja ketat.
+const MAX_IMAGE_BYTES = 150_000;
 const IMAGE_DATA_URI = /^data:image\/(png|jpeg|webp);base64,/;
 
 export async function updateProfileAction(name: string, image?: string): Promise<ActionState> {

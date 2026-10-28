@@ -77,6 +77,11 @@ html {
   }
 }
 
+/* Kunci scroll halaman selama <dialog> (Modal) terbuka. */
+html:has(dialog[open]) {
+  overflow: hidden;
+}
+
 body {
   background-color: var(--color-paper);
   color: var(--color-ink);

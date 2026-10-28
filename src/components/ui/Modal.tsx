@@ -1,96 +1,38 @@
 'use client';
 
 import { useEffect, useRef, type ReactNode } from 'react';
-import { createPortal } from 'react-dom';
-
-type Size = 'sm' | 'md' | 'lg' | 'xl';
 
 type Props = {
   open: boolean;
   onClose: () => void;
-  title?: string;
-  size?: Size;
-  /** Matikan untuk modal yang mengatur padding/layout-nya sendiri (mis. panel dua kolom). */
-  padded?: boolean;
+  /** Nama dialog untuk pembaca layar; judul yang terlihat dirender oleh anak. */
+  title: string;
   children: ReactNode;
 };
 
-const FOCUSABLE_SELECTOR = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
-
-const sizeClass: Record<Size, string> = {
-  sm: 'max-w-sm',
-  md: 'max-w-md',
-  lg: 'max-w-2xl',
-  xl: 'max-w-4xl',
-};
-
-export default function Modal({ open, onClose, title, size = 'md', padded = true, children }: Props) {
-  const panelRef = useRef<HTMLDivElement>(null);
-  const triggerRef = useRef<Element | null>(null);
+// <dialog> + showModal() sudah mengurus Escape, focus trap, latar inert, top
+// layer, dan mengembalikan fokus ke pemicu saat ditutup. Kunci scroll halaman
+// ada di globals.css (html:has(dialog[open])).
+export default function Modal({ open, onClose, title, children }: Props) {
+  const ref = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
-    if (!open) return;
+    const dialog = ref.current;
+    if (open && !dialog?.open) dialog?.showModal();
+    if (!open && dialog?.open) dialog.close();
+  }, [open]);
 
-    triggerRef.current = document.activeElement;
-    document.body.style.overflow = 'hidden';
-    panelRef.current?.focus();
-
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Escape') {
-        onClose();
-        return;
-      }
-      if (e.key !== 'Tab' || !panelRef.current) return;
-
-      const focusable = Array.from(panelRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
-      if (focusable.length === 0) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
-      }
-    }
-
-    document.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.body.style.overflow = '';
-      document.removeEventListener('keydown', onKeyDown);
-      (triggerRef.current as HTMLElement | null)?.focus?.();
-    };
-  }, [open, onClose]);
-
-  // Modal hanya dibuka lewat interaksi (setelah hidrasi), jadi `document`
-  // selalu ada saat portal dibuat.
-  if (!open || typeof document === 'undefined') return null;
-
-  return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-paper/60 p-4 backdrop-blur-sm" onClick={onClose}>
-      <div
-        ref={panelRef}
-        role="dialog"
-        aria-modal="true"
-        // Saat `padded` mati, judul dirender oleh anak — pakai aria-label agar dialog tetap bernama.
-        aria-labelledby={title && padded ? 'modal-title' : undefined}
-        aria-label={title && !padded ? title : undefined}
-        tabIndex={-1}
-        onClick={(e) => e.stopPropagation()}
-        className={`max-h-[90vh] w-full ${sizeClass[size]} ${
-          padded ? 'overflow-y-auto p-6 sm:p-8' : 'overflow-hidden'
-        } rounded-2xl bg-surface shadow-[0_24px_60px_-24px_rgba(0,0,0,0.9)] outline-none`}
-      >
-        {title && padded && (
-          <h2 id="modal-title" className="mb-4 font-display text-lg font-semibold text-ink">
-            {title}
-          </h2>
-        )}
-        {children}
-      </div>
-    </div>,
-    document.body,
+  return (
+    <dialog
+      ref={ref}
+      aria-label={title}
+      onClose={onClose}
+      // Klik di latar (::backdrop) sampai ke <dialog> itu sendiri.
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+      className="m-auto max-h-[90vh] w-[calc(100%-2rem)] max-w-2xl overflow-hidden rounded-2xl bg-surface p-0 text-ink shadow-[0_24px_60px_-24px_rgba(0,0,0,0.9)] outline-none backdrop:bg-paper/60 backdrop:backdrop-blur-sm"
+    >
+      {/* Isi baru dipasang saat dibuka, supaya state form selalu mulai bersih. */}
+      {open && children}
+    </dialog>
   );
 }

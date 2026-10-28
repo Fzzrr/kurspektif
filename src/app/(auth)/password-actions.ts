@@ -7,7 +7,7 @@ import { Resend } from 'resend';
 import { prisma } from '@/lib/prisma';
 import { EMAIL_SENDER, devLinkFallback } from '@/lib/email';
 import { passwordResetEmail } from '@/lib/emailTemplates';
-import { BCRYPT_COST } from '@/lib/auth/auth';
+import { BCRYPT_COST } from '@/lib/auth';
 import { passwordResetLimiter } from '@/lib/rateLimit';
 
 export type ResetState = { error?: string; message?: string; done?: boolean } | undefined;

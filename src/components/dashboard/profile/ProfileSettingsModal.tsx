@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Modal from '@/components/ui/Modal';
 import PasswordInput from '@/components/ui/PasswordInput';
 import { bareInputClass } from '@/components/ui/styles';
-import { UserIcon, PencilIcon, CameraIcon, CloseIcon } from '@/components/ui/icons';
+import { PencilIcon, CameraIcon, CloseIcon } from '@/components/ui/icons';
 import { getInitials } from '@/lib/avatar';
 import {
   strengthOf,
@@ -22,11 +22,9 @@ import {
 } from '@/app/dashboard/profile-actions';
 import { setWeeklyDigestAction } from '@/app/dashboard/watchlist-actions';
 
-const MAX_FILE_BYTES = 1.5 * 1024 * 1024; // 1.5MB
-
-// Baru ada satu tab; tambahkan entri di sini saat pengaturan lain menyusul
-// (keamanan, notifikasi, dst) — panel kanan tinggal di-switch lewat `tab`.
-const TABS = [{ id: 'profil', label: 'Profil', icon: UserIcon }] as const;
+// Batas file asli sebelum dikecilkan (lihat toAvatarDataUrl) — cukup untuk
+// foto kamera ponsel.
+const MAX_FILE_BYTES = 10 * 1024 * 1024;
 
 const ghostButtonClass =
   'bg-accent-soft px-3 py-2 font-mono text-xs text-ink transition-colors hover:bg-accent-soft/70 disabled:opacity-60';
@@ -49,60 +47,31 @@ type Props = {
 
 export default function ProfileSettingsModal({ open, onClose, user }: Props) {
   const router = useRouter();
-  const [tab, setTab] = useState<(typeof TABS)[number]['id']>('profil');
   const refresh = () => router.refresh();
 
   return (
-    <Modal open={open} onClose={onClose} title="Profil" size="xl" padded={false}>
-      <div className="flex max-h-[90vh] flex-col sm:flex-row">
-        {/* Navigasi kiri — jadi baris tab horizontal di layar kecil. */}
-        <nav className="shrink-0 bg-paper/60 p-3 sm:w-56 sm:p-4">
-          <p className="hidden px-3 pb-3 font-mono text-xs text-muted sm:block">
-            Pengaturan
-          </p>
-          <div className="flex gap-1 sm:flex-col">
-            {TABS.map(({ id, label, icon: Icon }) => (
-              <button
-                key={id}
-                type="button"
-                onClick={() => setTab(id)}
-                aria-current={tab === id}
-                className={`flex items-center gap-3 px-3 py-2.5 font-mono text-sm transition-colors ${
-                  tab === id
-                    ? 'bg-surface font-medium text-ink shadow-sm'
-                    : 'text-muted hover:bg-ink/5 hover:text-ink'
-                }`}
-              >
-                <Icon className="size-4" />
-                {label}
-              </button>
-            ))}
-          </div>
-        </nav>
+    <Modal open={open} onClose={onClose} title="Profil">
+      <div className="max-h-[90vh] overflow-y-auto p-6 sm:p-8">
+        <div className="flex items-start justify-between gap-4">
+          <h2 className="font-display text-xl font-semibold text-ink">Profil</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Tutup"
+            className="-m-1 rounded-lg p-1 text-muted transition-colors hover:bg-ink/5 hover:text-ink"
+          >
+            <CloseIcon className="size-4" />
+          </button>
+        </div>
 
-        {/* Panel kanan */}
-        <div className="min-h-0 min-w-0 flex-1 overflow-y-auto p-6 sm:p-8">
-          <div className="flex items-start justify-between gap-4">
-            <h2 className="font-display text-xl font-semibold text-ink">Profil</h2>
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Tutup"
-              className="-m-1 rounded-lg p-1 text-muted transition-colors hover:bg-ink/5 hover:text-ink"
-            >
-              <CloseIcon className="size-4" />
-            </button>
-          </div>
+        <AvatarUpload user={user} onSaved={refresh} />
 
-          <AvatarUpload user={user} onSaved={refresh} />
-
-          <div className="mt-6 divide-y divide-line border-y border-line">
-            <NameRow user={user} onSaved={refresh} />
-            <EmailRow user={user} />
-            {user.hasPassword && <PasswordRow />}
-            <DigestRow initial={user.weeklyDigest} />
-            <DeleteAccountRow />
-          </div>
+        <div className="mt-6 divide-y divide-line border-y border-line">
+          <NameRow user={user} onSaved={refresh} />
+          <EmailRow user={user} />
+          {user.hasPassword && <PasswordRow />}
+          <DigestRow initial={user.weeklyDigest} />
+          <DeleteAccountRow />
         </div>
       </div>
     </Modal>
@@ -272,13 +241,22 @@ function DigestRow({ initial }: { initial: boolean }) {
 
 // --- Foto ------------------------------------------------------------------
 
-function readAsDataUrl(file: File) {
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(file);
-  });
+// Foto dipotong persegi dari tengah dan dikecilkan ke 256×256 di browser,
+// jadi foto 5MB dari kamera ponsel tersimpan sebagai ~20KB. WebP kalau
+// browsernya bisa; Safari lama diam-diam memberi PNG, jadi jatuh ke JPEG.
+const AVATAR_PX = 256;
+
+async function toAvatarDataUrl(file: File) {
+  const bitmap = await createImageBitmap(file);
+  const side = Math.min(bitmap.width, bitmap.height);
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = AVATAR_PX;
+  canvas
+    .getContext('2d')!
+    .drawImage(bitmap, (bitmap.width - side) / 2, (bitmap.height - side) / 2, side, side, 0, 0, AVATAR_PX, AVATAR_PX);
+  bitmap.close();
+  const webp = canvas.toDataURL('image/webp', 0.85);
+  return webp.startsWith('data:image/webp') ? webp : canvas.toDataURL('image/jpeg', 0.85);
 }
 
 function AvatarUpload({ user, onSaved }: { user: User; onSaved: () => void }) {
@@ -295,11 +273,15 @@ function AvatarUpload({ user, onSaved }: { user: User; onSaved: () => void }) {
     setError('');
 
     if (file.size > MAX_FILE_BYTES) {
-      setError('Foto maksimal 1.5MB.');
+      setError('Foto maksimal 10MB.');
       return;
     }
 
-    const dataUrl = await readAsDataUrl(file);
+    const dataUrl = await toAvatarDataUrl(file).catch(() => null);
+    if (!dataUrl) {
+      setError('Foto tidak bisa dibaca. Coba file PNG, JPEG, atau WebP lain.');
+      return;
+    }
     setPreview(dataUrl);
     setPending(true);
     const res = await updateProfileAction(user.name, dataUrl);

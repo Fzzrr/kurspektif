@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { ChevronDown, SearchIcon } from '@/components/ui/icons';
+import { useDismiss } from '@/lib/useDismiss';
 
 type Option<T extends string> = { value: T; label: string };
 
@@ -36,32 +37,15 @@ export default function SelectMenu<T extends string>({
   const rootRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
 
-  // Klik di luar & tombol Escape: dua hal yang pada <select> native diurus
-  // browser, dan jadi tanggung jawab kita begitu panelnya dibuat sendiri.
-  // Listener hanya dipasang selama panel terbuka.
-  useEffect(() => {
-    if (!open) return;
-    searchRef.current?.focus();
-
-    function handlePointerDown(event: PointerEvent) {
-      if (!rootRef.current?.contains(event.target as Node)) close();
-    }
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') close();
-    }
-
-    document.addEventListener('pointerdown', handlePointerDown);
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('pointerdown', handlePointerDown);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [open]);
-
   function close() {
     setOpen(false);
     setQuery('');
   }
+
+  useDismiss(rootRef, open, close);
+  useEffect(() => {
+    if (open) searchRef.current?.focus();
+  }, [open]);
 
   const selected = options.find((option) => option.value === value);
   const normalizedQuery = query.trim().toLowerCase();

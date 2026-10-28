@@ -9,7 +9,7 @@ import { prisma } from '@/lib/prisma';
 import { EMAIL_SENDER, devLinkFallback } from '@/lib/email';
 import { verifyEmailEmail } from '@/lib/emailTemplates';
 import { registerLimiter } from '@/lib/rateLimit';
-import { BCRYPT_COST } from '@/lib/auth/auth';
+import { BCRYPT_COST } from '@/lib/auth';
 
 export type RegisterState = { error?: string; sentTo?: string } | undefined;
 

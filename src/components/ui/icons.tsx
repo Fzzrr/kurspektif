@@ -23,47 +23,10 @@ export function SearchIcon({ className }: IconProps) {
   );
 }
 
-export function FilterIcon({ className }: IconProps) {
-  return (
-    <svg {...strokeIcon} className={className}>
-      <path d="M4 6h16M4 12h16M4 18h16" />
-      <circle cx="8" cy="6" r="1.5" fill="currentColor" stroke="none" />
-      <circle cx="16" cy="12" r="1.5" fill="currentColor" stroke="none" />
-      <circle cx="10" cy="18" r="1.5" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
-
-export function GlobeIcon({ className }: IconProps) {
-  return (
-    <svg {...strokeIcon} className={className}>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M3 12h18M12 3c2.5 2.5 3.8 5.7 3.8 9s-1.3 6.5-3.8 9c-2.5-2.5-3.8-5.7-3.8-9s1.3-6.5 3.8-9Z" />
-    </svg>
-  );
-}
-
 export function BookmarkIcon({ className, filled }: IconProps & { filled?: boolean }) {
   return (
     <svg {...strokeIcon} fill={filled ? 'currentColor' : 'none'} className={className}>
       <path d="M6 4h12v16l-6-4-6 4V4Z" />
-    </svg>
-  );
-}
-
-export function ExternalLinkIcon({ className }: IconProps) {
-  return (
-    <svg {...strokeIcon} className={className}>
-      <path d="M7 17 17 7M9 7h8v8" />
-    </svg>
-  );
-}
-
-// Panah kanan untuk tombol CTA & kontrol carousel (putar 180° untuk "prev").
-export function ArrowRight({ className }: IconProps) {
-  return (
-    <svg {...strokeIcon} className={className}>
-      <path d="M5 12h14M13 6l6 6-6 6" />
     </svg>
   );
 }
@@ -83,15 +46,6 @@ export function BellIcon({ className }: IconProps) {
     <svg {...strokeIcon} className={className}>
       <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
       <path d="M13.7 21a2 2 0 0 1-3.4 0" />
-    </svg>
-  );
-}
-
-// Ikon hamburger — membuka menu navigasi di layar kecil (mobile).
-export function MenuIcon({ className }: IconProps) {
-  return (
-    <svg {...strokeIcon} className={className}>
-      <path d="M4 7h16M4 12h16M4 17h16" />
     </svg>
   );
 }
@@ -142,15 +96,6 @@ export function NewspaperIcon({ className }: IconProps) {
       <path d="M4 4h12v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4Z" />
       <path d="M16 8h4v10a2 2 0 0 1-2 2h-2" />
       <path d="M7 8h6M7 11h6M7 14h4" />
-    </svg>
-  );
-}
-
-// Hati — menandai item navigasi "Pasangan saya" (pasangan kurs favorit).
-export function HeartHandshakeIcon({ className }: IconProps) {
-  return (
-    <svg {...strokeIcon} className={className}>
-      <path d="M12 21s-7-4.35-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6C19 16.65 12 21 12 21Z" />
     </svg>
   );
 }
@@ -218,7 +163,6 @@ export function GoogleIcon({ className }: IconProps) {
     </svg>
   );
 }
-
 
 // Gerigi — "Pengaturan profil" di menu akun.
 export function SettingsIcon({ className }: IconProps) {

@@ -1,11 +1,8 @@
-// Abstraksi rate limiter satu-pintu.
-// Sekarang pakai in-memory (gratis, untuk dev). Saat produksi, cukup set env
-// Upstash dan aktifkan blok di bawah — call site (auth.ts/actions.ts) tak berubah.
-
-export interface RateLimiter {
-  /** true = masih dalam batas (boleh lanjut). */
-  check(key: string): Promise<{ success: boolean }>;
-}
+// Rate limiter in-memory untuk semua server action dan login.
+// ponytail: hitungan per instance server — di Vercel tiap instance serverless
+// punya Map sendiri dan hilang saat cold start, jadi batasnya bocor di
+// produksi. Ganti isi createLimiter dengan @upstash/ratelimit saat deploy;
+// call site cukup memanggil .check(key) dan tidak berubah.
 
 type Options = { limit: number; windowMs: number };
 
@@ -14,11 +11,12 @@ type Options = { limit: number; windowMs: number };
  * dari window. Lebih aman dari "fixed window" karena tak ada celah burst di
  * batas jendela (mis. 5 di detik ke-59 + 5 di detik ke-61).
  */
-function createMemoryLimiter({ limit, windowMs }: Options): RateLimiter {
+function createLimiter({ limit, windowMs }: Options) {
   const hits = new Map<string, number[]>();
 
   return {
-    async check(key) {
+    /** success: true = masih dalam batas (boleh lanjut). */
+    async check(key: string) {
       const now = Date.now();
       const fresh = (hits.get(key) ?? []).filter((t) => now - t < windowMs);
       fresh.push(now);
@@ -34,15 +32,6 @@ function createMemoryLimiter({ limit, windowMs }: Options): RateLimiter {
       return { success: fresh.length <= limit };
     },
   };
-}
-
-/**
- * Pemilih implementasi. Kalau env Upstash ada → pakai Redis (produksi),
- * selain itu → memory (dev). Lihat blok Upstash di bawah untuk mengaktifkan.
- */
-function createLimiter(opts: Options): RateLimiter {
-  // if (process.env.UPSTASH_REDIS_REST_URL) return createUpstashLimiter(opts);
-  return createMemoryLimiter(opts);
 }
 
 // --- Instance siap pakai ---
