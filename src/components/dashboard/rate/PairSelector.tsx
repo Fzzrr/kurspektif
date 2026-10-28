@@ -81,7 +81,7 @@ export default function PairSelector({ from, to, currencies, quickPairs, saved, 
           onClick={onToggleSave}
           disabled={from === to}
           aria-pressed={saved}
-          aria-label={saved ? `Hapus ${activePair} dari pasangan saya` : `Simpan ${activePair} ke pasangan saya`}
+          aria-label={saved ? `Hapus ${activePair} dari pantauan` : `Simpan ${activePair} ke pantauan`}
           title={saved ? 'Tersimpan — klik untuk menghapus' : 'Simpan pasangan ini'}
           className={`flex size-9 shrink-0 items-center justify-center bg-accent-soft transition-colors hover:text-ink disabled:opacity-40 ${
             saved ? 'text-ink' : 'text-muted'

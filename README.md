@@ -18,7 +18,8 @@ bukan kurs jual/beli bank atau money changer.
 - **Berita bertanda sentimen.** Berita global dari Marketaux dan berita rupiah dari RSS CNBC Indonesia, Antara,
   dan CNN Indonesia, diarsipkan di database.
 - **Alert ke email.** Saat kurs melewati batas tertentu, atau masuk 10/20/30% hari termurah atau termahal setahun.
-- **Watchlist dan ringkasan mingguan.** Simpan pasangan favorit, lihat semuanya di halaman Pasangan saya, dan
+- **Watchlist dan ringkasan mingguan.** Simpan pasangan favorit, lihat semuanya di halaman Pantauan (lengkap dengan posisi 90 hari, alert per pasangan,
+  dan agenda minggu ini), dan
   terima email ringkasannya tiap Senin pagi. Email ringkasan punya tautan berhenti berlangganan sekali klik.
 - **Akun.** Daftar dengan email atau Google, lupa kata sandi, ganti email dengan verifikasi, dan hapus akun.
 - **Halaman publik.** `/kurs`, `/kurs/usd-idr`, `/metodologi`, `/syarat`, dan `/privasi` bisa dibuka tanpa

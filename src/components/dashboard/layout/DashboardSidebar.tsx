@@ -18,7 +18,7 @@ import ProfileSettingsModal from "@/components/dashboard/profile/ProfileSettings
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboardIcon },
   { href: "/dashboard/berita", label: "Berita", icon: NewspaperIcon },
-  { href: "/dashboard/pasangan-saya", label: "Pasangan", icon: BookmarkIcon },
+  { href: "/dashboard/pantauan", label: "Pantauan", icon: BookmarkIcon },
   // Alert tinggal di kartu dashboard — tautan ini menggulir ke sana.
   { href: "/dashboard#alert", label: "Alert", icon: BellIcon },
   { href: "/dashboard/metodologi", label: "Metodologi", icon: InfoIcon },

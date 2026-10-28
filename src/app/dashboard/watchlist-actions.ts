@@ -3,9 +3,8 @@
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { watchlistLimiter } from '@/lib/rateLimit';
-import { watchedPairs } from '@/lib/watchlist';
+import { MAX_PAIRS, watchedPairs } from '@/lib/watchlist';
 
-const MAX_PAIRS = 8;
 const CURRENCY_CODE = /^[A-Z]{3}$/;
 
 async function currentUserId(): Promise<string | null> {

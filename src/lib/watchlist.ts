@@ -1,7 +1,10 @@
 import { prisma } from './prisma';
-import { fetchUsdRates, toISODate } from './frankfurter';
+import { fetchUsdRates, toISODate, type RatePoint } from './frankfurter';
 import { fetchWeeklyMoversMany, type WeeklyMovers } from './movers';
 import { explain } from './moversText';
+
+/** Batas pasangan tersimpan per pengguna. */
+export const MAX_PAIRS = 8;
 
 // Bukan di file 'use server' — fungsi yang diekspor dari sana jadi endpoint
 // publik, dan siapa pun bisa memanggilnya dengan userId orang lain.
@@ -17,15 +20,21 @@ export type WatchedSnapshot = {
   weekPct: number | null;
   reason: string | null;
   movers: WeeklyMovers | null;
+  /** Kurs harian dalam jendela `historyDays`, urut lama → baru. */
+  series: RatePoint[];
 };
 
-/** Kurs terbaru dan perubahan minggu ini untuk pasangan apa pun — dua request total. */
-export async function watchlistSnapshot(pairs: string[]): Promise<WatchedSnapshot[]> {
+/**
+ * Kurs terbaru dan perubahan minggu ini untuk pasangan apa pun — dua request total.
+ * `historyDays` (hari kalender) menentukan panjang `series`; minimal 10 sebagai
+ * cadangan akhir pekan & libur.
+ */
+export async function watchlistSnapshot(pairs: string[], historyDays = 10): Promise<WatchedSnapshot[]> {
   if (pairs.length === 0) return [];
   const codes = [...new Set(pairs.flatMap((pair) => pair.split('/')))].filter((code) => code !== 'USD');
   const to = new Date();
   const from = new Date(to);
-  from.setDate(from.getDate() - 10); // cadangan akhir pekan & libur
+  from.setDate(from.getDate() - Math.max(10, historyDays));
   const [byDate, movers] = await Promise.all([
     fetchUsdRates(codes, toISODate(from), toISODate(to)),
     fetchWeeklyMoversMany(pairs),
@@ -34,15 +43,21 @@ export async function watchlistSnapshot(pairs: string[]): Promise<WatchedSnapsho
 
   return pairs.map((pair) => {
     const [base, quote] = pair.split('/');
-    const day = days.findLast((d) => d.rates[base] && d.rates[quote]);
+    // Kurs silang lewat USD: tiap mata uang terhadap USD punya 5 angka penting,
+    // cukup presisi untuk pasangan apa pun.
+    const series = days
+      .filter((d) => d.rates[base] && d.rates[quote])
+      .map((d) => ({ date: d.date, rate: d.rates[quote] / d.rates[base] }));
+    const latest = series.at(-1);
     const week = movers.get(pair) ?? null;
     return {
       pair,
-      rate: day ? day.rates[quote] / day.rates[base] : null,
-      date: day?.date ?? null,
+      rate: latest?.rate ?? null,
+      date: latest?.date ?? null,
       weekPct: week?.pairChangePct ?? null,
       reason: week ? explain(week) : null,
       movers: week,
+      series,
     };
   });
 }
