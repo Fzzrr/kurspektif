@@ -385,3 +385,109 @@ export function verifyEmailEmail({ email, link: url }: { email: string; link: st
 
   return { subject: 'Verifikasi email — Kurspektif', html, text };
 }
+
+// ---------------------------------------------------------------------------
+// Kabar pergerakan tajam
+// ---------------------------------------------------------------------------
+
+export type MoveRow = {
+  pair: string;
+  rate: number;
+  prevRate: number;
+  pct: number;
+  /** Tanggal kurs terbaru dan sebelumnya, YYYY-MM-DD. */
+  date: string;
+  prevDate: string;
+  /** Persen hari dalam ~90 hari kerja yang kursnya lebih rendah; null kalau riwayat kurang. */
+  percentile90: number | null;
+  reason: string | null;
+  url: string;
+};
+
+export type MovesEmailData = {
+  name: string | null;
+  rows: MoveRow[];
+  /** Ambang yang dipakai, persen per hari. */
+  thresholdPct: number;
+  pantauanUrl: string;
+  unsubscribeUrl: string;
+};
+
+const absPct = (pct: number) => fmtPct(Math.abs(pct)).replace('+', '');
+const moveVerb = (pct: number) => (pct > 0 ? 'naik' : 'turun');
+
+export function movesEmail(data: MovesEmailData): EmailContent {
+  const [first] = data.rows;
+  const single = data.rows.length === 1;
+  const greeting = data.name ? `Halo ${escapeHtml(data.name)}, ` : '';
+  const threshold = absPct(data.thresholdPct);
+  const title = single
+    ? `${first.pair} ${moveVerb(first.pct)} ${absPct(first.pct)} dalam sehari`
+    : `${data.rows.length} pasangan di Pantauan bergerak tajam`;
+  const subject = single
+    ? `${title} — Kurspektif`
+    : `${data.rows.length} pasangan bergerak tajam: ${data.rows
+        .slice(0, 3)
+        .map((row) => `${row.pair} ${fmtPct(row.pct)}`)
+        .join(', ')}`;
+
+  const blocks = data.rows
+    .map((row) => {
+      const [base, quote] = row.pair.split('/');
+      const lines = [
+        `Sebelumnya ${formatRate(row.prevRate)} pada ${formatDate(row.prevDate)}.`,
+        ...(row.percentile90 !== null
+          ? [`Kini lebih tinggi dari ${row.percentile90}% hari dalam 90 hari kerja terakhir.`]
+          : []),
+      ];
+      return `<tr><td style="padding:16px 0;border-top:1px solid ${LINE};">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+<td style="font:600 17px/1.3 ${FONT};color:${INK};"><a href="${row.url}" style="color:${INK};text-decoration:none;">${row.pair}</a></td>
+<td style="font:600 17px/1.3 ${FONT};text-align:right;font-variant-numeric:tabular-nums;color:${changeColor(row.pct)};">${fmtPct(row.pct)}</td>
+</tr><tr>
+<td style="padding-top:2px;font:13px/1.5 ${FONT};color:${MUTED};font-variant-numeric:tabular-nums;">${formatRate(row.rate)} ${quote} per 1 ${base} · ${formatDate(row.date)}</td>
+<td style="padding-top:2px;font:13px/1.5 ${FONT};color:${MUTED};text-align:right;">sehari</td>
+</tr></table>
+<p style="margin:10px 0 0;font:14px/1.6 ${FONT};color:${INK};">${lines.join(' ')}</p>
+${row.reason ? `<p style="margin:4px 0 0;font:13px/1.6 ${FONT};color:${MUTED};">Minggu ini: ${escapeHtml(row.reason)}</p>` : ''}
+</td></tr>`;
+    })
+    .join('');
+
+  const html = layout({
+    title: subject,
+    preheader: data.rows.map((row) => `${row.pair} ${fmtPct(row.pct)}`).join(', '),
+    body:
+      h1(title) +
+      p(
+        `${greeting}${single ? 'pasangan ini' : 'pasangan-pasangan ini'} di Pantauanmu bergerak ${threshold} atau lebih dari hari kerja sebelumnya, menurut kurs referensi terbaru.`,
+      ) +
+      `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;border-bottom:1px solid ${LINE};">${blocks}</table>` +
+      p(`Ingin dikabari saat kurs mencapai angka tertentu? ${link(data.pantauanUrl, 'Pasang alert di Pantauan')}.`) +
+      button('Buka Pantauan', data.pantauanUrl),
+    footer: `${DISCLAIMER}<br><br>Kamu menerima email ini karena kabar pergerakan tajam menyala di akunmu. <a href="${data.unsubscribeUrl}" style="color:${MUTED};">Berhenti menerima kabar ini</a>; bisa dinyalakan lagi di Profil.`,
+  });
+
+  const text = [
+    title,
+    '',
+    `${data.name ? `Halo ${data.name}, ` : ''}${single ? 'pasangan ini' : 'pasangan-pasangan ini'} di Pantauanmu bergerak ${threshold} atau lebih dari hari kerja sebelumnya.`,
+    '',
+    ...data.rows.flatMap((row) => {
+      const [base, quote] = row.pair.split('/');
+      return [
+        `${row.pair}  ${fmtPct(row.pct)} (sehari)`,
+        `${formatRate(row.rate)} ${quote} per 1 ${base} · ${formatDate(row.date)}; sebelumnya ${formatRate(row.prevRate)} (${formatDate(row.prevDate)})`,
+        ...(row.percentile90 !== null ? [`Lebih tinggi dari ${row.percentile90}% hari dalam 90 hari kerja terakhir.`] : []),
+        ...(row.reason ? [`Minggu ini: ${row.reason}`] : []),
+        '',
+      ];
+    }),
+    `Buka Pantauan: ${data.pantauanUrl}`,
+    '',
+    DISCLAIMER,
+    `Berhenti menerima kabar ini: ${data.unsubscribeUrl}`,
+  ].join('\n');
+
+  return { subject, html, text };
+}

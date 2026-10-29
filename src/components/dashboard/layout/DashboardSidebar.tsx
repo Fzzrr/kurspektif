@@ -7,8 +7,8 @@ import Wordmark from "@/components/ui/Wordmark";
 import {
   LayoutDashboardIcon,
   NewspaperIcon,
-  BellIcon,
   BookmarkIcon,
+  ReceiptIcon,
   InfoIcon,
   ChevronDown,
   SettingsIcon,
@@ -23,13 +23,11 @@ const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboardIcon },
   { href: "/dashboard/berita", label: "Berita", icon: NewspaperIcon },
   { href: "/dashboard/pantauan", label: "Pantauan", icon: BookmarkIcon },
-  // Alert tinggal di kartu dashboard — tautan ini menggulir ke sana.
-  { href: "/dashboard#alert", label: "Alert", icon: BellIcon },
+  { href: "/dashboard/catatan", label: "Catatan", icon: ReceiptIcon },
   { href: "/dashboard/metodologi", label: "Metodologi", icon: InfoIcon },
 ] as const;
 
 function isActive(pathname: string, href: string) {
-  if (href.includes("#")) return false; // pathname tidak pernah memuat hash
   return href === "/dashboard" ? pathname === href : pathname.startsWith(href);
 }
 
@@ -39,6 +37,7 @@ type Props = {
   userImage: string | null;
   hasPassword: boolean;
   weeklyDigest: boolean;
+  moveAlerts: boolean;
   watchCount: number;
   activeAlertCount: number;
 };
@@ -49,6 +48,7 @@ export default function DashboardSidebar({
   userImage,
   hasPassword,
   weeklyDigest,
+  moveAlerts,
   watchCount,
   activeAlertCount,
 }: Props) {
@@ -152,6 +152,7 @@ export default function DashboardSidebar({
           image: userImage,
           hasPassword,
           weeklyDigest,
+          moveAlerts,
         }}
       />
     </>

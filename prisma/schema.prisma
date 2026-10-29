@@ -22,7 +22,9 @@ model User {
   sessions      Session[]
   rateAlerts    RateAlert[]
   watchedPairs  WatchedPair[]
+  exchanges     ExchangeRecord[]
   weeklyDigest  Boolean   @default(true) // email ringkasan tiap Senin
+  moveAlerts    Boolean   @default(true) // email saat pasangan Pantauan bergerak tajam
   createdAt     DateTime  @default(now())
 }
 
@@ -107,7 +109,32 @@ model WatchedPair {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   base      String
   quote     String
+  // Tanggal kurs (YYYY-MM-DD) yang terakhir dikabarkan sebagai gerak tajam.
+  // Kurs tidak terbit di akhir pekan/libur, jadi tanpa ini cron harian akan
+  // mengirim kabar yang sama lagi keesokan harinya.
+  lastMoveDate String?
   createdAt DateTime @default(now())
 
   @@unique([userId, base, quote])
+}
+
+// Penukaran yang benar-benar dilakukan pengguna di bank/money changer.
+// `midRate` = kurs tengah referensi di hari transaksi, disimpan saat dicatat
+// (kurs historis tidak berubah), supaya halaman tidak perlu mengambil ulang.
+model ExchangeRecord {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  side      String   // 'beli' | 'jual' — membeli atau menjual mata uang `base`
+  base      String
+  quote     String
+  amount    Float    // jumlah `base`
+  rate      Float    // kurs yang didapat: `quote` per 1 `base`
+  date      String   // tanggal transaksi, YYYY-MM-DD
+  midRate   Float
+  midDate   String   // tanggal kurs tengah yang dipakai (hari kerja terakhir <= date)
+  place     String?  // bank/money changer, opsional
+  createdAt DateTime @default(now())
+
+  @@index([userId, date])
 }

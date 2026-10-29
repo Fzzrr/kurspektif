@@ -9,11 +9,12 @@ import RateChartCard from '@/components/dashboard/rate/RateChartCard';
 import MarketMoversCard from '@/components/dashboard/rate/MarketMoversCard';
 import DashboardCard from '@/components/dashboard/ui/DashboardCard';
 import Reveal from '@/components/landing/motion/Reveal';
+import RateDateForm from '@/components/landing/rate/RateDateForm';
 import { currencyToFlag } from '@/lib/flags';
-import { fetchLatestRate, fetchRateSeries, fetchSupportedCurrencies, toISODate } from '@/lib/frankfurter';
+import { fetchLatestRate, fetchRateSeries, resolvePairSlug, toISODate } from '@/lib/frankfurter';
 import { fetchWeeklyMovers } from '@/lib/movers';
 import { newsForCurrencies } from '@/lib/marketaux';
-import { FEATURED_PAIRS, pairToSlug, slugToPair } from '@/lib/pairs';
+import { FEATURED_PAIRS, pairToSlug } from '@/lib/pairs';
 import { dailyChange, formatRate, historicalPosition } from '@/lib/rateStats';
 import { SENTIMENT } from '@/lib/sentiment';
 import { dayKey, dayLabel } from '@/lib/timeAgo';
@@ -27,22 +28,8 @@ export function generateStaticParams() {
   return FEATURED_PAIRS.map((pair) => ({ pair: pairToSlug(pair) }));
 }
 
-async function resolvePair(slug: string) {
-  const pair = slugToPair(slug);
-  if (!pair) return null;
-  const supported = new Map((await fetchSupportedCurrencies()).map((c) => [c.code, c.name]));
-  const [base, quote] = pair;
-  if (!supported.has(base) || !supported.has(quote)) return null;
-  return {
-    base,
-    quote,
-    baseName: supported.get(base)!,
-    quoteName: supported.get(quote)!,
-  };
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const resolved = await resolvePair((await params).pair);
+  const resolved = await resolvePairSlug((await params).pair);
   if (!resolved) return {};
   const { base, quote, baseName, quoteName } = resolved;
   return {
@@ -59,7 +46,7 @@ const dateFormatter = new Intl.DateTimeFormat('id-ID', {
 });
 
 export default async function KursPage({ params }: Props) {
-  const resolved = await resolvePair((await params).pair);
+  const resolved = await resolvePairSlug((await params).pair);
   if (!resolved) notFound();
   const { base, quote, baseName, quoteName } = resolved;
   const pair = `${base}/${quote}`;
@@ -134,6 +121,19 @@ export default async function KursPage({ params }: Props) {
           </Reveal>
         </>
       )}
+
+      <Reveal delay={130}>
+        <section className="mt-5 flex flex-col gap-5 rounded-2xl bg-surface p-6 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h2 className="text-[17px] font-semibold">Kurs pada tanggal tertentu</h2>
+            <p className="mt-1 max-w-[52ch] text-[15px] text-muted">
+              Untuk laporan, klaim perjalanan, atau sekadar membandingkan: kurs referensi {base}/{quote} di hari apa
+              pun sejak 1999.
+            </p>
+          </div>
+          <RateDateForm slug={pairToSlug(pair)} />
+        </section>
+      </Reveal>
 
       <Reveal delay={160}>
         <div data-ui className="mt-5 grid gap-4 lg:grid-cols-[3fr_2fr]">

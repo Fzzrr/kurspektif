@@ -14,6 +14,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           image: true,
           password: true,
           weeklyDigest: true,
+          moveAlerts: true,
           _count: { select: { watchedPairs: true, rateAlerts: { where: { triggeredAt: null } } } },
         },
       })
@@ -33,6 +34,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
         userImage={userImage}
         hasPassword={hasPassword}
         weeklyDigest={weeklyDigest}
+        moveAlerts={dbUser?.moveAlerts ?? true}
         watchCount={dbUser?._count.watchedPairs ?? 0}
         activeAlertCount={dbUser?._count.rateAlerts ?? 0}
       />

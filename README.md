@@ -17,9 +17,13 @@ bukan kurs jual/beli bank atau money changer.
 - **Alert ke email.** Saat kurs melewati batas tertentu, atau masuk 10/20/30% hari termurah atau termahal setahun.
 - **Pantauan dan ringkasan mingguan.** Simpan pasangan favorit, lihat semuanya di halaman Pantauan lengkap dengan
   posisi 90 hari dan alert per pasangan, dan terima email ringkasannya tiap Senin pagi. Email ringkasan punya tautan berhenti berlangganan sekali klik.
+- **Kabar pergerakan tajam.** Email saat pasangan di Pantauan bergerak 1% atau lebih dari hari kerja sebelumnya,
+  tanpa perlu memasang alert. Bisa dimatikan di Profil atau lewat tautan sekali klik di emailnya.
+- **Catatan tukar.** Catat penukaran yang sudah dilakukan di bank atau money changer; Kurspektif membandingkannya
+  dengan kurs tengah di hari yang sama dan menjumlahkan selisih (biaya) yang dibayar.
 - **Akun.** Daftar dengan email atau Google, lupa kata sandi, ganti email dengan verifikasi, dan hapus akun.
-- **Halaman publik.** `/kurs`, `/kurs/usd-idr`, `/metodologi`, `/syarat`, dan `/privasi` bisa dibuka tanpa
-  login.
+- **Halaman publik.** `/kurs`, `/kurs/usd-idr`, `/kurs/usd-idr/2025-01-01` (kurs pada tanggal tertentu sejak
+  1999), `/metodologi`, `/syarat`, dan `/privasi` bisa dibuka tanpa login.
 
 Cara tiap angka dihitung dijelaskan di halaman `/metodologi`.
 
@@ -77,7 +81,7 @@ Google Cloud Console.
 | `npm run build` | Build produksi |
 | `npm run start` | Menjalankan hasil build |
 | `npm run lint` | ESLint |
-| `npm test` | Test unit untuk alert, penggerak mingguan, parser RSS, dan statistik kurs |
+| `npm test` | Test unit untuk alert, penggerak mingguan, gerak tajam, catatan tukar, parser RSS, template email, dan statistik kurs |
 | `npx prisma migrate deploy` | Menerapkan migrasi ke database |
 
 ## Tugas terjadwal
@@ -87,7 +91,7 @@ Didefinisikan di [`vercel.json`](vercel.json) dan dijalankan Vercel Cron dengan 
 
 | Endpoint | Jadwal | Fungsi |
 | --- | --- | --- |
-| `/api/cron/check-alerts` | Tiap hari 01.00 UTC (08.00 WIB) | Mengecek alert, mengirim email saat tercapai, dan memperbarui arsip berita |
+| `/api/cron/check-alerts` | Tiap hari 01.00 UTC (08.00 WIB) | Mengecek alert dan mengirim email saat tercapai, mengabarkan pasangan Pantauan yang bergerak tajam, dan memperbarui arsip berita |
 | `/api/cron/weekly-digest` | Tiap Senin 00.00 UTC (07.00 WIB) | Mengirim ringkasan mingguan untuk pasangan tersimpan |
 
 Menjalankannya secara manual saat pengembangan:
@@ -123,6 +127,8 @@ File yang paling sering disentuh:
 
 - Kurs referensi terbit sekali per hari kerja, jadi alert dicek sekali sehari dan pergerakan di tengah hari tidak
   terdeteksi.
+- Ambang kabar pergerakan tajam tetap 1% per hari untuk semua pasangan (lihat [`src/lib/moves.ts`](src/lib/moves.ts)),
+  jadi pasangan yang memang bergejolak bisa lebih sering memicunya.
 - Paket gratis Marketaux membatasi 3 artikel per request dan 100 request per hari. Arsip berita diperbarui oleh cron
   harian dan di latar belakang saat dashboard atau halaman berita dibuka.
 - Sentimen berita RSS ditentukan dari kata kerja di dekat kata "rupiah" pada judul, sehingga bisa keliru.

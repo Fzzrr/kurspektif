@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { alertEmail, digestEmail, emailChangeEmail, verifyEmailEmail } from './emailTemplates';
+import { alertEmail, digestEmail, emailChangeEmail, movesEmail, verifyEmailEmail } from './emailTemplates';
 
 test('email alert memuat kondisi, kurs, dan posisi', () => {
   const email = alertEmail({
@@ -59,4 +59,18 @@ test('verifikasi email meng-escape alamat dan memuat tautan', () => {
   assert.match(email.html, /&lt;x&gt;@contoh\.id/);
   assert.match(email.html, /token=abc/);
   assert.match(email.text, /token=abc/);
+});
+
+test('kabar gerak tajam: judul satu pasangan dan daftar beberapa pasangan', () => {
+  const row = (pair: string, pct: number) => ({
+    pair, rate: 18180, prevRate: 18000, pct, date: '2026-10-28', prevDate: '2026-10-27',
+    percentile90: 95, reason: null, url: '#',
+  });
+  const base = { name: null, thresholdPct: 1, pantauanUrl: '#', unsubscribeUrl: 'https://contoh.id/berhenti?k=gerak' };
+  const one = movesEmail({ ...base, rows: [row('USD/IDR', 1)] });
+  assert.equal(one.subject, 'USD/IDR naik 1% dalam sehari — Kurspektif');
+  assert.match(one.html, /Lebih tinggi dari 95% hari/i);
+  assert.match(one.html, /k=gerak/);
+  const many = movesEmail({ ...base, rows: [row('USD/IDR', 1.24), row('JPY/IDR', -1.4)] });
+  assert.equal(many.subject, '2 pasangan bergerak tajam: USD/IDR +1,24%, JPY/IDR -1,4%');
 });

@@ -5,7 +5,16 @@ import type { ReactNode } from 'react';
 import { ChevronDown, SearchIcon } from '@/components/ui/icons';
 import { useDismiss } from '@/lib/useDismiss';
 
-type Option<T extends string> = { value: T; label: string };
+type Option<T extends string> = {
+  value: T;
+  label: string;
+  /** Bendera atau simbol kecil di depan label. */
+  icon?: string;
+  /** Baris kedua yang lebih kecil, mis. nama lengkap mata uang. */
+  hint?: string;
+  /** Teks tambahan yang ikut dicari tapi tidak ditampilkan. */
+  keywords?: string;
+};
 
 type Props<T extends string> = {
   options: readonly Option<T>[];
@@ -50,7 +59,9 @@ export default function SelectMenu<T extends string>({
   const selected = options.find((option) => option.value === value);
   const normalizedQuery = query.trim().toLowerCase();
   const visibleOptions = normalizedQuery
-    ? options.filter((option) => option.label.toLowerCase().includes(normalizedQuery))
+    ? options.filter((option) =>
+        [option.label, option.hint, option.keywords].some((text) => text?.toLowerCase().includes(normalizedQuery)),
+      )
     : options;
 
   return (
@@ -59,12 +70,13 @@ export default function SelectMenu<T extends string>({
         type="button"
         onClick={() => (open ? close() : setOpen(true))}
         aria-expanded={open}
+        title={selected?.hint ? `${selected.label} - ${selected.hint}` : undefined}
         className={`flex w-full min-w-0 items-center gap-2 px-3 py-2 font-mono text-sm text-ink transition-colors ${
           active ? 'bg-accent-soft font-medium' : 'bg-accent-soft/60 hover:bg-accent-soft'
         }`}
       >
         {icon}
-        <span className="truncate">{selected?.label}</span>
+        {selected && <OptionText option={selected} strong />}
         <ChevronDown
           className={`ml-auto size-4 shrink-0 text-muted transition-transform ${open ? 'rotate-180' : ''}`}
         />
@@ -106,16 +118,33 @@ export default function SelectMenu<T extends string>({
                   onChange(option.value);
                   close();
                 }}
-                className={`block w-full truncate px-3 py-2 text-left font-mono text-sm transition-colors ${
+                className={`flex w-full min-w-0 items-center gap-2 px-3 py-2 text-left font-mono text-sm transition-colors ${
                   isSelected ? 'bg-white/10 text-accent' : 'text-muted hover:bg-white/5 hover:text-ink'
                 }`}
               >
-                {option.label}
+                <OptionText option={option} />
               </button>
             );
           })}
         </div>
       )}
     </div>
+  );
+}
+
+// Label satu baris, atau dua baris (label + hint) kalau opsinya punya hint.
+function OptionText<T extends string>({ option, strong = false }: { option: Option<T>; strong?: boolean }) {
+  return (
+    <>
+      {option.icon && <span className="shrink-0 text-base leading-none">{option.icon}</span>}
+      {option.hint ? (
+        <span className="min-w-0 text-left leading-tight">
+          <span className={`block truncate ${strong ? 'font-semibold text-ink' : ''}`}>{option.label}</span>
+          <span className={`block font-sans text-xs text-muted ${strong ? 'truncate' : ''}`}>{option.hint}</span>
+        </span>
+      ) : (
+        <span className="truncate">{option.label}</span>
+      )}
+    </>
   );
 }

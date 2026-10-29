@@ -10,6 +10,7 @@ import DashboardCard from './ui/DashboardCard';
 import PillTabs from './ui/PillTabs';
 import SelectMenu from './ui/SelectMenu';
 import { currencyToFlag } from '@/lib/flags';
+import { currencyOptions } from '@/lib/currencyNames';
 import { formatRate } from '@/lib/rateStats';
 import { useLiveRate } from '@/lib/useLiveRate';
 import {
@@ -79,14 +80,7 @@ export default function AlertCard({ currencies, initialAlerts }: Props) {
     setThreshold(next === 'posisi' ? '20' : '');
   }
 
-  const currencyOptions = useMemo(
-    () =>
-      currencies.map((c) => {
-        const flag = currencyToFlag(c.code);
-        return { value: c.code, label: `${flag ? `${flag} ` : ''}${c.code} - ${c.name}` };
-      }),
-    [currencies],
-  );
+  const options = useMemo(() => currencyOptions(currencies), [currencies]);
 
   const canSubmit = thresholdValue !== null && !samePair && !saving;
   const activeCount = alerts.filter((alert) => !alert.triggeredAt).length;
@@ -157,7 +151,7 @@ export default function AlertCard({ currencies, initialAlerts }: Props) {
           <div>
             <p className={labelClass}>Pasangan</p>
             <div className="mt-2 flex items-center gap-2">
-              <SelectMenu options={currencyOptions} value={from} onChange={setFrom} searchable className="min-w-0 flex-1" />
+              <SelectMenu options={options} value={from} onChange={setFrom} searchable className="min-w-0 flex-1" />
               <button
                 type="button"
                 onClick={() => {
@@ -169,7 +163,7 @@ export default function AlertCard({ currencies, initialAlerts }: Props) {
               >
                 <SwapIcon className="size-4" />
               </button>
-              <SelectMenu options={currencyOptions} value={to} onChange={setTo} searchable className="min-w-0 flex-1" />
+              <SelectMenu options={options} value={to} onChange={setTo} searchable className="min-w-0 flex-1" />
             </div>
             {samePair && <p className="mt-2 font-mono text-xs text-down">Pilih dua mata uang yang berbeda.</p>}
           </div>

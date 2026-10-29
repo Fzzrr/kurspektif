@@ -3,7 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { MAX_PAIRS, watchedPairs, watchlistSnapshot, type WatchedSnapshot } from '@/lib/watchlist';
 import { fetchSupportedCurrencies } from '@/lib/frankfurter';
 import { toAlertDTO } from '@/lib/alerts';
-import WatchRow from '@/components/dashboard/watchlist/WatchRow';
+import WatchRow, { watchStats } from '@/components/dashboard/watchlist/WatchRow';
+import WatchList from '@/components/dashboard/watchlist/WatchList';
 import AddPair from '@/components/dashboard/watchlist/AddPair';
 
 export const metadata = { title: 'Pantauan — Kurspektif' };
@@ -11,13 +12,21 @@ export const metadata = { title: 'Pantauan — Kurspektif' };
 // Hari kalender yang diambil supaya dapat ~90 hari kerja untuk grafik & posisi.
 const HISTORY_DAYS = 135;
 
+// Email rutin yang menyala untuk Pantauan; yang mati bisa dinyalakan di Profil.
+function emailLine(digest: boolean, moves: boolean) {
+  if (digest && moves) return 'Ringkasannya dikirim tiap Senin pagi, dan kami kabari saat pasangan bergerak 1% atau lebih dalam sehari.';
+  if (digest) return 'Ringkasannya dikirim tiap Senin pagi. Kabar pergerakan tajam sedang mati; nyalakan di Profil.';
+  if (moves) return 'Kami kabari saat pasangan bergerak 1% atau lebih dalam sehari. Ringkasan mingguan sedang mati; nyalakan di Profil.';
+  return 'Ringkasan mingguan dan kabar pergerakan tajam sedang mati; nyalakan di Profil.';
+}
+
 export default async function PantauanPage() {
   const session = await auth();
   const userId = session?.user?.id;
   const [pairs, user, alerts, currencies] = userId
     ? await Promise.all([
         watchedPairs(userId),
-        prisma.user.findUnique({ where: { id: userId }, select: { weeklyDigest: true } }),
+        prisma.user.findUnique({ where: { id: userId }, select: { weeklyDigest: true, moveAlerts: true } }),
         prisma.rateAlert.findMany({ where: { userId }, orderBy: { createdAt: 'asc' } }),
         fetchSupportedCurrencies().catch(() => []),
       ])
@@ -26,7 +35,7 @@ export default async function PantauanPage() {
     pairs.map((pair) => ({ pair, rate: null, date: null, weekPct: null, reason: null, movers: null, series: [] })),
   );
 
-  const names = new Map(currencies.map((c) => [c.code, c.name]));
+  const names = new Map(currencies.map((c) => [c.code, c.localName]));
   const alertDTOs = alerts.map(toAlertDTO);
   const addPair = <AddPair currencies={currencies} saved={pairs} max={MAX_PAIRS} />;
 
@@ -35,9 +44,7 @@ export default async function PantauanPage() {
       <h1 className="text-[34px] font-semibold leading-tight tracking-[-0.02em]">Pantauan</h1>
       <p className="mt-2 max-w-[64ch] text-[15px] text-muted">
         <span className="font-mono text-ink">{pairs.length}</span> dari {MAX_PAIRS} pasangan dipantau.{' '}
-        {user?.weeklyDigest
-          ? 'Ringkasannya dikirim ke emailmu tiap Senin pagi.'
-          : 'Ringkasan mingguan sedang mati; nyalakan di Profil.'}
+        {emailLine(user?.weeklyDigest ?? true, user?.moveAlerts ?? true)}
       </p>
 
       <div className="mt-8 grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px] xl:gap-10">
@@ -52,18 +59,25 @@ export default async function PantauanPage() {
               <div className="mt-6 max-w-md">{addPair}</div>
             </section>
           ) : (
-            rows.map((row) => {
-              const [base, quote] = row.pair.split('/');
-              return (
-                <WatchRow
-                  key={row.pair}
-                  row={row}
-                  baseName={names.get(base) ?? base}
-                  quoteName={names.get(quote) ?? quote}
-                  alerts={alertDTOs.filter((a) => a.base === base && a.quote === quote)}
-                />
-              );
-            })
+            <WatchList
+              items={rows.map((row) => {
+                const [base, quote] = row.pair.split('/');
+                const { dayPct, position } = watchStats(row);
+                return {
+                  pair: row.pair,
+                  dayPct,
+                  percentile: position?.percentile ?? null,
+                  node: (
+                    <WatchRow
+                      row={row}
+                      baseName={names.get(base) ?? base}
+                      quoteName={names.get(quote) ?? quote}
+                      alerts={alertDTOs.filter((a) => a.base === base && a.quote === quote)}
+                    />
+                  ),
+                };
+              })}
+            />
           )}
         </div>
 

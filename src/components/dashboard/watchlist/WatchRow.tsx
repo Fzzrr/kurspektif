@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import RemovePairButton from '@/components/dashboard/RemovePairButton';
 import PairAlerts from './PairAlerts';
+import Sparkline from './Sparkline';
 import { formatRate, historicalPosition } from '@/lib/rateStats';
 import { fmtPct } from '@/lib/moversText';
 import type { WatchedSnapshot } from '@/lib/watchlist';
@@ -10,15 +11,21 @@ type Props = { row: WatchedSnapshot; baseName: string; quoteName: string; alerts
 
 const dateFormatter = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', timeZone: 'UTC' });
 
-// Satu pasangan di Pantauan: kurs dan perubahannya, posisi dalam 90 hari kerja
-// (murah atau mahal dibanding biasanya), penggerak minggu ini, lalu alertnya.
-export default function WatchRow({ row, baseName, quoteName, alerts }: Props) {
-  const [base, quote] = row.pair.split('/');
+/** Angka turunan satu pasangan; dipakai kartu ini dan pengurutan di WatchList. */
+export function watchStats(row: WatchedSnapshot) {
   const series = row.series.slice(-90);
   const latest = series.at(-1) ?? null;
   const prev = series.at(-2);
   const dayPct = latest && prev ? (latest.rate / prev.rate - 1) * 100 : null;
   const position = series.length > 1 ? historicalPosition(series, latest) : null;
+  return { series, latest, dayPct, position };
+}
+
+// Satu pasangan di Pantauan: kurs dan perubahannya, posisi dalam 90 hari kerja
+// (murah atau mahal dibanding biasanya), penggerak minggu ini, lalu alertnya.
+export default function WatchRow({ row, baseName, quoteName, alerts }: Props) {
+  const [base, quote] = row.pair.split('/');
+  const { series, latest, dayPct, position } = watchStats(row);
 
   return (
     <article className="rounded-2xl bg-surface p-5 md:p-6">
@@ -51,7 +58,7 @@ export default function WatchRow({ row, baseName, quoteName, alerts }: Props) {
                 <span>{series.length} hari kerja terakhir</span>
                 <span className="text-ink">{positionTag(position.percentile)}</span>
               </div>
-              <Sparkline values={series.map((p) => p.rate)} />
+              <Sparkline points={series} quote={quote} />
               <div className="flex justify-between gap-3 font-mono text-xs text-muted">
                 <span>Terendah {position.min}</span>
                 <span>Tertinggi {position.max}</span>
@@ -112,35 +119,6 @@ function Change({ label, pct }: { label: string; pct: number | null }) {
     <div>
       <dt className="text-xs text-muted">{label}</dt>
       <dd className={`mt-1 font-mono text-base ${tone}`}>{pct === null ? '—' : fmtPct(pct)}</dd>
-    </div>
-  );
-}
-
-// Garis kurs tanpa sumbu — skalanya dibaca dari label terendah/tertinggi di
-// bawahnya. Titik di ujung kanan = kurs terakhir.
-function Sparkline({ values }: { values: number[] }) {
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  const span = max - min || 1;
-  const y = (v: number) => 100 - ((v - min) / span) * 100;
-  const points = values.map((v, i) => `${(i / (values.length - 1)) * 100},${y(v)}`).join(' ');
-
-  return (
-    <div className="relative my-3 h-20">
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="size-full overflow-visible" aria-hidden>
-        <polyline
-          points={points}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          vectorEffect="non-scaling-stroke"
-          className="text-ink/70"
-        />
-      </svg>
-      <span
-        className="absolute right-0 size-2 -translate-y-1/2 translate-x-1/2 rounded-full bg-ink"
-        style={{ top: `${y(values.at(-1)!)}%` }}
-      />
     </div>
   );
 }

@@ -55,3 +55,17 @@ export function dayLabel(key: string): string {
   if (key === dayKey(now - 86_400_000)) return 'Kemarin';
   return dayLabelFormatter.format(new Date(`${key}T12:00:00+07:00`));
 }
+
+/** Kunci hari ini (Jakarta). */
+export const todayKey = () => dayKey(Date.now());
+
+/** Hari pertama kurs referensi ECB (dan Frankfurter) tersedia. */
+export const FIRST_RATE_DATE = '1999-01-04';
+
+/** "YYYY-MM-DD" yang benar-benar ada di kalender, antara FIRST_RATE_DATE dan hari ini; selain itu null. */
+export function parseRateDate(raw: string): string | null {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) return null;
+  const date = new Date(`${raw}T00:00:00Z`);
+  if (Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== raw) return null;
+  return raw >= FIRST_RATE_DATE && raw <= todayKey() ? raw : null;
+}

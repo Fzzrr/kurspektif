@@ -4,11 +4,16 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { SwapIcon } from '@/components/ui/icons';
 import SelectMenu from '../ui/SelectMenu';
+import { currencyOptions } from '@/lib/currencyNames';
+import { currencyToFlag } from '@/lib/flags';
+import { formatRate } from '@/lib/rateStats';
+import { useLiveRate } from '@/lib/useLiveRate';
 import { toggleWatchAction } from '@/app/dashboard/watchlist-actions';
 import { POPULAR_PAIRS, WORLD_PAIRS } from '@/lib/pairs';
 import type { Currency } from '@/lib/frankfurter';
 
 const SUGGESTION_COUNT = 6;
+const dateFormatter = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', timeZone: 'UTC' });
 
 type Props = { currencies: Currency[]; saved: string[]; max: number };
 
@@ -26,7 +31,9 @@ export default function AddPair({ currencies, saved, max }: Props) {
   const full = saved.length >= max;
   const pair = `${from}/${to}`;
   const alreadySaved = saved.includes(pair);
-  const options = currencies.map((c) => ({ value: c.code, label: `${c.code} - ${c.name}` }));
+  const options = currencyOptions(currencies);
+  // Kurs pasangan terpilih, supaya kelihatan apa yang akan dipantau sebelum disimpan.
+  const { latest } = useLiveRate(from, to, 7);
 
   function add(base: string, quote: string) {
     startTransition(async () => {
@@ -47,8 +54,12 @@ export default function AddPair({ currencies, saved, max }: Props) {
 
   return (
     <div>
-      <div className="flex items-center gap-2">
-        <SelectMenu options={options} value={from} onChange={setFrom} searchable className="min-w-0 flex-1" />
+      {/* Atas-bawah, bukan berdampingan: kolom samping ini sempit, dan nama
+          mata uangnya baru terbaca kalau pilihannya selebar kartu. */}
+      <p className="text-xs text-muted">Dari</p>
+      <SelectMenu options={options} value={from} onChange={setFrom} searchable className="mt-2" />
+      <div className="mt-3 flex items-center justify-between">
+        <p className="text-xs text-muted">Ke</p>
         <button
           type="button"
           onClick={() => {
@@ -56,18 +67,28 @@ export default function AddPair({ currencies, saved, max }: Props) {
             setTo(from);
           }}
           aria-label="Tukar pasangan mata uang"
-          className="flex size-9 shrink-0 items-center justify-center bg-accent-soft text-muted hover:text-ink"
+          className="-my-1 flex h-7 items-center gap-1.5 px-2 text-xs text-muted hover:bg-accent-soft hover:text-ink"
         >
-          <SwapIcon className="size-4" />
+          <SwapIcon className="size-3.5 rotate-90" />
+          Tukar
         </button>
-        <SelectMenu options={options} value={to} onChange={setTo} searchable className="min-w-0 flex-1" />
       </div>
+      <SelectMenu options={options} value={to} onChange={setTo} searchable className="mt-2" />
+
+      <p className="mt-4 min-h-5 text-sm text-muted">
+        {from !== to && latest && (
+          <>
+            1 {from} = <span className="font-mono text-ink">{formatRate(latest.rate)}</span> {to}
+            <span className="text-xs"> · kurs {dateFormatter.format(new Date(latest.date))}</span>
+          </>
+        )}
+      </p>
 
       <button
         type="button"
         onClick={() => add(from, to)}
         disabled={pending || from === to || alreadySaved}
-        className="mt-3 h-10 w-full bg-ink text-sm font-medium text-paper hover:opacity-90 disabled:opacity-40"
+        className="mt-2 h-10 w-full bg-ink text-sm font-medium text-paper hover:opacity-90 disabled:opacity-40"
       >
         {pending ? 'Menyimpan…' : alreadySaved ? `${pair} sudah dipantau` : `Pantau ${pair}`}
       </button>
@@ -83,9 +104,12 @@ export default function AddPair({ currencies, saved, max }: Props) {
                 type="button"
                 onClick={() => add(...(suggestion.split('/') as [string, string]))}
                 disabled={pending}
-                className="h-8 bg-accent-soft px-3 font-mono text-sm text-ink hover:bg-line disabled:opacity-40"
+                aria-label={`Pantau ${suggestion}`}
+                className="flex h-8 items-center gap-1.5 bg-accent-soft px-2.5 font-mono text-sm text-ink hover:bg-line disabled:opacity-40"
               >
-                + {suggestion}
+                <span className="text-base leading-none">{currencyToFlag(suggestion.slice(0, 3))}</span>
+                {suggestion}
+                <span className="text-muted">+</span>
               </button>
             ))}
           </div>

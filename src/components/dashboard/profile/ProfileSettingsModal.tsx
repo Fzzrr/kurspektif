@@ -20,7 +20,7 @@ import {
   requestEmailChangeAction,
   deleteAccountAction,
 } from '@/app/dashboard/profile-actions';
-import { setWeeklyDigestAction } from '@/app/dashboard/watchlist-actions';
+import { setMoveAlertsAction, setWeeklyDigestAction } from '@/app/dashboard/watchlist-actions';
 
 // Batas file asli sebelum dikecilkan (lihat toAvatarDataUrl) — cukup untuk
 // foto kamera ponsel.
@@ -37,6 +37,7 @@ type User = {
   image: string | null;
   hasPassword: boolean;
   weeklyDigest: boolean;
+  moveAlerts: boolean;
 };
 
 type Props = {
@@ -70,7 +71,18 @@ export default function ProfileSettingsModal({ open, onClose, user }: Props) {
           <NameRow user={user} onSaved={refresh} />
           <EmailRow user={user} />
           {user.hasPassword && <PasswordRow />}
-          <DigestRow initial={user.weeklyDigest} />
+          <EmailToggleRow
+            label="Ringkasan mingguan"
+            description="Email tiap Senin pagi untuk pasangan yang kamu pantau."
+            initial={user.weeklyDigest}
+            save={setWeeklyDigestAction}
+          />
+          <EmailToggleRow
+            label="Kabar pergerakan tajam"
+            description="Email saat pasangan di Pantauan bergerak 1% atau lebih dalam sehari."
+            initial={user.moveAlerts}
+            save={setMoveAlertsAction}
+          />
           <DeleteAccountRow />
         </div>
       </div>
@@ -197,9 +209,16 @@ function DeleteAccountRow() {
   );
 }
 
-// --- Ringkasan mingguan ---------------------------------------------------
+// --- Email rutin (ringkasan, kabar gerak tajam) ------------------------------
 
-function DigestRow({ initial }: { initial: boolean }) {
+type EmailToggleProps = {
+  label: string;
+  description: string;
+  initial: boolean;
+  save: (enabled: boolean) => Promise<{ error?: string }>;
+};
+
+function EmailToggleRow({ label, description, initial, save }: EmailToggleProps) {
   const [enabled, setEnabled] = useState(initial);
   const [error, setError] = useState('');
 
@@ -207,7 +226,7 @@ function DigestRow({ initial }: { initial: boolean }) {
     const next = !enabled;
     setEnabled(next); // optimistis
     setError('');
-    const res = await setWeeklyDigestAction(next);
+    const res = await save(next);
     if (res.error) {
       setEnabled(!next);
       setError(res.error);
@@ -215,14 +234,14 @@ function DigestRow({ initial }: { initial: boolean }) {
   }
 
   return (
-    <Row label="Ringkasan mingguan">
+    <Row label={label}>
       <RowValue
         action={
           <button
             type="button"
             role="switch"
             aria-checked={enabled}
-            aria-label="Email ringkasan mingguan"
+            aria-label={label}
             onClick={toggle}
             className={`relative h-6 w-10 shrink-0 rounded-full transition-colors ${enabled ? 'bg-ink' : 'bg-accent-soft'}`}
           >
@@ -232,7 +251,7 @@ function DigestRow({ initial }: { initial: boolean }) {
           </button>
         }
       >
-        <p className="text-sm text-muted">Email tiap Senin pagi untuk pasangan yang kamu simpan.</p>
+        <p className="text-sm text-muted">{description}</p>
       </RowValue>
       {error && <p className="mt-2 font-mono text-xs text-down">{error}</p>}
     </Row>

@@ -43,3 +43,10 @@ export async function setWeeklyDigestAction(enabled: boolean): Promise<{ error?:
   await prisma.user.update({ where: { id: userId }, data: { weeklyDigest: enabled } });
   return {};
 }
+
+export async function setMoveAlertsAction(enabled: boolean): Promise<{ error?: string }> {
+  const userId = await currentUserId();
+  if (!userId) return { error: 'Sesi berakhir atau terlalu banyak permintaan. Coba lagi.' };
+  await prisma.user.update({ where: { id: userId }, data: { moveAlerts: enabled } });
+  return {};
+}

@@ -1,7 +1,12 @@
+import { slugToPair } from './pairs';
+
 const FRANKFURTER_BASE = 'https://api.frankfurter.dev/v2';
 
 export type RatePoint = { date: string; rate: number };
-export type Currency = { code: string; name: string };
+/** `name` dari Frankfurter (Inggris); `localName` nama Indonesianya, dihitung di server supaya SSR dan hidrasi sama. */
+export type Currency = { code: string; name: string; localName: string };
+
+const localNames = new Intl.DisplayNames('id', { type: 'currency' });
 
 async function fetchRateRaw(base: string, quote: string): Promise<RatePoint> {
   const res = await fetch(`${FRANKFURTER_BASE}/rate/${base}/${quote}`, {
@@ -38,6 +43,17 @@ export async function fetchRateSeries(base: string, quote: string, from: string,
   if (!looksImprecise) return direct;
   const inverse = await fetchRateSeriesRaw(quote, base, from, to);
   return inverse.map((point) => ({ date: point.date, rate: 1 / point.rate }));
+}
+
+/**
+ * Kurs pada `date` (YYYY-MM-DD), atau hari kerja terakhir sebelumnya kalau hari
+ * itu kurs tidak terbit (akhir pekan, libur). null kalau tidak ada data.
+ */
+export async function fetchRateOnOrBefore(base: string, quote: string, date: string): Promise<RatePoint | null> {
+  const from = new Date(`${date}T00:00:00Z`);
+  from.setUTCDate(from.getUTCDate() - 10);
+  const series = await fetchRateSeries(base, quote, toISODate(from), date);
+  return series.findLast((point) => point.date <= date) ?? null;
 }
 
 // Kurs tiap mata uang di `quotes` terhadap USD, dikelompokkan per tanggal.
@@ -79,6 +95,19 @@ export async function fetchSupportedCurrencies(): Promise<Currency[]> {
   const minDate = toISODate(cutoff);
   return data
     .filter((c) => c.end_date >= minDate)
-    .map((c) => ({ code: c.iso_code, name: c.name }))
+    .map((c) => {
+      const local = localNames.of(c.iso_code);
+      return { code: c.iso_code, name: c.name, localName: local && local !== c.iso_code ? local : c.name };
+    })
     .sort((a, b) => a.code.localeCompare(b.code));
+}
+
+/** Slug halaman kurs ("usd-idr") → kode dan nama kedua mata uang; null kalau formatnya salah atau tidak didukung. */
+export async function resolvePairSlug(slug: string) {
+  const pair = slugToPair(slug);
+  if (!pair) return null;
+  const supported = new Map((await fetchSupportedCurrencies()).map((c) => [c.code, c.name]));
+  const [base, quote] = pair;
+  if (!supported.has(base) || !supported.has(quote)) return null;
+  return { base, quote, baseName: supported.get(base)!, quoteName: supported.get(quote)! };
 }
