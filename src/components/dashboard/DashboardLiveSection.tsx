@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import DashboardHeader from './layout/DashboardHeader';
 import PairSelector from './rate/PairSelector';
 import StatCardsRow from './rate/StatCardsRow';
@@ -63,19 +63,15 @@ export default function DashboardLiveSection({ title, currencies, news, initialW
   // kerja — bukan kurs real-time atau kurs jual/beli bank.
   const updatedAt = latest ? `Kurs referensi harian · ${dateFmt.format(new Date(latest.date))}` : 'Memuat…';
 
-  const change = useMemo(() => dailyChange(series, latest), [latest, series]);
+  const change = dailyChange(series, latest);
 
   // Berita yang pasangannya memuat salah satu sisi pasangan aktif — sama
   // seperti filter mata uang di halaman berita.
-  const { relatedNews, otherNews } = useMemo(() => {
-    const isRelated = (item: NewsItem) => item.pair?.split('/').some((code) => code === from || code === to) ?? false;
-    return {
-      relatedNews: byRelevance(news.filter(isRelated), (item) => item.pair, [from, to]),
-      otherNews: news.filter((item) => !isRelated(item)),
-    };
-  }, [news, from, to]);
+  const isRelated = (item: NewsItem) => item.pair?.split('/').some((code) => code === from || code === to) ?? false;
+  const relatedNews = byRelevance(news.filter(isRelated), (item) => item.pair, [from, to]);
+  const otherNews = news.filter((item) => !isRelated(item));
 
-  const historicalPosition = useMemo(() => positionOf(series, latest), [latest, series]);
+  const historicalPosition = positionOf(series, latest);
 
   return (
     <>

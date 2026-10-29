@@ -1,6 +1,6 @@
 import MethodologyContent from '@/components/methodology/MethodologyContent';
 
-export const metadata = { title: 'Metodologi — Kurspektif' };
+export const metadata = { title: 'Metodologi' };
 
 export default function DashboardMetodologiPage() {
   return (

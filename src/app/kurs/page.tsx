@@ -10,7 +10,7 @@ import { POPULAR_PAIRS, WORLD_PAIRS } from '@/lib/pairs';
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: 'Kurs hari ini — Kurspektif',
+  title: 'Kurs hari ini',
   description:
     'Kurs pasangan mata uang utama dunia dan kurs ke rupiah hari ini, beserta perubahan seminggu dan apa yang menggerakkannya.',
 };

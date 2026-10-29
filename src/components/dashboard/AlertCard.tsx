@@ -4,7 +4,7 @@
 // sekali sehari oleh /api/cron/check-alerts, yang mengirim email saat batas
 // tercapai.
 
-import { useMemo, useRef, useState, useTransition, type FormEvent } from 'react';
+import { useRef, useState, useTransition, type FormEvent } from 'react';
 import { CloseIcon, PencilIcon, SwapIcon } from '@/components/ui/icons';
 import DashboardCard from './ui/DashboardCard';
 import PillTabs from './ui/PillTabs';
@@ -80,7 +80,7 @@ export default function AlertCard({ currencies, initialAlerts }: Props) {
     setThreshold(next === 'posisi' ? '20' : '');
   }
 
-  const options = useMemo(() => currencyOptions(currencies), [currencies]);
+  const options = currencyOptions(currencies);
 
   const canSubmit = thresholdValue !== null && !samePair && !saving;
   const activeCount = alerts.filter((alert) => !alert.triggeredAt).length;

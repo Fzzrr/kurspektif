@@ -1,6 +1,7 @@
 'use server';
 
-import { auth } from '@/lib/auth';
+import { SESSION_ERROR, actionUserId } from '@/lib/auth/action';
+import { isCurrencyCode } from '@/lib/pairs';
 import { prisma } from '@/lib/prisma';
 import { exchangeLimiter } from '@/lib/rateLimit';
 import { parseThreshold } from '@/lib/alerts';
@@ -9,25 +10,18 @@ import { formatRate } from '@/lib/rateStats';
 import { parseRateDate } from '@/lib/timeAgo';
 import { MAX_RECORDS, SIDES, toExchangeDTO, type ExchangeDTO, type ExchangeInput } from '@/lib/exchanges';
 
-const CURRENCY_CODE = /^[A-Z]{3}$/;
 // Kurs yang melenceng lebih jauh dari ini dari kurs tengah hampir pasti salah
 // ketik atau pasangan terbalik (mis. 0,000055 untuk USD/IDR), bukan biaya bank.
 const MAX_DEVIATION = 0.25;
 
-async function currentUserId(): Promise<string | null> {
-  const session = await auth();
-  const userId = session?.user?.id;
-  if (!userId) return null;
-  return (await exchangeLimiter.check(`exchange:${userId}`)).success ? userId : null;
-}
 
 export async function createExchangeAction(input: ExchangeInput): Promise<{ record: ExchangeDTO } | { error: string }> {
-  const userId = await currentUserId();
-  if (!userId) return { error: 'Sesi berakhir atau terlalu banyak permintaan. Coba lagi.' };
+  const userId = await actionUserId(exchangeLimiter, 'exchange');
+  if (!userId) return { error: SESSION_ERROR };
 
   const base = input.base.toUpperCase();
   const quote = input.quote.toUpperCase();
-  if (!CURRENCY_CODE.test(base) || !CURRENCY_CODE.test(quote)) return { error: 'Kode mata uang tidak valid.' };
+  if (!isCurrencyCode(base) || !isCurrencyCode(quote)) return { error: 'Kode mata uang tidak valid.' };
   if (base === quote) return { error: 'Pilih dua mata uang yang berbeda.' };
   if (!SIDES.includes(input.side)) return { error: 'Pilih beli atau jual.' };
   const amount = parseThreshold(input.amount);
@@ -57,8 +51,8 @@ export async function createExchangeAction(input: ExchangeInput): Promise<{ reco
 }
 
 export async function deleteExchangeAction(id: string): Promise<{ error?: string }> {
-  const userId = await currentUserId();
-  if (!userId) return { error: 'Sesi berakhir atau terlalu banyak permintaan. Coba lagi.' };
+  const userId = await actionUserId(exchangeLimiter, 'exchange');
+  if (!userId) return { error: SESSION_ERROR };
   // deleteMany + userId: tidak bisa menghapus catatan milik orang lain.
   await prisma.exchangeRecord.deleteMany({ where: { id, userId } });
   return {};

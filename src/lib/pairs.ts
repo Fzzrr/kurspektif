@@ -8,6 +8,9 @@ export const WORLD_PAIRS = ['EUR/USD', 'USD/JPY', 'GBP/USD', 'USD/CHF', 'AUD/USD
 /** Semua halaman kurs yang dibuat lebih dulu dan masuk sitemap. */
 export const FEATURED_PAIRS = [...WORLD_PAIRS, ...POPULAR_PAIRS];
 
+/** Kode ISO 4217: tiga huruf kapital. */
+export const isCurrencyCode = (code: string) => /^[A-Z]{3}$/.test(code);
+
 export const pairToSlug = (pair: string) => pair.replace('/', '-').toLowerCase();
 
 /** "usd-idr" → ["USD", "IDR"]; null kalau formatnya salah. */

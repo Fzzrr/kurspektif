@@ -32,7 +32,7 @@ Cara tiap angka dihitung dijelaskan di halaman `/metodologi`.
 | Bagian | Yang dipakai |
 | --- | --- |
 | Framework | Next.js 16 (App Router), React 19 dengan React Compiler, TypeScript |
-| Tampilan | Tailwind CSS v4, Recharts, Framer Motion |
+| Tampilan | Tailwind CSS v4, Recharts, animasi CSS |
 | Database | PostgreSQL (Supabase) lewat Prisma 7 dan `@prisma/adapter-pg` |
 | Autentikasi | Auth.js (NextAuth v5): email + kata sandi (bcrypt) dan Google |
 | Email | Resend |

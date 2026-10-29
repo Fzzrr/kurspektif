@@ -8,6 +8,9 @@ export const STABLE_PCT = 0.2;
 
 const pctFormatter = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 2, signDisplay: 'exceptZero' });
 export const fmtPct = (value: number) => `${pctFormatter.format(value)}%`;
+const absPctFormatter = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 2 });
+/** Besaran persen tanpa tanda: "1,05%" untuk 1,05 maupun -1,05. */
+export const fmtAbsPct = (value: number) => `${absPctFormatter.format(Math.abs(value))}%`;
 export const isMoving = (value: number) => Math.abs(value) > STABLE_PCT;
 const verb = (value: number) => (value > 0 ? 'menguat' : 'melemah');
 

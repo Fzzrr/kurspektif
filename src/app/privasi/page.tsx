@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import LegalPage from '@/components/legal/LegalPage';
 
-export const metadata = { title: 'Kebijakan Privasi — Kurspektif' };
+export const metadata = { title: 'Kebijakan Privasi' };
 
 // Isinya mengikuti apa yang benar-benar disimpan dan dikirim aplikasi ini
 // (prisma/schema.prisma, cron email, Auth.js). Ubah halaman ini setiap kali

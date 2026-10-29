@@ -7,7 +7,7 @@ import { loadLandingData } from '@/lib/landing';
 export const revalidate = 3600;
 
 export const metadata = {
-  title: 'Metodologi — Kurspektif',
+  title: 'Metodologi',
   description: 'Dari mana kurs, sentimen berita, penggerak mingguan, dan alert di Kurspektif dihitung.',
 };
 

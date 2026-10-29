@@ -1,7 +1,8 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { auth } from '@/lib/auth';
+import { SESSION_ERROR, actionUserId } from '@/lib/auth/action';
+import { isCurrencyCode } from '@/lib/pairs';
 import { prisma } from '@/lib/prisma';
 import { alertLimiter } from '@/lib/rateLimit';
 import {
@@ -17,19 +18,12 @@ import {
 type Result = { alert: RateAlertDTO; error?: undefined } | { error: string };
 
 const MAX_ACTIVE_ALERTS = 20;
-const CURRENCY_CODE = /^[A-Z]{3}$/;
 
-async function currentUserId(): Promise<string | null> {
-  const session = await auth();
-  const userId = session?.user?.id;
-  if (!userId) return null;
-  return (await alertLimiter.check(`alert:${userId}`)).success ? userId : null;
-}
 
 function validate(input: AlertInput) {
   const base = input.base.toUpperCase();
   const quote = input.quote.toUpperCase();
-  if (!CURRENCY_CODE.test(base) || !CURRENCY_CODE.test(quote)) return { error: 'Kode mata uang tidak valid.' };
+  if (!isCurrencyCode(base) || !isCurrencyCode(quote)) return { error: 'Kode mata uang tidak valid.' };
   if (base === quote) return { error: 'Pilih dua mata uang yang berbeda.' };
   if (!DIRECTIONS.includes(input.direction)) return { error: 'Kondisi tidak valid.' };
   const threshold = parseThreshold(input.threshold);
@@ -42,8 +36,8 @@ function validate(input: AlertInput) {
 }
 
 export async function createAlertAction(input: AlertInput): Promise<Result> {
-  const userId = await currentUserId();
-  if (!userId) return { error: 'Sesi berakhir atau terlalu banyak permintaan. Coba lagi.' };
+  const userId = await actionUserId(alertLimiter, 'alert');
+  if (!userId) return { error: SESSION_ERROR };
 
   const parsed = validate(input);
   if (!parsed.data) return { error: parsed.error };
@@ -58,8 +52,8 @@ export async function createAlertAction(input: AlertInput): Promise<Result> {
 
 // Mengedit = menetapkan target baru, jadi alert yang sudah tercapai aktif lagi.
 export async function updateAlertAction(id: string, input: AlertInput): Promise<Result> {
-  const userId = await currentUserId();
-  if (!userId) return { error: 'Sesi berakhir atau terlalu banyak permintaan. Coba lagi.' };
+  const userId = await actionUserId(alertLimiter, 'alert');
+  if (!userId) return { error: SESSION_ERROR };
 
   const parsed = validate(input);
   if (!parsed.data) return { error: parsed.error };
@@ -76,8 +70,8 @@ export async function updateAlertAction(id: string, input: AlertInput): Promise<
 }
 
 export async function deleteAlertAction(id: string): Promise<{ error?: string }> {
-  const userId = await currentUserId();
-  if (!userId) return { error: 'Sesi berakhir atau terlalu banyak permintaan. Coba lagi.' };
+  const userId = await actionUserId(alertLimiter, 'alert');
+  if (!userId) return { error: SESSION_ERROR };
 
   // deleteMany + userId: tidak bisa menghapus alert milik orang lain.
   await prisma.rateAlert.deleteMany({ where: { id, userId } });

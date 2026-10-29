@@ -4,7 +4,7 @@ import AuthHeader from '@/components/auth/AuthHeader';
 import { primaryButtonClass } from '@/components/ui/styles';
 import { verifyEmailAction } from '../register/actions';
 
-export const metadata = { title: 'Verifikasi email — Kurspektif', robots: { index: false } };
+export const metadata = { title: 'Verifikasi email', robots: { index: false } };
 
 type Props = { searchParams: Promise<{ token?: string; status?: string }> };
 

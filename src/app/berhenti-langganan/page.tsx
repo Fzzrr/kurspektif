@@ -3,7 +3,7 @@ import PublicShell from '@/components/landing/PublicShell';
 import { parseSubscription, verifyUnsubscribeToken } from '@/lib/unsubscribe';
 import { unsubscribeAction } from './actions';
 
-export const metadata = { title: 'Berhenti berlangganan — Kurspektif', robots: { index: false } };
+export const metadata = { title: 'Berhenti berlangganan', robots: { index: false } };
 
 type Props = { searchParams: Promise<{ u?: string; t?: string; k?: string; status?: string }> };
 

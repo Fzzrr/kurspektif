@@ -1,12 +1,11 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { BookmarkIcon, ChevronDown, SwapIcon } from '@/components/ui/icons';
 import PillTabs from '../ui/PillTabs';
 import SelectMenu from '../ui/SelectMenu';
-import { currencyToFlag } from '@/lib/flags';
-
-type Currency = { code: string; name: string };
+import { currencyOptions } from '@/lib/currencyNames';
+import type { Currency } from '@/lib/frankfurter';
 
 // Pintasan pasangan: tiga terlihat sekaligus, sisanya digeser. Label pasangan
 // selalu 7 karakter ("USD/IDR"), jadi lebar pill dibuat tetap 5,25rem; satu
@@ -39,18 +38,7 @@ export default function PairSelector({ from, to, currencies, quickPairs, saved, 
   }
 
 
-  // Daftarnya ~30 entri dan dipakai dua kali (from & to) — dibentuk sekali saja.
-  const currencyOptions = useMemo(
-    () =>
-      currencies.map((currency) => {
-        const flag = currencyToFlag(currency.code);
-        return {
-          value: currency.code,
-          label: `${flag ? `${flag} ` : ''}${currency.code} - ${currency.name}`,
-        };
-      }),
-    [currencies],
-  );
+  const options = currencyOptions(currencies);
 
   return (
     <div className="flex flex-wrap items-center gap-3 ">
@@ -58,7 +46,7 @@ export default function PairSelector({ from, to, currencies, quickPairs, saved, 
           baris bersama saat kartu lebih sempit dari basis-nya. */}
       <div className="flex min-w-0 flex-1 basis-[320px] items-center gap-3">
         <SelectMenu
-          options={currencyOptions}
+          options={options}
           value={from}
           onChange={(code) => onChange({ from: code, to })}
           className="min-w-0 flex-1"
@@ -75,7 +63,7 @@ export default function PairSelector({ from, to, currencies, quickPairs, saved, 
         </button>
 
         <SelectMenu
-          options={currencyOptions}
+          options={options}
           value={to}
           onChange={(code) => onChange({ from, to: code })}
           className="min-w-0 flex-1"

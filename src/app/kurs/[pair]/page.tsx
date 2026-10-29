@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!resolved) return {};
   const { base, quote, baseName, quoteName } = resolved;
   return {
-    title: `Kurs ${base} ke ${quote} hari ini — Kurspektif`,
+    title: `Kurs ${base} ke ${quote} hari ini`,
     description: `Kurs ${baseName} (${base}) ke ${quoteName} (${quote}) hari ini, grafik setahun, posisinya dibanding 90 hari terakhir, dan apa yang menggerakkannya minggu ini.`,
     alternates: { canonical: `/kurs/${pairToSlug(`${base}/${quote}`)}` },
   };

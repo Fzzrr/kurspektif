@@ -7,7 +7,7 @@ import WatchRow, { watchStats } from '@/components/dashboard/watchlist/WatchRow'
 import WatchList from '@/components/dashboard/watchlist/WatchList';
 import AddPair from '@/components/dashboard/watchlist/AddPair';
 
-export const metadata = { title: 'Pantauan — Kurspektif' };
+export const metadata = { title: 'Pantauan' };
 
 // Hari kalender yang diambil supaya dapat ~90 hari kerja untuk grafik & posisi.
 const HISTORY_DAYS = 135;

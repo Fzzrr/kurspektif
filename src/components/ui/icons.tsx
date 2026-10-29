@@ -123,15 +123,6 @@ export function LayoutDashboardIcon({ className }: IconProps) {
   );
 }
 
-// Siluet orang — menandai tab "Profil" di modal pengaturan.
-export function UserIcon({ className }: IconProps) {
-  return (
-    <svg {...strokeIcon} className={className}>
-      <circle cx="12" cy="8" r="4" />
-      <path d="M4 21c0-4 3.6-6 8-6s8 2 8 6" />
-    </svg>
-  );
-}
 
 // Kamera — overlay "ganti foto" saat avatar profil di-hover.
 export function CameraIcon({ className }: IconProps) {

@@ -10,7 +10,7 @@ import { fetchLatestRate, fetchRateOnOrBefore, resolvePairSlug } from '@/lib/fra
 import { pairToSlug } from '@/lib/pairs';
 import { formatRate } from '@/lib/rateStats';
 import { fmtPct } from '@/lib/moversText';
-import { FIRST_RATE_DATE, parseRateDate } from '@/lib/timeAgo';
+import { FIRST_RATE_DATE, isoToDate, parseRateDate } from '@/lib/timeAgo';
 
 // Kurs masa lalu tidak berubah, tapi pembandingnya (kurs terbaru) berubah tiap hari.
 export const revalidate = 3600;
@@ -19,7 +19,6 @@ type Props = { params: Promise<{ pair: string; tanggal: string }> };
 
 const longDate = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 const fullDate = new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
-const asDate = (iso: string) => new Date(`${iso}T00:00:00Z`);
 
 const AMOUNTS = [1, 10, 100, 1_000, 10_000];
 
@@ -34,9 +33,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resolved = await resolve(params);
   if (!resolved) return {};
   const { base, quote, baseName, quoteName, date } = resolved;
-  const day = longDate.format(asDate(date));
+  const day = longDate.format(isoToDate(date));
   return {
-    title: `Kurs ${base} ke ${quote} pada ${day} — Kurspektif`,
+    title: `Kurs ${base} ke ${quote} pada ${day}`,
     description: `Kurs referensi ${baseName} (${base}) ke ${quoteName} (${quote}) pada ${day}, dibanding kurs terbaru, dengan tabel konversi.`,
     alternates: { canonical: `/kurs/${pairToSlug(`${base}/${quote}`)}/${date}` },
   };
@@ -59,14 +58,14 @@ export default async function KursTanggalPage({ params }: Props) {
   return (
     <PublicShell>
       <h1 className="text-balance text-[clamp(36px,5.5vw,80px)] font-black leading-[0.95] tracking-[-0.04em]">
-        Kurs {base} ke {quote} pada {longDate.format(asDate(date))}
+        Kurs {base} ke {quote} pada {longDate.format(isoToDate(date))}
       </h1>
       <p className="mt-5 max-w-[60ch] text-[17px] leading-relaxed">
         {baseName} ke {quoteName}.{' '}
         {shifted
-          ? `${fullDate.format(asDate(date))} tidak ada kurs referensi (akhir pekan atau hari libur), jadi yang berlaku adalah kurs hari kerja sebelumnya: ${fullDate.format(asDate(onDate.date))}.`
+          ? `${fullDate.format(isoToDate(date))} tidak ada kurs referensi (akhir pekan atau hari libur), jadi yang berlaku adalah kurs hari kerja sebelumnya: ${fullDate.format(isoToDate(onDate.date))}.`
           : onDate
-            ? `Kurs referensi harian ${fullDate.format(asDate(date))}.`
+            ? `Kurs referensi harian ${fullDate.format(isoToDate(date))}.`
             : ''}
       </p>
 
@@ -74,7 +73,7 @@ export default async function KursTanggalPage({ params }: Props) {
         <p className="mt-12 text-[17px] text-down">Kurs sedang tidak bisa dimuat. Coba lagi beberapa saat lagi.</p>
       ) : onDate === null ? (
         <p className="mt-12 max-w-[60ch] text-[17px] leading-relaxed">
-          Belum ada kurs {base}/{quote} untuk tanggal itu. Data referensi dimulai {longDate.format(asDate(FIRST_RATE_DATE))},
+          Belum ada kurs {base}/{quote} untuk tanggal itu. Data referensi dimulai {longDate.format(isoToDate(FIRST_RATE_DATE))},
           dan sebagian mata uang baru tersedia jauh setelahnya. Coba tanggal yang lebih baru.
         </p>
       ) : (
@@ -92,7 +91,7 @@ export default async function KursTanggalPage({ params }: Props) {
               {latest && sincePct !== null ? (
                 <dl className="mt-5 grid grid-cols-2 gap-6">
                   <div>
-                    <dt className="text-sm text-muted">Kurs terbaru ({longDate.format(asDate(latest.date))})</dt>
+                    <dt className="text-sm text-muted">Kurs terbaru ({longDate.format(isoToDate(latest.date))})</dt>
                     <dd className="mt-1 font-mono text-2xl">{formatRate(latest.rate)}</dd>
                   </div>
                   <div>

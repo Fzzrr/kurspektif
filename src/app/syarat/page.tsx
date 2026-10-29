@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import LegalPage from '@/components/legal/LegalPage';
 
-export const metadata = { title: 'Syarat & Ketentuan — Kurspektif' };
+export const metadata = { title: 'Syarat & Ketentuan' };
 
 export default function SyaratPage() {
   return (

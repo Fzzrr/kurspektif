@@ -2,7 +2,7 @@
 
 // Grafik halaman Catatan tukar. Ukuran diambil dari kontainer (ResizeObserver),
 // sama seperti RateLineChart, supaya tidak ada warning width/height(-1).
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import {
   Bar,
   BarChart,
@@ -21,17 +21,16 @@ import PillTabs from '../ui/PillTabs';
 import { CloseIcon } from '@/components/ui/icons';
 import { useLiveRate } from '@/lib/useLiveRate';
 import { formatRate } from '@/lib/rateStats';
-import { fmtPct } from '@/lib/moversText';
-import { todayKey } from '@/lib/timeAgo';
+import { fmtAbsPct } from '@/lib/moversText';
+import { isoToDate, todayKey } from '@/lib/timeAgo';
+import { useElementSize } from '@/lib/useElementSize';
 import { costText, exchangeCost, formatAmount, type ExchangeDTO, type MonthCost } from '@/lib/exchanges';
 
-const asDate = (iso: string) => new Date(`${iso}T00:00:00Z`);
 const tickDate = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', timeZone: 'UTC' });
 const longDate = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 const shortMonth = new Intl.DateTimeFormat('id-ID', { month: 'short', timeZone: 'UTC' });
 const longMonth = new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric', timeZone: 'UTC' });
 const compact = new Intl.NumberFormat('id-ID', { notation: 'compact', maximumFractionDigits: 1 });
-const pct = (value: number) => fmtPct(Math.abs(value)).replace('+', '');
 const axisTick = { fontSize: 11, fontFamily: 'inherit', fill: 'var(--color-muted)' };
 
 /** Skala sumbu dengan langkah bulat (1, 2, 2,5, 5 × 10^n) yang mencakup min–max. */
@@ -46,18 +45,6 @@ function niceScale(min: number, max: number, count = 4) {
   return { domain: [start, end] as [number, number], ticks };
 }
 
-function useSize() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [size, setSize] = useState({ width: 0, height: 0 });
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new ResizeObserver(([entry]) => setSize({ width: entry.contentRect.width, height: entry.contentRect.height }));
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-  return { ref, ...size };
-}
 
 function TooltipBox({ children }: { children: ReactNode }) {
   return (
@@ -86,11 +73,9 @@ type TradesChartProps = {
 
 export function TradesChart({ records, selectedId, hoverId, onSelect, onHover, onRepeat }: TradesChartProps) {
   // Pasangan diurut dari yang paling sering dicatat.
-  const pairs = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const record of records) counts.set(`${record.base}/${record.quote}`, (counts.get(`${record.base}/${record.quote}`) ?? 0) + 1);
-    return [...counts].sort((a, b) => b[1] - a[1]).map(([pair]) => pair);
-  }, [records]);
+  const counts = new Map<string, number>();
+  for (const record of records) counts.set(`${record.base}/${record.quote}`, (counts.get(`${record.base}/${record.quote}`) ?? 0) + 1);
+  const pairs = [...counts].sort((a, b) => b[1] - a[1]).map(([pair]) => pair);
   const [chosen, setChosen] = useState<string | null>(null);
   // Penukaran yang dipilih dari riwayat menentukan pasangan yang digambar.
   const selected = records.find((record) => record.id === selectedId) ?? null;
@@ -100,25 +85,21 @@ export function TradesChart({ records, selectedId, hoverId, onSelect, onHover, o
 
   const today = todayKey();
   const earliest = trades.reduce((min, t) => (t.date < min ? t.date : min), today);
-  const daysBack = Math.round((asDate(today).getTime() - asDate(earliest).getTime()) / 86_400_000);
+  const daysBack = Math.round((isoToDate(today).getTime() - isoToDate(earliest).getTime()) / 86_400_000);
   const days = Math.min(MAX_DAYS, Math.max(30, daysBack + 14));
   const { series, latest, isLoading, error } = useLiveRate(base, quote, days);
   const clipped = daysBack + 14 > MAX_DAYS;
 
   // Titik kurs tengah per hari; penukaran ditempel ke tanggal kurs tengahnya.
-  const data = useMemo<TradePoint[]>(() => {
-    const byDate = new Map<string, ExchangeDTO[]>();
-    for (const trade of trades) byDate.set(trade.midDate, [...(byDate.get(trade.midDate) ?? []), trade]);
-    return series.map((point) => ({ date: point.date, mid: point.rate, trades: byDate.get(point.date) ?? [] }));
-  }, [series, trades]);
+  const byDate = new Map<string, ExchangeDTO[]>();
+  for (const trade of trades) byDate.set(trade.midDate, [...(byDate.get(trade.midDate) ?? []), trade]);
+  const data: TradePoint[] = series.map((point) => ({ date: point.date, mid: point.rate, trades: byDate.get(point.date) ?? [] }));
   const shown = data.flatMap((point) => point.trades);
 
-  const yScale = useMemo(() => {
-    const values = [...data.map((d) => d.mid), ...shown.map((t) => t.rate)];
-    return values.length === 0 ? { domain: [0, 1] as [number, number], ticks: [0, 1] } : niceScale(Math.min(...values), Math.max(...values));
-  }, [data, shown]);
+  const values = [...data.map((d) => d.mid), ...shown.map((t) => t.rate)];
+  const yScale = values.length === 0 ? { domain: [0, 1] as [number, number], ticks: [0, 1] } : niceScale(Math.min(...values), Math.max(...values));
 
-  const { ref, width, height } = useSize();
+  const { ref, width, height } = useElementSize();
 
   return (
     <section className="rounded-2xl bg-surface p-5 md:p-6">
@@ -128,7 +109,7 @@ export function TradesChart({ records, selectedId, hoverId, onSelect, onHover, o
           {latest && (
             <p className="mt-1 text-sm text-muted">
               Kurs tengah {pair} terakhir <span className="font-mono text-ink">{formatRate(latest.rate)}</span>, terbit{' '}
-              {tickDate.format(asDate(latest.date))}.
+              {tickDate.format(isoToDate(latest.date))}.
             </p>
           )}
         </div>
@@ -176,7 +157,7 @@ export function TradesChart({ records, selectedId, hoverId, onSelect, onHover, o
               <CartesianGrid vertical={false} stroke="var(--color-line)" strokeDasharray="2 4" />
               <XAxis
                 dataKey="date"
-                tickFormatter={(d: string) => tickDate.format(asDate(d))}
+                tickFormatter={(d: string) => tickDate.format(isoToDate(d))}
                 interval="preserveStartEnd"
                 minTickGap={36}
                 tickLine={false}
@@ -269,7 +250,7 @@ function SelectedTrade({ trade, onClose, onRepeat }: { trade: ExchangeDTO; onClo
           {trade.side === 'beli' ? 'Beli' : 'Jual'} <span className="font-mono">{formatAmount(trade.amount)}</span> {trade.base}
           <span className="font-normal text-muted">
             {' '}
-            · {longDate.format(asDate(trade.date))}
+            · {longDate.format(isoToDate(trade.date))}
             {trade.place && ` · ${trade.place}`}
           </span>
         </p>
@@ -291,7 +272,7 @@ function SelectedTrade({ trade, onClose, onRepeat }: { trade: ExchangeDTO; onClo
           <div>
             <dt className="text-xs text-muted">{worse ? 'Biaya' : 'Untung'}</dt>
             <dd className={`font-mono ${worse ? 'text-down' : 'text-up'}`}>
-              {formatAmount(Math.abs(cost.total))} {trade.quote} ({pct(cost.pct)})
+              {formatAmount(Math.abs(cost.total))} {trade.quote} ({fmtAbsPct(cost.pct)})
             </dd>
           </div>
         </dl>
@@ -325,7 +306,7 @@ function TradeTooltip({ active, payload, quote }: Partial<TooltipContentProps<nu
   const point = payload[0].payload as TradePoint;
   return (
     <TooltipBox>
-      <p className="text-muted">{longDate.format(asDate(point.date))}</p>
+      <p className="text-muted">{longDate.format(isoToDate(point.date))}</p>
       <p className="mt-0.5">
         Kurs tengah <span className="font-mono text-ink">{formatRate(point.mid)}</span>
       </p>
@@ -340,7 +321,7 @@ function TradeTooltip({ active, payload, quote }: Partial<TooltipContentProps<nu
             <br />
             kurs <span className="font-mono text-ink">{formatRate(trade.rate)}</span> ·{' '}
             <span className={cost.total > 0 ? 'text-down' : 'text-up'}>
-              {cost.total > 0 ? 'biaya' : 'untung'} {formatAmount(Math.abs(cost.total))} {quote} ({pct(cost.pct)})
+              {cost.total > 0 ? 'biaya' : 'untung'} {formatAmount(Math.abs(cost.total))} {quote} ({fmtAbsPct(cost.pct)})
             </span>
           </p>
         );
@@ -359,7 +340,7 @@ type MonthlyProps = {
 };
 
 export function MonthlyCostChart({ months, quote, selectedMonth, onSelectMonth }: MonthlyProps) {
-  const { ref, width, height } = useSize();
+  const { ref, width, height } = useElementSize();
   const max = Math.max(...months.map((m) => m.cost), 0);
   const total = months.reduce((sum, m) => sum + m.cost, 0);
   const active = months.filter((m) => m.count > 0);
@@ -372,7 +353,7 @@ export function MonthlyCostChart({ months, quote, selectedMonth, onSelectMonth }
         <h2 className="text-base font-semibold">Biaya per bulan</h2>
         {only && (
           <div className="mt-4 bg-paper/60 p-4">
-            <p className="text-sm capitalize text-muted">{longMonth.format(asDate(`${only.month}-01`))}</p>
+            <p className="text-sm capitalize text-muted">{longMonth.format(isoToDate(`${only.month}-01`))}</p>
             <p className="mt-1.5 font-mono text-xl font-semibold">
               {formatAmount(only.cost)} <span className="text-sm font-normal text-muted">{quote}</span>
             </p>
@@ -403,7 +384,7 @@ export function MonthlyCostChart({ months, quote, selectedMonth, onSelectMonth }
             <CartesianGrid vertical={false} stroke="var(--color-line)" strokeDasharray="2 4" />
             <XAxis
               dataKey="month"
-              tickFormatter={(m: string) => shortMonth.format(asDate(`${m}-01`))}
+              tickFormatter={(m: string) => shortMonth.format(isoToDate(`${m}-01`))}
               tickLine={false}
               axisLine={false}
               tick={axisTick}
@@ -454,7 +435,7 @@ function MonthTooltip({ active, payload, quote }: Partial<TooltipContentProps<nu
   const month = payload[0].payload as MonthCost;
   return (
     <TooltipBox>
-      <p className="capitalize text-muted">{longMonth.format(asDate(`${month.month}-01`))}</p>
+      <p className="capitalize text-muted">{longMonth.format(isoToDate(`${month.month}-01`))}</p>
       {month.count === 0 ? (
         <p className="mt-0.5">Tidak ada penukaran.</p>
       ) : (
@@ -466,7 +447,7 @@ function MonthTooltip({ active, payload, quote }: Partial<TooltipContentProps<nu
             </span>
           </p>
           <p className="text-muted">
-            {month.count} penukaran · {pct(month.volume > 0 ? (month.cost / month.volume) * 100 : 0)} dari nilai tukar
+            {month.count} penukaran · {fmtAbsPct(month.volume > 0 ? (month.cost / month.volume) * 100 : 0)} dari nilai tukar
           </p>
         </>
       )}

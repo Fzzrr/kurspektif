@@ -1,11 +1,19 @@
 // Catatan penukaran: kurs yang benar-benar didapat pengguna di bank/money
 // changer, dibandingkan dengan kurs tengah referensi di hari yang sama.
 // Aman dipakai di client maupun server (tanpa Prisma).
-import { fmtPct } from './moversText';
+import { fmtAbsPct } from './moversText';
 
 export type ExchangeSide = 'beli' | 'jual';
 export const SIDES: readonly ExchangeSide[] = ['beli', 'jual'];
 export const MAX_RECORDS = 200;
+
+export const SIDE_OPTIONS = [
+  { value: 'beli', label: 'Beli' },
+  { value: 'jual', label: 'Jual' },
+] as const;
+
+/** Kunci tempat: "BCA" dan "Bca" dianggap sama. */
+export const placeKey = (place: string | null) => place?.trim().toLowerCase() ?? '';
 
 export type ExchangeDTO = {
   id: string;
@@ -159,7 +167,7 @@ export function costByMonth(records: ExchangeDTO[], quote: string, untilMonth: s
  * Pendek untuk daftar ("biaya 1,05%", "untung 0,88%"), panjang untuk kalimat.
  */
 export function costText(pct: number, long = false) {
-  const value = fmtPct(Math.abs(pct)).replace('+', '');
+  const value = fmtAbsPct(pct);
   if (value === '0%') return 'setara kurs tengah';
   if (pct > 0) return long ? `biaya ${value} dari kurs tengah` : `biaya ${value}`;
   return long ? `${value} lebih baik dari kurs tengah` : `untung ${value}`;
@@ -170,17 +178,35 @@ const wholeFormatter = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0
 /** Nominal uang: tanpa desimal untuk angka besar (Rp 412.350), dua desimal untuk yang kecil (USD 12,5). */
 export const formatAmount = (value: number) => (Math.abs(value) >= 100 ? wholeFormatter : amountFormatter).format(value);
 
-export function toExchangeDTO(row: {
-  id: string;
-  side: string;
-  base: string;
-  quote: string;
-  amount: number;
-  rate: number;
-  date: string;
-  midRate: number;
-  midDate: string;
-  place: string | null;
-}): ExchangeDTO {
-  return { ...row, side: row.side === 'jual' ? 'jual' : 'beli' };
+/** Kolom yang dibutuhkan UI — dipakai sebagai `select` Prisma dan bentuk DTO. */
+export const EXCHANGE_SELECT = {
+  id: true,
+  side: true,
+  base: true,
+  quote: true,
+  amount: true,
+  rate: true,
+  date: true,
+  midRate: true,
+  midDate: true,
+  place: true,
+} as const;
+
+/**
+ * Baris DB → DTO untuk client. Field disalin satu per satu, supaya kolom
+ * internal (userId, createdAt) tidak ikut terkirim walau baris lengkap yang masuk.
+ */
+export function toExchangeDTO(row: Omit<ExchangeDTO, 'side'> & { side: string }): ExchangeDTO {
+  return {
+    id: row.id,
+    side: row.side === 'jual' ? 'jual' : 'beli',
+    base: row.base,
+    quote: row.quote,
+    amount: row.amount,
+    rate: row.rate,
+    date: row.date,
+    midRate: row.midRate,
+    midDate: row.midDate,
+    place: row.place,
+  };
 }

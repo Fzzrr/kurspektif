@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import RateLineChart from '@/components/landing/rate/RateLineChart';
 import { formatRate } from '@/lib/rateStats';
 import DashboardCard from '../ui/DashboardCard';
@@ -26,6 +26,16 @@ const TIMEFRAME_DESCRIPTIONS: Record<Timeframe, string> = {
 const dayLabelFormatter = new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'short' });
 const percentFormatter = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 2 });
 
+function periodStats(windowed: RatePoint[]) {
+  if (windowed.length < 2) return null;
+  const first = windowed[0].rate;
+  const last = windowed[windowed.length - 1].rate;
+  const high = windowed.reduce((best, p) => (p.rate > best.rate ? p : best));
+  const low = windowed.reduce((best, p) => (p.rate < best.rate ? p : best));
+  const average = windowed.reduce((sum, p) => sum + p.rate, 0) / windowed.length;
+  return { changePct: ((last - first) / first) * 100, high, low, average };
+}
+
 type Props = {
   series: RatePoint[];
   pair: string;
@@ -35,24 +45,13 @@ type Props = {
 export default function RateChartCard({ series, pair, isLoading = false }: Props) {
   const [timeframe, setTimeframe] = useState<Timeframe>('30H');
 
-  const windowed = useMemo(() => series.slice(-DAYS_BY_TIMEFRAME[timeframe]), [series, timeframe]);
+  const windowed = series.slice(-DAYS_BY_TIMEFRAME[timeframe]);
 
-  const chartData = useMemo(
-    () => windowed.map((point) => ({ day: dayLabelFormatter.format(new Date(point.date)), rate: point.rate })),
-    [windowed],
-  );
+  const chartData = windowed.map((point) => ({ day: dayLabelFormatter.format(new Date(point.date)), rate: point.rate }));
 
   // Ringkasan periode dari data yang sama persis dengan yang digambar, supaya
   // "tertinggi" di header selalu titik yang benar-benar ada di grafik.
-  const stats = useMemo(() => {
-    if (windowed.length < 2) return null;
-    const first = windowed[0].rate;
-    const last = windowed[windowed.length - 1].rate;
-    const high = windowed.reduce((best, p) => (p.rate > best.rate ? p : best));
-    const low = windowed.reduce((best, p) => (p.rate < best.rate ? p : best));
-    const average = windowed.reduce((sum, p) => sum + p.rate, 0) / windowed.length;
-    return { changePct: ((last - first) / first) * 100, high, low, average };
-  }, [windowed]);
+  const stats = periodStats(windowed);
 
   const isUp = (stats?.changePct ?? 0) >= 0;
 

@@ -6,7 +6,7 @@
 // inline, latar terang (klien email sering membalik warna tema gelap dengan
 // hasil buruk). Setiap email juga punya versi teks biasa.
 import { formatRate } from './rateStats';
-import { fmtPct, isMoving } from './moversText';
+import { fmtAbsPct, fmtPct, isMoving } from './moversText';
 import type { WeeklyMovers } from './movers';
 
 export type EmailContent = { subject: string; html: string; text: string };
@@ -192,7 +192,7 @@ export type DigestEmailData = {
 /** "IDR melemah 0,95%" / "USD stabil". */
 function sideText({ code, strengthPct }: { code: string; strengthPct: number }) {
   if (!isMoving(strengthPct)) return `${code} stabil`;
-  return `${code} ${strengthPct > 0 ? 'menguat' : 'melemah'} ${fmtPct(Math.abs(strengthPct)).replace('+', '')}`;
+  return `${code} ${strengthPct > 0 ? 'menguat' : 'melemah'} ${fmtAbsPct(strengthPct)}`;
 }
 
 export function digestEmail(data: DigestEmailData): EmailContent {
@@ -413,16 +413,15 @@ export type MovesEmailData = {
   unsubscribeUrl: string;
 };
 
-const absPct = (pct: number) => fmtPct(Math.abs(pct)).replace('+', '');
 const moveVerb = (pct: number) => (pct > 0 ? 'naik' : 'turun');
 
 export function movesEmail(data: MovesEmailData): EmailContent {
   const [first] = data.rows;
   const single = data.rows.length === 1;
   const greeting = data.name ? `Halo ${escapeHtml(data.name)}, ` : '';
-  const threshold = absPct(data.thresholdPct);
+  const threshold = fmtAbsPct(data.thresholdPct);
   const title = single
-    ? `${first.pair} ${moveVerb(first.pct)} ${absPct(first.pct)} dalam sehari`
+    ? `${first.pair} ${moveVerb(first.pct)} ${fmtAbsPct(first.pct)} dalam sehari`
     : `${data.rows.length} pasangan di Pantauan bergerak tajam`;
   const subject = single
     ? `${title} — Kurspektif`

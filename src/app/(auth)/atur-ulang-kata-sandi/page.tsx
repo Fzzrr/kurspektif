@@ -1,7 +1,7 @@
 import AuthLayout from '@/components/auth/AuthLayout';
 import ResetPasswordForm from '@/components/auth/ResetPasswordForm';
 
-export const metadata = { title: 'Atur ulang kata sandi — Kurspektif', robots: { index: false } };
+export const metadata = { title: 'Atur ulang kata sandi', robots: { index: false } };
 
 type Props = { searchParams: Promise<{ token?: string }> };
 

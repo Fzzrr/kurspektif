@@ -56,6 +56,12 @@ export function dayLabel(key: string): string {
   return dayLabelFormatter.format(new Date(`${key}T12:00:00+07:00`));
 }
 
+/** "YYYY-MM-DD" → Date tengah malam UTC; format dengan timeZone 'UTC' supaya tanggalnya tidak bergeser. */
+export const isoToDate = (iso: string) => new Date(`${iso}T00:00:00Z`);
+
+/** "29 Okt" untuk tanggal YYYY-MM-DD; pakai bersama isoToDate. */
+export const shortDate = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', timeZone: 'UTC' });
+
 /** Kunci hari ini (Jakarta). */
 export const todayKey = () => dayKey(Date.now());
 

@@ -2,6 +2,8 @@ import NewsBoard from '@/components/dashboard/NewsBoard';
 import { fetchCurrencyNews, type NewsItem } from '@/lib/marketaux';
 import { fetchSupportedCurrencies } from '@/lib/frankfurter';
 
+export const metadata = { title: 'Berita' };
+
 type Props = { searchParams: Promise<{ currency?: string }> };
 
 export default async function BeritaPage({ searchParams }: Props) {

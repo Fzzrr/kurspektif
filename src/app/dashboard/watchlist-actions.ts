@@ -1,26 +1,20 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { auth } from '@/lib/auth';
+import { SESSION_ERROR, actionUserId } from '@/lib/auth/action';
+import { isCurrencyCode } from '@/lib/pairs';
 import { prisma } from '@/lib/prisma';
 import { watchlistLimiter } from '@/lib/rateLimit';
 import { MAX_PAIRS, watchedPairs } from '@/lib/watchlist';
 
-const CURRENCY_CODE = /^[A-Z]{3}$/;
 
-async function currentUserId(): Promise<string | null> {
-  const session = await auth();
-  const userId = session?.user?.id;
-  if (!userId) return null;
-  return (await watchlistLimiter.check(`watchlist:${userId}`)).success ? userId : null;
-}
 
 // Simpan pasangan kalau belum ada, hapus kalau sudah ada. Mengembalikan
 // daftar terbaru supaya client tidak perlu menebak hasilnya.
 export async function toggleWatchAction(base: string, quote: string): Promise<{ pairs: string[] } | { error: string }> {
-  const userId = await currentUserId();
-  if (!userId) return { error: 'Sesi berakhir atau terlalu banyak permintaan. Coba lagi.' };
-  if (!CURRENCY_CODE.test(base) || !CURRENCY_CODE.test(quote) || base === quote) {
+  const userId = await actionUserId(watchlistLimiter, 'watchlist');
+  if (!userId) return { error: SESSION_ERROR };
+  if (!isCurrencyCode(base) || !isCurrencyCode(quote) || base === quote) {
     return { error: 'Pasangan tidak valid.' };
   }
 
@@ -38,15 +32,15 @@ export async function toggleWatchAction(base: string, quote: string): Promise<{ 
 }
 
 export async function setWeeklyDigestAction(enabled: boolean): Promise<{ error?: string }> {
-  const userId = await currentUserId();
-  if (!userId) return { error: 'Sesi berakhir atau terlalu banyak permintaan. Coba lagi.' };
+  const userId = await actionUserId(watchlistLimiter, 'watchlist');
+  if (!userId) return { error: SESSION_ERROR };
   await prisma.user.update({ where: { id: userId }, data: { weeklyDigest: enabled } });
   return {};
 }
 
 export async function setMoveAlertsAction(enabled: boolean): Promise<{ error?: string }> {
-  const userId = await currentUserId();
-  if (!userId) return { error: 'Sesi berakhir atau terlalu banyak permintaan. Coba lagi.' };
+  const userId = await actionUserId(watchlistLimiter, 'watchlist');
+  if (!userId) return { error: SESSION_ERROR };
   await prisma.user.update({ where: { id: userId }, data: { moveAlerts: enabled } });
   return {};
 }

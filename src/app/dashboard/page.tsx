@@ -7,6 +7,8 @@ import { watchedPairs } from '@/lib/watchlist';
 import DashboardLiveSection from '@/components/dashboard/DashboardLiveSection';
 import AlertCard from '@/components/dashboard/AlertCard';
 
+export const metadata = { title: 'Dashboard' };
+
 // `?pair=USD-IDR` membuka pasangan tertentu (dipakai halaman Pantauan).
 type Props = { searchParams: Promise<{ pair?: string }> };
 

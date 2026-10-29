@@ -5,7 +5,8 @@
 // Memakai pola ukur-kontainer (ResizeObserver) seperti LiveCurrencyChart,
 // alih-alih ResponsiveContainer, untuk menghindari warning width/height(-1).
 
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useState } from "react";
+import { useElementSize } from "@/lib/useElementSize";
 import {
   AreaChart,
   Area,
@@ -108,8 +109,7 @@ const DRAW_MS = 1100;
 export default function RateLineChart({ data = DEFAULT_RATE_SERIES, className, showAverage = false }: Props) {
   const gradientId = useId();
   // Ukur container sendiri lalu beri AreaChart ukuran piksel konkret.
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const [size, setSize] = useState({ width: 0, height: 0 });
+  const { ref: wrapRef, ...size } = useElementSize();
 
   // Animasi: garis tergambar dulu, lalu titik sentimen "pop". Saat reduced
   // motion semuanya tampil langsung tanpa gerak — titik tak perlu menunggu.
@@ -117,45 +117,26 @@ export default function RateLineChart({ data = DEFAULT_RATE_SERIES, className, s
   const [drawn, setDrawn] = useState(false);
   const showMarkers = reduce || drawn;
 
-    const yDomain = useMemo<[number, number]>(() => {
-    const rates = data.map((d) => d.rate);
-    const min = Math.min(...rates);
-    const max = Math.max(...rates);
-    // Padding proporsional terhadap rentang data, bukan angka tetap — ±40
-    // pas untuk kurs berskala ribuan (IDR), tapi bikin kurs berskala kecil
-    // (MYR ~4, EUR/USD ~0.9) tampak rata/stagnan karena paddingnya jauh
-    // lebih besar dari variasi datanya sendiri.
-    const padding = (max - min) * 0.15 || Math.abs(max) * 0.02 || 1;
-    return [min - padding, max + padding];
-  }, [data]);
+  const rates = data.map((d) => d.rate);
+  const min = Math.min(...rates);
+  const max = Math.max(...rates);
+  // Padding proporsional terhadap rentang data, bukan angka tetap — ±40
+  // pas untuk kurs berskala ribuan (IDR), tapi bikin kurs berskala kecil
+  // (MYR ~4, EUR/USD ~0.9) tampak rata/stagnan karena paddingnya jauh
+  // lebih besar dari variasi datanya sendiri.
+  const padding = (max - min) * 0.15 || Math.abs(max) * 0.02 || 1;
+  const yDomain: [number, number] = [min - padding, max + padding];
 
-  const markers = useMemo(
-    () =>
-      data.filter(
-        (d): d is ChartPoint & { sentiment: Sentiment } => Boolean(d.sentiment),
-      ),
-    [data],
-  );
+  const markers = data.filter((d): d is ChartPoint & { sentiment: Sentiment } => Boolean(d.sentiment));
 
   // Konvensi grafik finance: warna garis = arah tren sepanjang periode.
   const trendColor =
     data.length > 1 && data[data.length - 1].rate < data[0].rate ? "var(--color-down)" : "var(--color-up)";
 
-  const average = useMemo(() => data.reduce((sum, d) => sum + d.rate, 0) / (data.length || 1), [data]);
+  const average = data.reduce((sum, d) => sum + d.rate, 0) / (data.length || 1);
 
   // Sumbu X: sekitar 8 label apa pun jumlah titiknya (7 hari sampai 1 tahun).
   const tickInterval = Math.max(0, Math.ceil(data.length / 8) - 1);
-
-  useEffect(() => {
-    const el = wrapRef.current;
-    if (!el) return;
-    const ro = new ResizeObserver(([entry]) => {
-      const { width, height } = entry.contentRect;
-      setSize({ width, height });
-    });
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
 
   useEffect(() => {
     if (reduce) return;
