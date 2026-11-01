@@ -3,6 +3,7 @@ import { formatRate } from "@/lib/rateStats";
 import { fmtPct } from "@/lib/moversText";
 import { pairToSlug } from "@/lib/pairs";
 import Reveal from "../motion/Reveal";
+import { heading as headingClass, lead } from "../type";
 
 // Kurs diset sebagai poster: pasangan raksasa di kiri, angka kecil di kanan
 // pada baseline yang sama. Tiap baris menuju halaman kurs publiknya.
@@ -13,16 +14,17 @@ type Props = { rows: RateRow[]; heading?: string | null; framed?: boolean };
 
 export default function RatesPoster({ rows, heading = "Kurs utama hari ini", framed = true }: Props) {
   return (
-    <section className={framed ? "px-5 py-28 sm:px-10 sm:py-40" : ""}>
+    <section className={framed ? "px-5 py-20 sm:px-10 sm:py-28" : ""}>
       {heading && (
         <Reveal className="mb-12 flex flex-wrap items-baseline justify-between gap-4">
-          <h2 className="text-[34px] font-semibold leading-tight tracking-[-0.02em]">{heading}</h2>
-          <Link href="/kurs" className="text-[17px] underline underline-offset-4 hover:decoration-transparent">
+          <h2 className={headingClass}>{heading}</h2>
+          <Link href="/kurs" className="link-line text-[17px]">
             Semua kurs
           </Link>
         </Reveal>
       )}
-      <ul>
+      {/* Hover satu baris meredupkan yang lain, seperti daftar kemampuan. */}
+      <ul className="[&:hover>li_.rate-pair]:text-muted">
         {rows
           .filter((row) => row.rate !== null)
           .map((row, i) => (
@@ -32,16 +34,16 @@ export default function RatesPoster({ rows, heading = "Kurs utama hari ini", fra
                   href={`/kurs/${pairToSlug(row.pair)}`}
                   className="group flex flex-col gap-1.5 py-2 sm:flex-row sm:items-baseline sm:justify-between"
                 >
-                  <span className="flex items-baseline gap-4 text-[clamp(52px,9vw,140px)] font-black leading-[0.92] tracking-[-0.04em]">
+                  <span className="rate-pair flex items-baseline gap-4 text-[clamp(38px,9.4vw,136px)] font-black leading-[0.92] tracking-[-0.04em] transition-colors group-hover:!text-ink group-focus-visible:!text-ink">
                     {row.pair}
                     <span
                       aria-hidden
-                      className="text-[0.3em] font-semibold opacity-0 transition-[opacity,transform] duration-300 group-hover:translate-x-2 group-hover:opacity-100"
+                      className="text-[0.3em] font-semibold opacity-0 transition-[opacity,translate] duration-300 ease-snap group-hover:translate-x-2 group-hover:opacity-100 group-focus-visible:translate-x-2 group-focus-visible:opacity-100"
                     >
                       →
                     </span>
                   </span>
-                  <span className="text-[20px] tabular-nums">
+                  <span className={`tabular-nums ${lead}`}>
                     {formatRate(row.rate!)} {row.pair.split("/")[1]}
                     {row.weekPct !== null && (
                       <span className={row.weekPct > 0 ? "text-up" : row.weekPct < 0 ? "text-down" : "text-muted"}>

@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import PublicShell from '@/components/landing/PublicShell';
 import MethodologyContent from '@/components/methodology/MethodologyContent';
-import { Headlines, Ranking } from '@/components/landing/sections/Reasons';
+import { Headlines, Ranking } from '@/components/landing/sections/Fragments';
 import { loadLandingData } from '@/lib/landing';
 
 export const revalidate = 3600;

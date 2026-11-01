@@ -40,3 +40,43 @@ export const currencyOptions = (currencies: Currency[]) =>
     hint: c.localName,
     keywords: c.name,
   }));
+
+// Nama sehari-hari yang bisa diketik di landing ("yen ke rupiah"). Nama
+// panjang dicek lebih dulu supaya "dolar singapura" tidak terbaca "dolar".
+const ALIASES = ([
+  ...Object.entries(NAMES).map(([code, name]): [string, string] => [name.toLowerCase(), code]),
+  ['dolar', 'USD'],
+  ['dollar', 'USD'],
+  ['pound', 'GBP'],
+  ['franc', 'CHF'],
+  ['riyal', 'SAR'],
+  ['baht', 'THB'],
+  ['rupee', 'INR'],
+  ['peso', 'PHP'],
+] satisfies [string, string][]).sort((a, b) => b[0].length - a[0].length);
+
+/**
+ * "yen ke rupiah", "USD/IDR", "usdidr", "euro dolar" → ['JPY', 'IDR'] dst.
+ * Kode tiga huruf yang tidak dikenal tetap dikembalikan; API yang menolaknya.
+ * ponytail: nama hanya untuk mata uang di NAMES + beberapa alias; sisanya lewat kode.
+ */
+export function parsePairQuery(text: string): [string, string] | null {
+  let rest = ` ${text.toLowerCase().replace(/[^a-z]+/g, ' ')} `;
+  const found: { at: number; code: string }[] = [];
+  for (const [name, code] of ALIASES) {
+    for (let at = rest.indexOf(` ${name} `); at !== -1; at = rest.indexOf(` ${name} `)) {
+      found.push({ at, code });
+      rest = rest.slice(0, at) + ' '.repeat(name.length + 1) + rest.slice(at + name.length + 1);
+    }
+  }
+  for (const match of rest.matchAll(/[a-z]+/g)) {
+    const word = match[0];
+    if (word.length === 3) found.push({ at: match.index, code: word.toUpperCase() });
+    if (word.length === 6) {
+      found.push({ at: match.index, code: word.slice(0, 3).toUpperCase() });
+      found.push({ at: match.index + 3, code: word.slice(3).toUpperCase() });
+    }
+  }
+  const codes = [...new Set(found.sort((a, b) => a.at - b.at).map((f) => f.code))];
+  return codes.length >= 2 ? [codes[0], codes[1]] : null;
+}

@@ -17,7 +17,8 @@ import {
 } from '@/lib/passwordStrength';
 import { registerUser } from '@/app/(auth)/register/actions';
 
-export default function RegisterForm() {
+// `email`: isian awal dari form daftar di landing (/register?email=…).
+export default function RegisterForm({ email }: { email?: string }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [sentTo, setSentTo] = useState('');
@@ -99,6 +100,7 @@ export default function RegisterForm() {
             type="email"
             label="Email"
             placeholder="kamu@email.com"
+            defaultValue={email}
             required
           />
 

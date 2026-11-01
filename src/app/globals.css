@@ -20,12 +20,19 @@
   --color-muted: #8a8a8a;
   --color-neutral: #5a5a5a;
   --color-line: #2a2a2a;
+  /* Naik/turun di atas bidang terang (pratinjau email di landing), sama
+     dengan warna di email sungguhan. */
+  --color-up-deep: #15803d;
+  --color-down-deep: #b91c1c;
 
   /* Satu keluarga sans untuk semua peran (display/mono ikut Inter) — utility
      font-display / font-mono di komponen tetap valid tanpa diubah satu-satu. */
   --font-sans: var(--font-inter);
   --font-display: var(--font-inter);
   --font-mono: var(--font-inter);
+
+  /* Kurva ease-out yang tegas untuk interaksi (hover, tekan, ganti isi). */
+  --ease-snap: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 /* font-mono dipakai untuk angka kurs & label data; tanpa monospace, angka
@@ -44,11 +51,12 @@
     outline-offset: 2px;
   }
   button, a, input, select, textarea {
-    transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+    transition-property: color, background-color, border-color, text-decoration-color, box-shadow, transform, opacity;
     transition-duration: 150ms;
     transition-timing-function: ease-out;
   }
-  button:active:not(:disabled) {
+  /* .press: tautan yang tampil sebagai tombol ikut mengecil saat ditekan. */
+  button:active:not(:disabled), .press:active {
     transform: scale(0.97);
   }
   ::selection {
@@ -100,23 +108,19 @@ body {
    Semua menghormati prefers-reduced-motion (lihat blok di bawah).
    ========================================================================= */
 
-/* Headline hero: tiap baris naik dari balik baseline-nya sendiri. */
-@keyframes line-rise {
-  from { transform: translateY(105%); }
-  to   { transform: none; }
-}
-.mask-line { overflow: hidden; padding-bottom: .04em; }
-.mask-line > span {
-  display: block;
-  animation: line-rise .9s cubic-bezier(.16, 1, .3, 1) both;
-}
-
-/* Kalimat pendukung & pemilih kurs muncul setelah headline. */
+/* Hero: teks naik lebih dulu, kartu aplikasinya menyusul; selesai < 1,2 detik. */
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: none; }
 }
-.hero-after { animation: fade-up .7s cubic-bezier(.22, 1, .36, 1) .55s both; }
+.hero-after { animation: fade-up .6s var(--ease-snap) both; }
+.hero-panel { animation: fade-up .7s var(--ease-snap) .15s both; }
+/* Uang kertas hero: masuk sedikit lebih miring, lalu berhenti di -4°. */
+@keyframes note-in {
+  from { opacity: 0; transform: translateY(24px) rotate(3deg); }
+  to   { opacity: 1; transform: none; }
+}
+.hero-note { animation: note-in .9s var(--ease-snap) both; }
 
 /* Reveal saat masuk viewport (di-trigger oleh Reveal.tsx) */
 .reveal {
@@ -129,34 +133,86 @@ body {
   transform: none;
 }
 
+/* Garis bawah yang tumbuh dari kiri saat hover/fokus dan keluar ke kanan.
+   Hanya untuk tautan satu baris (pseudo-elemen tidak ikut patah baris). */
+.link-line { position: relative; }
+.link-line::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -4px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 250ms var(--ease-snap);
+}
+.link-line:focus-visible::after { transform: none; transform-origin: left; }
+@media (hover: hover) and (pointer: fine) {
+  .link-line:hover::after { transform: none; transform-origin: left; }
+}
+
+/* Isi yang berganti karena klik (kalimat kurs di hero): masuk pelan dari bawah
+   supaya tidak "meloncat". Dipasang ulang lewat `key` tiap pilihan berubah. */
+@keyframes swap-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+.swap-in { animation: swap-in 220ms var(--ease-snap) both; }
+
+/* Header publik mengambil warna bab di bawahnya (ChapterHeader.tsx). */
+.chapter-nav {
+  --nav-bg: var(--color-paper);
+  --nav-ink: var(--color-ink);
+  background-color: var(--nav-bg);
+  color: var(--nav-ink);
+  transition: background-color 300ms ease, color 300ms ease;
+}
+
+/* Di bidang terang, cincin fokus putih tidak terlihat: pakai tinta gelap. */
+.bg-ink :focus-visible { outline-color: var(--color-paper); }
+
+/* Kartu berita landing: di layar lebar posisinya dan lipatannya diatur
+   NewsDeck lewat --x dan --clip. */
+@media (min-width: 1024px) {
+  .news-card {
+    transform: translateX(var(--x, 0));
+    clip-path: var(--clip, none);
+    transition: transform 600ms var(--ease-snap), clip-path 600ms var(--ease-snap);
+  }
+}
+
+@media (min-width: 1024px) {
+  .news-body, .news-spine { transition: opacity 300ms ease, visibility 300ms; }
+  .news-card[data-folded] .news-body,
+  .news-card:not([data-folded]) .news-spine { opacity: 0; visibility: hidden; }
+  /* Saat melipat, isi kartu langsung hilang supaya kartu berikutnya tidak lewat di atas teksnya. */
+  .news-card[data-folded] .news-body { transition: opacity 120ms ease, visibility 0s; }
+}
+
+/* Batang kedua sisi di kotak "ketik pasangan" tumbuh dari garis tengah tiap
+   kali jawabannya berganti. */
+@keyframes grow-x {
+  from { transform: scaleX(0); }
+  to   { transform: none; }
+}
+.side-bar { animation: grow-x 600ms var(--ease-snap) 120ms both; }
+
+/* Balok wordmark footer naik dari garis dasar saat footer terlihat. */
+@supports (animation-timeline: view()) {
+  @keyframes rise-block {
+    from { transform: scaleY(0.2); }
+    to   { transform: none; }
+  }
+  .footer-block {
+    transform-origin: bottom;
+    animation: rise-block linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 35%;
+  }
+}
+
 /* Foto arsip: satu perlakuan untuk semuanya — hitam-putih, sesuai palet. */
 .archive-photo { filter: grayscale(1) contrast(1.05); }
-
-/* Foto selebar layar "membuka" dari bingkai sempit saat digulir masuk
-   (browser yang mendukung scroll timeline). clip-path, bukan scale, supaya
-   kotak gambarnya tidak meluber keluar figure. */
-@supports (animation-timeline: view()) {
-  @keyframes open-up {
-    from { clip-path: inset(10% 8%); }
-    to   { clip-path: inset(0); }
-  }
-  .archive-open {
-    animation: open-up linear both;
-    animation-timeline: view();
-    animation-range: entry 0% cover 45%;
-  }
-}
-
-/* "Struk" posisi historis: tepi bawah bergerigi. */
-.receipt {
-  clip-path: polygon(
-    0 0, 100% 0, 100% calc(100% - 12px),
-    95% 100%, 90% calc(100% - 12px), 85% 100%, 80% calc(100% - 12px), 75% 100%,
-    70% calc(100% - 12px), 65% 100%, 60% calc(100% - 12px), 55% 100%, 50% calc(100% - 12px),
-    45% 100%, 40% calc(100% - 12px), 35% 100%, 30% calc(100% - 12px), 25% 100%,
-    20% calc(100% - 12px), 15% 100%, 10% calc(100% - 12px), 5% 100%, 0 calc(100% - 12px)
-  );
-}
 
 /* Titik sentimen grafik yang "pop" muncul (delay diatur inline agar setelah
    garis tergambar). transform-box agar scale berporos di pusat lingkaran SVG. */
@@ -174,10 +230,16 @@ body {
 /* Aksesibilitas: hentikan semua gerak dekoratif, sisakan state akhirnya. */
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
-  .mask-line > span,
   .hero-after,
-  .archive-open,
+  .hero-panel,
+  .hero-note,
   .sentiment-dot,
-  .menu-in { animation: none !important; }
-  button:active:not(:disabled) { transform: none; }
+  .menu-in,
+  .swap-in,
+  .side-bar,
+  .footer-block { animation: none !important; }
+  .news-card,
+  .chapter-nav { transition: none !important; }
+  .link-line::after { transition: none; }
+  button:active:not(:disabled), .press:active { transform: none; }
 }

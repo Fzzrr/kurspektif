@@ -11,7 +11,8 @@ export default function PublicShell({ children, cta = true }: { children: ReactN
       <Navbar />
       <main className="px-5 pb-28 pt-12 sm:px-10 sm:pb-40 sm:pt-20">{children}</main>
       {cta && <CtaBand />}
-      <Footer />
+      {/* /kurs dan /metodologi memakai gambar arsip, jadi kreditnya ikut tampil. */}
+      <Footer showCredits />
     </>
   );
 }

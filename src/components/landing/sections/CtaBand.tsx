@@ -1,32 +1,32 @@
-import Link from "next/link";
+import { display } from "../type";
 
-// Seluruh band adalah satu tautan; kata kerjanya diset selebar halaman.
+// Penutup: kalimat yang bagian kosongnya adalah form. Email dibawa ke halaman
+// daftar (/register?email=…) sebagai isian awal; validasi tetap di sana.
 export default function CtaBand() {
   return (
-    <section id="daftar">
-      <Link
-        href="/register"
-        className="group flex min-h-[46svh] flex-col sm:min-h-[60svh] justify-between bg-ink px-5 pb-6 pt-6 text-paper transition-colors duration-200 hover:bg-paper hover:text-ink focus-visible:bg-paper focus-visible:text-ink sm:px-10"
-      >
-        <span className="flex items-start justify-between gap-6">
-          <span className="max-w-[34ch] text-[20px] leading-snug">
-            Gratis. Simpan pasanganmu, pasang alert, dan terima ringkasan tiap Senin pagi.
-          </span>
-          <svg
-            aria-hidden
-            viewBox="0 0 48 48"
-            className="size-8 shrink-0 transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1 sm:size-12"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="3"
-          >
-            <path d="M12 36 36 12M16 12h20v20" />
-          </svg>
-        </span>
-        <h2 className="text-[clamp(64px,23.4vw,460px)] font-black uppercase leading-[0.78] tracking-[-0.03em]">
-          Daftar
+    <section id="daftar" data-field className="bg-ink px-5 py-28 text-paper sm:px-10 sm:py-40">
+      <form action="/register" method="get">
+        <h2 className={display}>
+          <label htmlFor="daftar-email">Kirim kurs ke</label>
         </h2>
-      </Link>
+        <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+          <input
+            id="daftar-email"
+            name="email"
+            type="email"
+            required
+            autoComplete="email"
+            placeholder="emailmu"
+            className={`${display} min-w-0 flex-1 bg-paper/5 px-[0.12em] normal-case outline-none placeholder:text-paper/35 focus-visible:bg-paper/10`}
+          />
+          <button type="submit" className={`${display} bg-paper px-[0.18em] text-ink hover:bg-surface`}>
+            Daftar
+          </button>
+        </div>
+        <p className="mt-6 max-w-[60ch] text-[17px] text-paper/70">
+          Gratis. Setelah daftar, pilih pasangan untuk Pantauan, pasang batas alert, dan ringkasan datang tiap Senin pagi.
+        </p>
+      </form>
     </section>
   );
 }

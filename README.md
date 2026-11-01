@@ -10,6 +10,12 @@ sentral dan lembaga resmi (dihimpun Frankfurter), bukan kurs jual/beli bank atau
 
 ## Fitur
 
+Landing page memperlihatkan produknya langsung, bab demi bab: layar pertama berisi kartu alert yang bisa
+diatur langsung (pasangan, batas, arah) di atas grafik 30 hari, lengkap dengan pratinjau email yang akan diterima; ketik pasangan apa pun ("JPY/IDR") untuk
+melihat kurs dan sisi penggeraknya, atur Pantauan dan alert lalu lihat email yang akan datang, lihat Catatan tukar
+menghitung biaya tiap penukaran per bulan dan per tempat, dan baca berita yang sudah bertanda sentimen. Form email di bagian bawah membawa
+ke halaman daftar dengan email terisi.
+
 ### Kurs dan berita
 - **Kurs pasangan apa pun.** 165 mata uang, grafik sampai setahun, konversi cepat, dan posisi kurs hari ini
   dibanding 90 kurs harian terakhir. Pemilih mata uang menampilkan bendera, kode, dan nama Indonesia; pencarian
@@ -193,14 +199,12 @@ File yang paling sering disentuh:
 
 - Kurs: [Frankfurter](https://frankfurter.dev).
 - Berita: [Marketaux](https://www.marketaux.com), CNBC Indonesia, Antara, dan CNN Indonesia.
-- Gambar arsip (semuanya domain publik):
+- Gambar arsip:
+  - [Bankbiljet van de Javasche Bank, ontwerp van Lion Cachet (1935)](https://commons.wikimedia.org/wiki/File:Collectie_NMvWereldculturen,_TM-6017-4,_Bankbiljet,_%27Bankbiljet_van_de_Javasche_Bank,_ontwerp_van_Lion_Cachet%27,_1935.jpg),
+    Nationaal Museum van Wereldculturen, CC BY 4.0 (hero landing).
   - [Gezicht op het Oude Stadhuis, de Wisselbank, ... op de Dam te Amsterdam](https://commons.wikimedia.org/w/index.php?curid=85275523),
     Rijksmuseum, CC0.
   - [A New Map of the Terraqueous Globe](https://commons.wikimedia.org/wiki/File:Antique_World_Map_of_Continents_and_Oceans_1700.png),
     Edward Wells dan Michael Burghers, 1700, domain publik.
-  - [Money changer's box](https://www.metmuseum.org/art/collection/search/199839), The Metropolitan Museum of Art,
-    CC0.
-  - [Geldkist van de Amsterdamse Wisselbank](https://commons.wikimedia.org/w/index.php?curid=86835963), Amsterdam
-    Museum, CC0.
 
   Semua gambar ditampilkan hitam-putih.
