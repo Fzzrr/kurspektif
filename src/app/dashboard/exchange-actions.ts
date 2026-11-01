@@ -13,12 +13,9 @@ import { MAX_RECORDS, SIDES, toExchangeDTO, type ExchangeDTO, type ExchangeInput
 // Kurs yang melenceng lebih jauh dari ini dari kurs tengah hampir pasti salah
 // ketik atau pasangan terbalik (mis. 0,000055 untuk USD/IDR), bukan biaya bank.
 const MAX_DEVIATION = 0.25;
-
-
-export async function createExchangeAction(input: ExchangeInput): Promise<{ record: ExchangeDTO } | { error: string }> {
-  const userId = await actionUserId(exchangeLimiter, 'exchange');
-  if (!userId) return { error: SESSION_ERROR };
-
+// Bukan ekspor: fungsi di berkas 'use server' yang diekspor menjadi endpoint publik.
+// Memvalidasi isian dan mengambil kurs tengah tanggal itu; dipakai catat dan ubah.
+async function validate(input: ExchangeInput) {
   const base = input.base.toUpperCase();
   const quote = input.quote.toUpperCase();
   if (!isCurrencyCode(base) || !isCurrencyCode(quote)) return { error: 'Kode mata uang tidak valid.' };
@@ -32,10 +29,6 @@ export async function createExchangeAction(input: ExchangeInput): Promise<{ reco
   if (!date) return { error: 'Tanggal harus antara 4 Januari 1999 dan hari ini.' };
   const place = input.place.trim().slice(0, 60) || null;
 
-  if ((await prisma.exchangeRecord.count({ where: { userId } })) >= MAX_RECORDS) {
-    return { error: `Maksimal ${MAX_RECORDS} catatan. Hapus catatan lama untuk menambah yang baru.` };
-  }
-
   const mid = await fetchRateOnOrBefore(base, quote, date).catch(() => null);
   if (!mid) return { error: `Kurs tengah ${base}/${quote} untuk tanggal itu belum bisa diambil. Coba lagi, atau pilih tanggal lain.` };
   if (Math.abs(rate / mid.rate - 1) > MAX_DEVIATION) {
@@ -43,11 +36,33 @@ export async function createExchangeAction(input: ExchangeInput): Promise<{ reco
       error: `Kurs yang kamu isi jauh dari kurs tengah hari itu (${formatRate(mid.rate)} ${quote} per 1 ${base}). Periksa lagi angkanya, atau apakah pasangannya terbalik.`,
     };
   }
+  return { data: { side: input.side, base, quote, amount, rate, date, midRate: mid.rate, midDate: mid.date, place } };
+}
 
-  const row = await prisma.exchangeRecord.create({
-    data: { userId, side: input.side, base, quote, amount, rate, date, midRate: mid.rate, midDate: mid.date, place },
-  });
+export async function createExchangeAction(input: ExchangeInput): Promise<{ record: ExchangeDTO } | { error: string }> {
+  const userId = await actionUserId(exchangeLimiter, 'exchange');
+  if (!userId) return { error: SESSION_ERROR };
+
+  if ((await prisma.exchangeRecord.count({ where: { userId } })) >= MAX_RECORDS) {
+    return { error: `Maksimal ${MAX_RECORDS} catatan. Hapus catatan lama untuk menambah yang baru.` };
+  }
+  const valid = await validate(input);
+  if (!valid.data) return { error: valid.error };
+
+  const row = await prisma.exchangeRecord.create({ data: { userId, ...valid.data } });
   return { record: toExchangeDTO(row) };
+}
+
+export async function updateExchangeAction(id: string, input: ExchangeInput): Promise<{ record: ExchangeDTO } | { error: string }> {
+  const userId = await actionUserId(exchangeLimiter, 'exchange');
+  if (!userId) return { error: SESSION_ERROR };
+  const valid = await validate(input);
+  if (!valid.data) return { error: valid.error };
+
+  // updateMany + userId: tidak bisa mengubah catatan milik orang lain.
+  const { count } = await prisma.exchangeRecord.updateMany({ where: { id, userId }, data: valid.data });
+  if (count === 0) return { error: 'Catatan ini sudah tidak ada. Muat ulang halaman.' };
+  return { record: toExchangeDTO({ id, ...valid.data }) };
 }
 
 export async function deleteExchangeAction(id: string): Promise<{ error?: string }> {

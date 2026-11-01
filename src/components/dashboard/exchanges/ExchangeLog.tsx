@@ -60,8 +60,10 @@ export default function ExchangeLog({ currencies, initialRecords }: Props) {
   // setelah UNDO_MS, supaya salah klik × bisa dibatalkan.
   const pendingRef = useRef<{ record: ExchangeDTO; timer: ReturnType<typeof setTimeout> } | null>(null);
   const [removed, setRemoved] = useState<ExchangeDTO | null>(null);
-  // "Catat lagi": isi formulir dengan jenis, pasangan, dan tempat penukaran terpilih.
-  const [prefill, setPrefill] = useState<{ key: number; record: ExchangeDTO } | null>(null);
+  // "Catat lagi" (edit: false): isi formulir dengan jenis, pasangan, dan tempat
+  // penukaran terpilih. Tombol pensil (edit: true): formulir mengubah catatan itu.
+  const [prefill, setPrefill] = useState<{ key: number; record: ExchangeDTO; edit: boolean } | null>(null);
+  const editing = prefill?.edit ? prefill.record : undefined;
 
   // Pindah halaman sebelum waktunya habis tetap menghapus catatannya.
   useEffect(
@@ -100,14 +102,17 @@ export default function ExchangeLog({ currencies, initialRecords }: Props) {
     setMonth(null);
   }
 
-  // Urut tanggal terbaru dulu, sama seperti dari server.
+  // Urut tanggal terbaru dulu, sama seperti dari server. Catatan yang diubah menggantikan versi lamanya.
   const withRecord = (record: ExchangeDTO) =>
-    setRecords((current) => [record, ...current].sort((a, b) => b.date.localeCompare(a.date)));
+    setRecords((current) =>
+      [record, ...current.filter((r) => r.id !== record.id)].sort((a, b) => b.date.localeCompare(a.date)),
+    );
 
-  function added(record: ExchangeDTO) {
+  function saved(record: ExchangeDTO) {
     withRecord(record);
-    resetFilters();
     setSelectedId(record.id);
+    if (editing) setPrefill(null);
+    else resetFilters();
   }
 
   function takePending() {
@@ -135,6 +140,7 @@ export default function ExchangeLog({ currencies, initialRecords }: Props) {
     commitRemove(); // hapusan sebelumnya langsung jadi permanen
     setRecords((current) => current.filter((r) => r.id !== id));
     if (selectedId === id) setSelectedId(null);
+    if (editing?.id === id) setPrefill(null);
     setRemoved(record);
     pendingRef.current = { record, timer: setTimeout(commitRemove, UNDO_MS) };
   }
@@ -144,8 +150,8 @@ export default function ExchangeLog({ currencies, initialRecords }: Props) {
     if (record) withRecord(record);
   }
 
-  function repeat(record: ExchangeDTO) {
-    setPrefill({ key: Date.now(), record });
+  function openForm(record: ExchangeDTO, edit: boolean) {
+    setPrefill({ key: Date.now(), record, edit });
     setFormOpen(true);
     requestAnimationFrame(() => document.getElementById('catat-penukaran')?.scrollIntoView({ block: 'start' }));
   }
@@ -182,8 +188,10 @@ export default function ExchangeLog({ currencies, initialRecords }: Props) {
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="text-base font-semibold">Catat penukaran</h2>
-                <p className="mt-1 text-sm text-muted">Salin angkanya dari struk atau aplikasi bankmu.</p>
+                <h2 className="text-base font-semibold">{editing ? 'Ubah catatan' : 'Catat penukaran'}</h2>
+                <p className="mt-1 text-sm text-muted">
+                  {editing ? 'Kurs tengahnya dihitung ulang saat disimpan.' : 'Salin angkanya dari struk atau aplikasi bankmu.'}
+                </p>
               </div>
               {records.length > 0 && (
                 <button
@@ -196,7 +204,14 @@ export default function ExchangeLog({ currencies, initialRecords }: Props) {
                 </button>
               )}
             </div>
-            <ExchangeForm key={prefill?.key ?? 0} currencies={currencies} prefill={prefill?.record} onAdded={added} />
+            <ExchangeForm
+              key={prefill?.key ?? 0}
+              currencies={currencies}
+              prefill={prefill?.record}
+              editing={editing}
+              onSaved={saved}
+              onCancel={() => setPrefill(null)}
+            />
           </section>
         </aside>
 
@@ -246,7 +261,7 @@ export default function ExchangeLog({ currencies, initialRecords }: Props) {
                     hoverId={hoverId}
                     onSelect={toggleSelect}
                     onHover={setHoverId}
-                    onRepeat={repeat}
+                    onRepeat={(record) => openForm(record, false)}
                   />
                 </>
               )}
@@ -307,6 +322,7 @@ export default function ExchangeLog({ currencies, initialRecords }: Props) {
                             highlighted={record.id === hoverId}
                             onSelect={() => toggleSelect(record.id)}
                             onHover={(on) => setHoverId(on ? record.id : null)}
+                            onEdit={() => openForm(record, true)}
                             onRemove={() => remove(record.id)}
                           />
                         ))}

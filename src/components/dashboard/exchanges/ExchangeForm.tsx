@@ -12,7 +12,7 @@ import { useLiveRate } from '@/lib/useLiveRate';
 import { FIRST_RATE_DATE, isoToDate, shortDate, todayKey } from '@/lib/timeAgo';
 import { SIDE_OPTIONS, exchangeCost, formatAmount, type ExchangeDTO, type ExchangeSide } from '@/lib/exchanges';
 import { Line } from './ExchangeCards';
-import { createExchangeAction } from '@/app/dashboard/exchange-actions';
+import { createExchangeAction, updateExchangeAction } from '@/app/dashboard/exchange-actions';
 import type { Currency } from '@/lib/frankfurter';
 
 const labelClass = 'text-xs text-muted';
@@ -25,21 +25,28 @@ const inputClass =
 // /api/rates yang wajar; tanggal lebih lama tetap dihitung saat disimpan.
 const PREVIEW_MAX_DAYS = 400;
 
+// Angka dari DB ke isian: koma desimal tanpa titik ribuan, supaya parseThreshold membacanya persis.
+const toInput = (value: number) => String(value).replace('.', ',');
+
 type FormProps = {
   currencies: Currency[];
   /** Penukaran yang diulang lewat "Catat lagi"; jumlah dan kurs sengaja dikosongkan. */
   prefill?: ExchangeDTO;
-  onAdded: (record: ExchangeDTO) => void;
+  /** Catatan yang sedang diubah: semua isian diambil darinya, dan simpan memperbaruinya. */
+  editing?: ExchangeDTO;
+  onSaved: (record: ExchangeDTO) => void;
+  onCancel?: () => void;
 };
 
-export default function ExchangeForm({ currencies, prefill, onAdded }: FormProps) {
-  const [side, setSide] = useState<ExchangeSide>(prefill?.side ?? 'beli');
-  const [base, setBase] = useState(prefill?.base ?? 'USD');
-  const [quote, setQuote] = useState(prefill?.quote ?? 'IDR');
-  const [amount, setAmount] = useState('');
-  const [rate, setRate] = useState('');
-  const [date, setDate] = useState(todayKey);
-  const [place, setPlace] = useState(prefill?.place ?? '');
+export default function ExchangeForm({ currencies, prefill, editing, onSaved, onCancel }: FormProps) {
+  const from = editing ?? prefill;
+  const [side, setSide] = useState<ExchangeSide>(from?.side ?? 'beli');
+  const [base, setBase] = useState(from?.base ?? 'USD');
+  const [quote, setQuote] = useState(from?.quote ?? 'IDR');
+  const [amount, setAmount] = useState(editing ? toInput(editing.amount) : '');
+  const [rate, setRate] = useState(editing ? toInput(editing.rate) : '');
+  const [date, setDate] = useState(editing?.date ?? todayKey);
+  const [place, setPlace] = useState(from?.place ?? '');
   const [error, setError] = useState<string | null>(null);
   const [saving, startSaving] = useTransition();
 
@@ -68,9 +75,10 @@ export default function ExchangeForm({ currencies, prefill, onAdded }: FormProps
     event.preventDefault();
     if (!canSubmit) return;
     startSaving(async () => {
-      const result = await createExchangeAction({ side, base, quote, amount, rate, date, place });
+      const input = { side, base, quote, amount, rate, date, place };
+      const result = editing ? await updateExchangeAction(editing.id, input) : await createExchangeAction(input);
       if ('error' in result) return setError(result.error);
-      onAdded(result.record);
+      onSaved(result.record);
       setAmount('');
       setRate('');
       setPlace('');
@@ -107,7 +115,7 @@ export default function ExchangeForm({ currencies, prefill, onAdded }: FormProps
           onChange={(event) => setAmount(event.target.value.replace(/[^\d.,]/g, ''))}
           inputMode="decimal"
           placeholder="contoh 1.000"
-          autoFocus={Boolean(prefill)}
+          autoFocus={Boolean(from)}
           className={`${inputClass} pr-14`}
         />
       </Field>
@@ -181,13 +189,20 @@ export default function ExchangeForm({ currencies, prefill, onAdded }: FormProps
         )}
       </div>
 
-      <button
-        type="submit"
-        disabled={!canSubmit}
-        className="h-11 w-full bg-ink text-sm font-medium text-paper hover:opacity-90 disabled:opacity-40"
-      >
-        {saving ? 'Menyimpan…' : 'Simpan catatan'}
-      </button>
+      <div className="flex gap-2">
+        <button
+          type="submit"
+          disabled={!canSubmit}
+          className="h-11 flex-1 bg-ink text-sm font-medium text-paper hover:opacity-90 disabled:opacity-40"
+        >
+          {saving ? 'Menyimpan…' : editing ? 'Simpan perubahan' : 'Simpan catatan'}
+        </button>
+        {editing && (
+          <button type="button" onClick={onCancel} className="h-11 bg-accent-soft px-4 text-sm text-ink hover:bg-line">
+            Batal
+          </button>
+        )}
+      </div>
       {error && <p className="text-sm text-down">{error}</p>}
 
       <details className="group border-t border-line pt-4 text-sm">
@@ -207,7 +222,7 @@ export default function ExchangeForm({ currencies, prefill, onAdded }: FormProps
             Struk hanya mencantumkan total? Bagi totalnya dengan jumlah: 18.350.000 ÷ 1.000 = kurs 18.350.
           </li>
           <li>Desimal pakai koma (121,5). Titik ribuan boleh ditulis, boleh tidak.</li>
-          <li>Salah isi? Hapus catatannya dengan tombol × lalu catat ulang.</li>
+          <li>Salah isi? Ubah catatannya lewat tombol pensil di riwayat; kurs tengahnya dihitung ulang.</li>
         </ul>
       </details>
     </form>

@@ -44,8 +44,8 @@ sentral dan lembaga resmi (dihimpun Frankfurter), bukan kurs jual/beli bank atau
 - Grafik "kurs kamu vs kurs tengah" (titik per penukaran, garis selisih), grafik biaya per bulan, dan simulasi
   "kalau menukar lagi hari ini" untuk tiap tempat. Grafik, filter (periode, beli/jual, bulan, tempat), dan riwayat
   saling terhubung.
-- Pratinjau perkiraan biaya sebelum menyimpan, hapus yang bisa dibatalkan, dan "Catat lagi" untuk mengulang
-  penukaran yang sama.
+- Pratinjau perkiraan biaya sebelum menyimpan, ubah catatan (kurs tengahnya dihitung ulang), hapus yang bisa
+  dibatalkan, dan "Catat lagi" untuk mengulang penukaran yang sama.
 
 ### Akun
 - Daftar dengan email + kata sandi (wajib verifikasi email) atau Google, lupa kata sandi, ganti email dengan

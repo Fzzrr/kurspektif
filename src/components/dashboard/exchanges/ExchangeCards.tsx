@@ -3,7 +3,7 @@
 // Kartu halaman Catatan tukar: ringkasan, biaya per tempat, baris riwayat, chip
 // filter, dan keadaan kosong. Tanpa state sendiri; dikendalikan ExchangeLog.
 import type { ReactNode } from 'react';
-import { CloseIcon } from '@/components/ui/icons';
+import { CloseIcon, PencilIcon } from '@/components/ui/icons';
 import { formatRate } from '@/lib/rateStats';
 import { fmtAbsPct } from '@/lib/moversText';
 import { isoToDate, shortDate } from '@/lib/timeAgo';
@@ -210,10 +210,11 @@ type RecordRowProps = {
   highlighted: boolean;
   onSelect: () => void;
   onHover: (on: boolean) => void;
+  onEdit: () => void;
   onRemove: () => void;
 };
 
-export function RecordRow({ record, selected, highlighted, onSelect, onHover, onRemove }: RecordRowProps) {
+export function RecordRow({ record, selected, highlighted, onSelect, onHover, onEdit, onRemove }: RecordRowProps) {
   const cost = exchangeCost(record);
   const better = cost.total < 0;
   const diff = record.rate - record.midRate;
@@ -264,14 +265,25 @@ export function RecordRow({ record, selected, highlighted, onSelect, onHover, on
           <span className="mt-1 block text-xs text-muted">{costText(cost.pct)}</span>
         </span>
       </button>
-      <button
-        type="button"
-        onClick={onRemove}
-        aria-label={`Hapus catatan ${record.side} ${record.amount} ${record.base} tanggal ${record.date}`}
-        className="mt-3 flex size-8 shrink-0 items-center justify-center text-muted hover:bg-paper/60 hover:text-ink"
-      >
-        <CloseIcon className="size-3.5" />
-      </button>
+      {/* Bertumpuk di ponsel supaya kolom tengah tidak makin sempit. */}
+      <span className="mt-3 flex shrink-0 flex-col sm:flex-row">
+        <button
+          type="button"
+          onClick={onEdit}
+          aria-label={`Ubah catatan ${record.side} ${record.amount} ${record.base} tanggal ${record.date}`}
+          className="flex size-8 items-center justify-center text-muted hover:bg-paper/60 hover:text-ink"
+        >
+          <PencilIcon className="size-3.5" />
+        </button>
+        <button
+          type="button"
+          onClick={onRemove}
+          aria-label={`Hapus catatan ${record.side} ${record.amount} ${record.base} tanggal ${record.date}`}
+          className="flex size-8 items-center justify-center text-muted hover:bg-paper/60 hover:text-ink"
+        >
+          <CloseIcon className="size-3.5" />
+        </button>
+      </span>
     </li>
   );
 }
