@@ -1,8 +1,12 @@
-// Rate limiter in-memory untuk semua server action dan login.
-// ponytail: hitungan per instance server — di Vercel tiap instance serverless
-// punya Map sendiri dan hilang saat cold start, jadi batasnya bocor di
-// produksi. Ganti isi createLimiter dengan @upstash/ratelimit saat deploy;
-// call site cukup memanggil .check(key) dan tidak berubah.
+// Rate limiter untuk semua server action, login, dan API publik.
+// Kalau UPSTASH_REDIS_REST_URL/TOKEN terisi, hitungan disimpan di Upstash Redis
+// sehingga berlaku untuk semua instance serverless. Tanpa itu (dev lokal),
+// hitungan disimpan di memori proses: di Vercel tiap instance punya Map sendiri
+// dan hilang saat cold start, jadi batasnya bocor. Pemanggil cukup .check(key).
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
+
+const redis = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN ? Redis.fromEnv() : null;
 
 type Options = { limit: number; windowMs: number };
 
@@ -12,6 +16,24 @@ type Options = { limit: number; windowMs: number };
  * batas jendela (mis. 5 di detik ke-59 + 5 di detik ke-61).
  */
 function createLimiter({ limit, windowMs }: Options) {
+  // Key dari pemanggil sudah berawalan cakupannya (login:, api:, alert:, ...),
+  // jadi satu prefix untuk semua limiter tidak membuat hitungannya bercampur.
+  // Gagal terbuka: Redis lambat (> 5 detik, bawaan library) atau error jaringan
+  // meloloskan request, supaya gangguan Upstash tidak mematikan login dan aksi.
+  if (redis) {
+    const upstash = new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(limit, `${windowMs} ms`), prefix: 'kurspektif' });
+    return {
+      async check(key: string) {
+        try {
+          return { success: (await upstash.limit(key)).success };
+        } catch (error) {
+          console.error('Rate limiter Upstash gagal, request diloloskan:', error);
+          return { success: true };
+        }
+      },
+    };
+  }
+
   const hits = new Map<string, number[]>();
 
   return {

@@ -100,6 +100,7 @@ Penjelasan lengkap ada di [`.env.example`](.env.example).
 | `APP_URL` | Alamat aplikasi, dipakai di tautan email dan sitemap | Ya |
 | `MARKETAUX_API_KEY` | Berita global dari Marketaux | Untuk berita global |
 | `CRON_SECRET` | Melindungi endpoint cron | Untuk cron |
+| `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` | Pembatas percobaan login, aksi, dan API publik yang berlaku untuk semua instance server | Untuk produksi |
 
 Tanpa `RESEND_FROM_EMAIL`, email dikirim dari `onboarding@resend.dev`, yang oleh Resend hanya diteruskan ke email
 pemilik akun Resend dan sering masuk folder Spam. Untuk mengirim ke pengguna lain, verifikasi sebuah domain di
@@ -184,7 +185,8 @@ File yang paling sering disentuh:
 - Paket gratis Marketaux membatasi 3 artikel per request dan 100 request per hari. Arsip berita diperbarui oleh cron
   harian dan di latar belakang saat dashboard atau halaman berita dibuka.
 - Sentimen berita RSS ditentukan dari kata kerja di dekat kata "rupiah" pada judul, sehingga bisa keliru.
-- Pembatas percobaan login dan aksi masih disimpan di memori; untuk produksi di Vercel, ganti dengan Upstash Redis
+- Tanpa variabel Upstash, pembatas percobaan login dan aksi disimpan di memori server: cukup untuk pengembangan
+  lokal, tetapi di Vercel tiap instance menghitung sendiri. Kalau Upstash sedang gangguan, request diloloskan
   (lihat [`src/lib/rateLimit.ts`](src/lib/rateLimit.ts)).
 
 ## Kredit
