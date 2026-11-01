@@ -63,7 +63,7 @@ export default async function KursTanggalPage({ params }: Props) {
       <p className="mt-5 max-w-[60ch] text-[17px] leading-relaxed">
         {baseName} ke {quoteName}.{' '}
         {shifted
-          ? `${fullDate.format(isoToDate(date))} tidak ada kurs referensi (akhir pekan atau hari libur), jadi yang berlaku adalah kurs hari kerja sebelumnya: ${fullDate.format(isoToDate(onDate.date))}.`
+          ? `${fullDate.format(isoToDate(date))} tidak ada kurs referensi untuk pasangan ini (biasanya akhir pekan atau hari libur), jadi yang berlaku adalah kurs terakhir sebelumnya: ${fullDate.format(isoToDate(onDate.date))}.`
           : onDate
             ? `Kurs referensi harian ${fullDate.format(isoToDate(date))}.`
             : ''}
@@ -138,7 +138,7 @@ export default async function KursTanggalPage({ params }: Props) {
       </section>
 
       <p className="mt-16 text-[15px] text-muted">
-        Kurs tengah referensi bank sentral, bukan kurs jual/beli bank atau money changer.{' '}
+        Kurs referensi harian dari bank sentral dan lembaga resmi, bukan kurs jual/beli bank atau money changer.{' '}
         <Link href="/metodologi" className="text-ink underline underline-offset-4 hover:decoration-transparent">
           Cara kami menghitung
         </Link>

@@ -2,6 +2,12 @@ import { slugToPair } from './pairs';
 
 const FRANKFURTER_BASE = 'https://api.frankfurter.dev/v2';
 
+/**
+ * Rentang terpanjang yang boleh diminta lewat /api/rates. Pemakai terpanjang di UI:
+ * grafik setahun (365), alert posisi (365), dan pratinjau Catatan tukar (400 + 10).
+ */
+export const MAX_SERIES_DAYS = 420;
+
 export type RatePoint = { date: string; rate: number };
 /** `name` dari Frankfurter (Inggris); `localName` nama Indonesianya, dihitung di server supaya SSR dan hidrasi sama. */
 export type Currency = { code: string; name: string; localName: string };
@@ -46,7 +52,7 @@ export async function fetchRateSeries(base: string, quote: string, from: string,
 }
 
 /**
- * Kurs pada `date` (YYYY-MM-DD), atau hari kerja terakhir sebelumnya kalau hari
+ * Kurs pada `date` (YYYY-MM-DD), atau kurs terakhir sebelumnya kalau hari
  * itu kurs tidak terbit (akhir pekan, libur). null kalau tidak ada data.
  */
 export async function fetchRateOnOrBefore(base: string, quote: string, date: string): Promise<RatePoint | null> {

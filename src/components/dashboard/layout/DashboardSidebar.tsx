@@ -96,7 +96,7 @@ export default function DashboardSidebar({
               key={href}
               href={href}
               aria-current={active ? "page" : undefined}
-              className={`flex flex-1 flex-col items-center gap-1 py-2.5 font-mono text-[10px] transition-colors ${
+              className={`flex min-w-0 flex-1 flex-col items-center gap-1 py-2.5 text-xs transition-colors ${
                 active ? "text-ink" : "text-muted hover:text-ink"
               }`}
             >

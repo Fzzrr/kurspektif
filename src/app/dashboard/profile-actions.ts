@@ -1,11 +1,11 @@
 'use server';
 
-import crypto from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import { Resend } from 'resend';
-import { auth, signOut } from '@/lib/auth';
+import { auth, signOut, updateSession } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { EMAIL_SENDER } from '@/lib/email';
+import { EMAIL_SENDER, devLinkFallback } from '@/lib/email';
+import { hashToken, newToken } from '@/lib/tokens';
 import { emailChangeEmail } from '@/lib/emailTemplates';
 import { BCRYPT_COST } from '@/lib/auth';
 import { profileUpdateLimiter, passwordChangeLimiter, emailChangeLimiter } from '@/lib/rateLimit';
@@ -72,8 +72,11 @@ export async function changePasswordAction(
 
   const hashed = await bcrypt.hash(newPassword, BCRYPT_COST);
   await prisma.user.update({ where: { id: userId }, data: { password: hashed } });
+  // Perangkat lain keluar otomatis (sidik kata sandi di tokennya tidak cocok lagi);
+  // perangkat ini memperbarui sidiknya supaya tetap masuk.
+  await updateSession({});
 
-  return { success: 'Kata sandi diperbarui.' };
+  return { success: 'Kata sandi diperbarui. Perangkat lain yang masuk dengan akun ini sudah dikeluarkan.' };
 }
 
 export async function requestEmailChangeAction(newEmail: string): Promise<ActionState> {
@@ -98,9 +101,9 @@ export async function requestEmailChangeAction(newEmail: string): Promise<Action
   if (taken) return { error: 'Email itu sudah dipakai akun lain.' };
 
   const identifier = `email-change:${userId}`;
-  const token = crypto.randomBytes(32).toString('base64url');
+  const token = newToken();
   const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 jam
-  const link = `${process.env.APP_URL}/api/verify-email-change?token=${token}`;
+  const link = `${process.env.APP_URL}/konfirmasi-email?token=${token}`;
 
   const resend = new Resend(process.env.RESEND_API_KEY);
   const sent = await resend.emails.send({
@@ -109,11 +112,13 @@ export async function requestEmailChangeAction(newEmail: string): Promise<Action
     ...emailChangeEmail({ link, oldEmail: user.email, newEmail: normalized }),
   });
 
-  if (sent.error) return { error: 'Gagal mengirim email verifikasi. Coba lagi.' };
+  const devFallback = sent.error ? devLinkFallback('Konfirmasi email baru', normalized, link, sent.error.message) : false;
+  if (sent.error && !devFallback) return { error: 'Gagal mengirim email verifikasi. Coba lagi.' };
 
   // Hapus token lama dulu supaya cuma satu token aktif per user.
   await prisma.verificationToken.deleteMany({ where: { identifier } });
-  await prisma.verificationToken.create({ data: { identifier, token, newEmail: normalized, expires } });
+  // Yang disimpan hanya hash-nya, sama seperti token pendaftaran dan atur ulang kata sandi.
+  await prisma.verificationToken.create({ data: { identifier, token: hashToken(token), newEmail: normalized, expires } });
 
   return { success: `Cek ${normalized} untuk mengonfirmasi perubahan.` };
 }

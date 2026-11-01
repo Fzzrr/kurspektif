@@ -5,6 +5,7 @@ import NextAuth from 'next-auth';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import Credentials from 'next-auth/providers/credentials';
 import { CredentialsSignin } from 'next-auth';
+import { createHash } from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { authConfig } from './config';
@@ -20,7 +21,12 @@ class UnverifiedEmail extends CredentialsSignin {
   code = 'unverified';
 }
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+// Sidik kata sandi yang ikut disimpan di token sesi. Berubah begitu kata sandi
+// diganti atau diatur ulang, jadi sesi lama di perangkat lain ikut berakhir.
+// Yang disimpan hash dari hash bcrypt, bukan hash bcrypt-nya sendiri.
+const passwordStamp = (hash: string | null) => createHash('sha256').update(hash ?? '').digest('base64url').slice(0, 16);
+
+export const { handlers, auth, signIn, signOut, unstable_update: updateSession } = NextAuth({
   ...authConfig,
   adapter: PrismaAdapter(prisma),
   session: { strategy: 'jwt' }, // wajib jwt karena pakai Credentials
@@ -75,11 +81,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return true;
     },
-    jwt({ token, user }) {
-      if (user) token.id = user.id;
+    // Dipanggil setiap auth() di server. Sesi JWT tidak tersimpan di database,
+    // jadi di sinilah sesi dicabut: akun sudah dihapus atau kata sandinya
+    // berganti sejak token dibuat → kembalikan null (dianggap belum masuk).
+    // ponytail: satu query per auth(); kalau terasa, simpan hasilnya per request
+    // dengan React cache() atau periksa hanya tiap beberapa menit.
+    async jwt({ token, user, trigger }) {
+      if (user?.id) token.id = user.id;
       // Foto profil bisa berupa data URI puluhan KB; di dalam cookie JWT itu
       // membengkakkan setiap request. Foto selalu dibaca dari database.
       delete token.picture;
+      if (!token.id) return token;
+
+      const account = await prisma.user.findUnique({ where: { id: token.id as string }, select: { password: true } });
+      if (!account) return null;
+      const stamp = passwordStamp(account.password);
+      // Masuk, pembaruan sesi oleh pemiliknya sendiri, atau token lama tanpa sidik: catat sidik terkini.
+      if (user || trigger === 'update' || token.pw === undefined) token.pw = stamp;
+      else if (token.pw !== stamp) return null;
       return token;
     },
     session({ session, token }) {

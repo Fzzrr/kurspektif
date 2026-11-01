@@ -1,10 +1,14 @@
 import type { ReactNode } from 'react';
+import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import DashboardSidebar from '@/components/dashboard/layout/DashboardSidebar';
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const session = await auth();
+  // Proxy hanya membaca cookie; sesi yang sudah dicabut (kata sandi diganti, akun
+  // dihapus) baru ketahuan di sini, jadi kirim ke halaman masuk.
+  if (!session?.user?.id) redirect('/login');
   const dbUser = session?.user?.id
     ? await prisma.user.findUnique({
         where: { id: session.user.id },

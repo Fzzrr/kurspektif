@@ -1,11 +1,11 @@
 'use server';
 
-import { createHash, randomBytes } from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { Resend } from 'resend';
 import { prisma } from '@/lib/prisma';
+import { hashToken, newToken } from '@/lib/tokens';
 import { EMAIL_SENDER, devLinkFallback } from '@/lib/email';
 import { verifyEmailEmail } from '@/lib/emailTemplates';
 import { registerLimiter } from '@/lib/rateLimit';
@@ -14,8 +14,6 @@ import { BCRYPT_COST } from '@/lib/auth';
 export type RegisterState = { error?: string; sentTo?: string } | undefined;
 
 const TOKEN_TTL_MS = 24 * 60 * 60 * 1000; // 24 jam
-// Sama seperti token atur ulang kata sandi: yang disimpan hanya hash-nya.
-const hashToken = (token: string) => createHash('sha256').update(token).digest('hex');
 const identifierFor = (userId: string) => `email-verify:${userId}`;
 
 // Membuat user baru dengan password ter-hash, lalu mengirim tautan verifikasi.
@@ -51,7 +49,7 @@ export async function registerUser(_prev: RegisterState, formData: FormData): Pr
     ? await prisma.user.update({ where: { id: existing.id }, data: { name, password: hashed }, select: { id: true } })
     : await prisma.user.create({ data: { name, email, password: hashed }, select: { id: true } });
 
-  const token = randomBytes(32).toString('base64url');
+  const token = newToken();
   const identifier = identifierFor(user.id);
   await prisma.verificationToken.deleteMany({ where: { identifier } });
   await prisma.verificationToken.create({

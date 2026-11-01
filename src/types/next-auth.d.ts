@@ -10,5 +10,7 @@ declare module 'next-auth' {
 declare module 'next-auth/jwt' {
   interface JWT {
     id?: string;
+    /** Sidik kata sandi saat token dibuat (lihat passwordStamp di lib/auth). */
+    pw?: string;
   }
 }

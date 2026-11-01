@@ -1,5 +1,5 @@
 // Kabar "pergerakan tajam": pasangan di Pantauan yang bergerak cukup jauh dari
-// hari kerja sebelumnya. Dicek oleh cron harian (api/cron/check-alerts).
+// kurs hari sebelumnya. Dicek oleh cron harian (api/cron/check-alerts).
 import type { RatePoint } from './frankfurter';
 
 // ponytail: ambang tetap 1%/hari untuk semua pasangan; ganti ke kelipatan
@@ -9,7 +9,7 @@ export const SHARP_MOVE_PCT = 1;
 
 export type DailyMove = { date: string; rate: number; prevDate: string; prevRate: number; pct: number };
 
-/** Perubahan hari kerja terakhir dibanding sebelumnya; null kalau datanya kurang dari dua hari. */
+/** Perubahan kurs terakhir dibanding kurs sebelumnya; null kalau datanya kurang dari dua hari. */
 export function dailyMove(series: RatePoint[]): DailyMove | null {
   if (series.length < 2) return null;
   const { date, rate } = series[series.length - 1];

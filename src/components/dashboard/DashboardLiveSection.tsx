@@ -59,8 +59,8 @@ export default function DashboardLiveSection({ title, currencies, news, initialW
 
   const { latest, series, isLoading, error } = useLiveRate(from, to, 365);
 
-  // Jujur soal sumbernya: kurs referensi bank sentral, terbit sekali per hari
-  // kerja — bukan kurs real-time atau kurs jual/beli bank.
+  // Jujur soal sumbernya: kurs referensi harian (bank sentral & lembaga resmi),
+  // satu angka per hari — bukan kurs real-time atau kurs jual/beli bank.
   const updatedAt = latest ? `Kurs referensi harian · ${dateFmt.format(new Date(latest.date))}` : 'Memuat…';
 
   const change = dailyChange(series, latest);

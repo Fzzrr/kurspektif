@@ -9,7 +9,7 @@ import AddPair from '@/components/dashboard/watchlist/AddPair';
 
 export const metadata = { title: 'Pantauan' };
 
-// Hari kalender yang diambil supaya dapat ~90 hari kerja untuk grafik & posisi.
+// Hari kalender yang diambil supaya dapat ~90 kurs harian untuk grafik & posisi.
 const HISTORY_DAYS = 135;
 
 // Email rutin yang menyala untuk Pantauan; yang mati bisa dinyalakan di Profil.

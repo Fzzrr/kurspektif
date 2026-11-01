@@ -41,7 +41,7 @@ export default function SyaratPage() {
           body: (
             <>
               <p>
-                Kurs yang ditampilkan adalah kurs tengah referensi harian dari bank sentral, bukan kurs jual/beli bank
+                Kurs yang ditampilkan adalah kurs referensi harian dari bank sentral dan lembaga resmi, bukan kurs jual/beli bank
                 atau money changer, dan bisa berbeda dari kurs saat kamu bertransaksi.
               </p>
               <p>

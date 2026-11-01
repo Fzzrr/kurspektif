@@ -69,7 +69,7 @@ test('kabar gerak tajam: judul satu pasangan dan daftar beberapa pasangan', () =
   const base = { name: null, thresholdPct: 1, pantauanUrl: '#', unsubscribeUrl: 'https://contoh.id/berhenti?k=gerak' };
   const one = movesEmail({ ...base, rows: [row('USD/IDR', 1)] });
   assert.equal(one.subject, 'USD/IDR naik 1% dalam sehari — Kurspektif');
-  assert.match(one.html, /Lebih tinggi dari 95% hari/i);
+  assert.match(one.html, /Lebih tinggi dari 95% kurs harian/i);
   assert.match(one.html, /k=gerak/);
   const many = movesEmail({ ...base, rows: [row('USD/IDR', 1.24), row('JPY/IDR', -1.4)] });
   assert.equal(many.subject, '2 pasangan bergerak tajam: USD/IDR +1,24%, JPY/IDR -1,4%');

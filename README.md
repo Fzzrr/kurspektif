@@ -5,14 +5,14 @@ sebenarnya menggerakkan sebuah pasangan minggu ini, lengkap dengan berita yang d
 memantau pasangan, dikabari lewat email, dan mencatat penukaran uangnya sendiri untuk melihat berapa yang diambil
 bank atau money changer.
 
-Alat informasi dan edukasi, bukan nasihat keuangan. Kurs yang dipakai adalah kurs tengah referensi bank sentral,
-bukan kurs jual/beli bank atau money changer.
+Alat informasi dan edukasi, bukan nasihat keuangan. Kurs yang dipakai adalah kurs referensi harian dari bank
+sentral dan lembaga resmi (dihimpun Frankfurter), bukan kurs jual/beli bank atau money changer.
 
 ## Fitur
 
 ### Kurs dan berita
 - **Kurs pasangan apa pun.** 165 mata uang, grafik sampai setahun, konversi cepat, dan posisi kurs hari ini
-  dibanding 90 hari kerja terakhir. Pemilih mata uang menampilkan bendera, kode, dan nama Indonesia; pencarian
+  dibanding 90 kurs harian terakhir. Pemilih mata uang menampilkan bendera, kode, dan nama Indonesia; pencarian
   juga mencocokkan nama Inggris.
 - **Penggerak mingguan.** Kekuatan tiap mata uang terhadap sekeranjang mata uang utama (USD, EUR, JPY, GBP, CNY,
   SGD), sehingga terlihat apakah USD/IDR naik karena dolar menguat atau rupiah melemah.
@@ -24,12 +24,12 @@ bukan kurs jual/beli bank atau money changer.
 
 ### Pantauan dan email
 - **Pantauan.** Simpan sampai 8 pasangan. Tiap pasangan menampilkan kurs, perubahan hari ini dan 7 hari, grafik
-  mini 90 hari kerja yang bisa digeser untuk membaca kurs per hari, posisi kurs, penggerak minggu ini, dan
+  mini 90 kurs harian yang bisa digeser untuk membaca kurs per hari, posisi kurs, penggerak minggu ini, dan
   alertnya. Urutkan menurut waktu disimpan, gerak terbesar, atau yang paling dekat titik terendah. Pasangan bisa
   ditambah langsung dengan pratinjau kursnya, dan pintasannya muncul di dashboard (tiga sekaligus, bisa digeser).
 - **Alert ke email.** Saat kurs melewati batas tertentu, atau masuk 10/20/30% hari termurah atau termahal setahun.
   Dipasang dari kartu Alert di dashboard atau langsung dari tiap pasangan di Pantauan.
-- **Kabar pergerakan tajam.** Email saat pasangan di Pantauan bergerak 1% atau lebih dari hari kerja sebelumnya,
+- **Kabar pergerakan tajam.** Email saat pasangan di Pantauan bergerak 1% atau lebih dari kurs hari sebelumnya,
   tanpa perlu memasang alert.
 - **Ringkasan mingguan.** Email tiap Senin pagi berisi pergerakan 7 hari setiap pasangan di Pantauan, penjelasan
   penggeraknya, dan jumlah alert yang masih aktif.
@@ -50,6 +50,7 @@ bukan kurs jual/beli bank atau money changer.
 ### Akun
 - Daftar dengan email + kata sandi (wajib verifikasi email) atau Google, lupa kata sandi, ganti email dengan
   verifikasi, foto profil, dan hapus akun.
+- Mengganti kata sandi atau menghapus akun otomatis mengeluarkan sesi di perangkat lain.
 - Menu akun menampilkan ringkasan jumlah pasangan di Pantauan dan alert aktif.
 
 ### Halaman publik
@@ -173,8 +174,8 @@ File yang paling sering disentuh:
 
 ## Batasan yang perlu diketahui
 
-- Kurs referensi terbit sekali per hari kerja, jadi alert dan kabar pergerakan dicek sekali sehari dan pergerakan
-  di tengah hari tidak terdeteksi.
+- Kurs referensi diperbarui sekali sehari (sebagian mata uang hanya di hari kerja), jadi alert dan kabar
+  pergerakan dicek sekali sehari dan pergerakan di tengah hari tidak terdeteksi.
 - Ambang kabar pergerakan tajam tetap 1% per hari untuk semua pasangan (lihat [`src/lib/moves.ts`](src/lib/moves.ts)),
   jadi pasangan yang memang bergejolak bisa lebih sering memicunya.
 - Biaya di Catatan tukar dihitung terhadap kurs tengah referensi, bukan kurs yang bisa ditransaksikan, jadi

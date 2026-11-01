@@ -3,7 +3,7 @@
 // 1. memperbarui arsip berita;
 // 2. mengecek alert yang belum tercapai, mengirim email, lalu menandainya
 //    tercapai supaya tidak terkirim berulang;
-// 3. mengabarkan pasangan Pantauan yang bergerak tajam dari hari kerja sebelumnya.
+// 3. mengabarkan pasangan Pantauan yang bergerak tajam dari kurs hari sebelumnya.
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { prisma } from '@/lib/prisma';
@@ -128,7 +128,7 @@ async function checkAlerts(resend: Resend, baseUrl: string): Promise<SendResult 
 }
 
 // Satu email per pengguna berisi semua pasangan Pantauan-nya yang bergerak
-// >= SHARP_MOVE_PCT dari hari kerja sebelumnya. Tanggal kurs yang dikabarkan
+// >= SHARP_MOVE_PCT dari kurs hari sebelumnya. Tanggal kurs yang dikabarkan
 // disimpan di WatchedPair.lastMoveDate supaya tidak terkirim lagi besok kalau
 // kurs belum terbit (akhir pekan, libur).
 async function notifyMoves(resend: Resend, baseUrl: string): Promise<SendResult & { users: number; sent: number }> {
@@ -144,7 +144,7 @@ async function notifyMoves(resend: Resend, baseUrl: string): Promise<SendResult 
   const result = { users: 0, sent: 0, failed: 0, errors: [] as string[] };
   if (users.length === 0) return result;
 
-  // ~90 hari kerja: kurs dua hari terakhir untuk geraknya, sisanya untuk posisi.
+  // ~90 kurs harian: dua terakhir terakhir untuk geraknya, sisanya untuk posisi.
   const pairs = [...new Set(users.flatMap((user) => user.watchedPairs.map((p) => `${p.base}/${p.quote}`)))];
   const snapshots = new Map((await watchlistSnapshot(pairs, 135)).map((row) => [row.pair, row]));
 

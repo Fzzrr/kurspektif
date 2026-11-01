@@ -12,9 +12,10 @@ const SECTIONS: { id: string; title: string; body: ReactNode }[] = [
     body: (
       <>
         <p>
-          Kurs diambil dari Frankfurter (frankfurter.dev), layanan terbuka yang mengumpulkan kurs referensi harian
-          terbitan bank sentral. Kurs ini terbit sekali per hari kerja — tidak ada pembaruan di akhir pekan dan hari
-          libur.
+          Kurs diambil dari Frankfurter (frankfurter.dev), layanan terbuka yang menghimpun kurs referensi dari lebih
+          dari 100 bank sentral dan lembaga resmi. Kurspektif memakai satu angka per hari untuk tiap pasangan. Banyak
+          mata uang tetap punya angka di akhir pekan dan hari libur; sebagian lain hanya di hari kerja, dan pada hari
+          tanpa angka yang berlaku adalah kurs terakhir sebelumnya.
         </p>
         <p>
           Ini <strong className="font-semibold">kurs tengah</strong>, bukan kurs jual/beli bank atau money
@@ -29,7 +30,7 @@ const SECTIONS: { id: string; title: string; body: ReactNode }[] = [
     title: 'Mahal atau murah',
     body: (
       <p>
-        Kurs hari ini dibandingkan dengan 90 hari kerja terakhir. &ldquo;Lebih tinggi dari 80% hari&rdquo; artinya kurs
+        Kurs hari ini dibandingkan dengan 90 kurs harian terakhir. &ldquo;Lebih tinggi dari 80% hari&rdquo; artinya kurs
         sekarang lebih tinggi dari 80% hari dalam periode itu. Ini posisi relatif, bukan ramalan arah berikutnya.
       </p>
     ),
@@ -86,7 +87,7 @@ const SECTIONS: { id: string; title: string; body: ReactNode }[] = [
           singkat di tengah hari tidak akan terdeteksi.
         </p>
         <p>
-          Alert posisi (&ldquo;masuk 20% termurah setahun&rdquo;) membandingkan kurs terbaru dengan semua hari kerja
+          Alert posisi (&ldquo;masuk 20% termurah setahun&rdquo;) membandingkan kurs terbaru dengan semua kurs harian
           dalam 365 hari terakhir: alert terkirim saat kurs lebih rendah dari, misalnya, 80% hari lainnya.
         </p>
       </>

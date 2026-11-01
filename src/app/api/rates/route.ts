@@ -1,14 +1,25 @@
 import { NextResponse } from 'next/server';
-import { fetchLatestRate, fetchRateSeries, toISODate } from '@/lib/frankfurter';
+import { MAX_SERIES_DAYS, fetchLatestRate, fetchRateSeries, toISODate } from '@/lib/frankfurter';
+import { isCurrencyCode } from '@/lib/pairs';
+import { clientIp, publicApiLimiter } from '@/lib/rateLimit';
 
+// Publik (dipakai komponen client), jadi dibatasi per IP dan rentangnya dikunci:
+// tanpa itu satu permintaan `days=20000` menahan server ~25 detik.
 export async function GET(request: Request) {
+  if (!(await publicApiLimiter.check(`api:${clientIp(request.headers)}`)).success) {
+    return NextResponse.json({ error: 'Terlalu banyak permintaan. Coba lagi sebentar lagi.' }, { status: 429 });
+  }
+
   const { searchParams } = new URL(request.url);
   const base = (searchParams.get('base') ?? 'USD').toUpperCase();
   const quote = (searchParams.get('quote') ?? 'IDR').toUpperCase();
   const days = Number(searchParams.get('days') ?? 365);
 
-  if (!/^[A-Z]{3}$/.test(base) || !/^[A-Z]{3}$/.test(quote)) {
-    return NextResponse.json({ error: 'Invalid currency code' }, { status: 400 });
+  if (!isCurrencyCode(base) || !isCurrencyCode(quote)) {
+    return NextResponse.json({ error: 'Kode mata uang tidak valid.' }, { status: 400 });
+  }
+  if (!Number.isInteger(days) || days < 1 || days > MAX_SERIES_DAYS) {
+    return NextResponse.json({ error: `days harus bilangan bulat 1–${MAX_SERIES_DAYS}.` }, { status: 400 });
   }
 
   const to = new Date();
@@ -20,8 +31,10 @@ export async function GET(request: Request) {
       fetchLatestRate(base, quote),
       fetchRateSeries(base, quote, toISODate(from), toISODate(to)),
     ]);
-    return NextResponse.json({ latest, series });
+    return NextResponse.json({ latest, series }, { headers: { 'Cache-Control': 'public, max-age=300' } });
   } catch (err) {
-    return NextResponse.json({ error: err instanceof Error ? err.message : 'Unknown error' }, { status: 502 });
+    // Detail kegagalan hanya ke log server, bukan ke pengunjung.
+    console.error('api/rates gagal:', err);
+    return NextResponse.json({ error: 'Kurs sedang tidak bisa dimuat.' }, { status: 502 });
   }
 }

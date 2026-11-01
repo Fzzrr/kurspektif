@@ -94,7 +94,7 @@ export default async function KursPage({ params }: Props) {
                 >
                   {' '}
                   · {change.changeDir === 'up' ? '+' : change.changeDir === 'down' ? '−' : ''}
-                  {change.changePercent} dari hari kerja sebelumnya
+                  {change.changePercent} dari hari sebelumnya
                 </span>
               )}
             </p>
@@ -176,7 +176,7 @@ export default async function KursPage({ params }: Props) {
       </Reveal>
 
       <p className="mt-16 text-[15px] text-muted">
-        Kurs tengah referensi bank sentral, bukan kurs jual/beli bank atau money changer.{' '}
+        Kurs referensi harian dari bank sentral dan lembaga resmi, bukan kurs jual/beli bank atau money changer.{' '}
         <Link href="/metodologi" className="text-ink underline underline-offset-4 hover:decoration-transparent">
           Cara kami menghitung
         </Link>

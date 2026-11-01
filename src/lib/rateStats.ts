@@ -19,7 +19,7 @@ export function dailyChange(series: RatePoint[], latest: RatePoint | null) {
   return { changeAbsolute: formatRate(Math.abs(diff)), changePercent, changeDir };
 }
 
-/** Posisi kurs terbaru dalam 90 hari kerja terakhir. */
+/** Posisi kurs terbaru di antara 90 kurs harian terakhir. */
 export function historicalPosition(series: RatePoint[], latest: RatePoint | null) {
   const window = series.slice(-90);
   if (!latest || window.length < 2) return { label: 'Memuat…', min: '-', max: '-', percentile: 50 };

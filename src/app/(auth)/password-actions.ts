@@ -1,10 +1,10 @@
 'use server';
 
-import { createHash, randomBytes } from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import { headers } from 'next/headers';
 import { Resend } from 'resend';
 import { prisma } from '@/lib/prisma';
+import { hashToken, newToken } from '@/lib/tokens';
 import { EMAIL_SENDER, devLinkFallback } from '@/lib/email';
 import { passwordResetEmail } from '@/lib/emailTemplates';
 import { BCRYPT_COST } from '@/lib/auth';
@@ -13,8 +13,6 @@ import { passwordResetLimiter } from '@/lib/rateLimit';
 export type ResetState = { error?: string; message?: string; done?: boolean } | undefined;
 
 const TOKEN_TTL_MS = 60 * 60 * 1000; // 1 jam
-// Yang disimpan hanya hash-nya: token aktif tidak bisa dipakai walau tabelnya bocor.
-const hashToken = (token: string) => createHash('sha256').update(token).digest('hex');
 const identifierFor = (userId: string) => `password-reset:${userId}`;
 
 async function limited(): Promise<boolean> {
@@ -36,7 +34,7 @@ export async function requestPasswordResetAction(_prev: ResetState, formData: Fo
   const user = await prisma.user.findUnique({ where: { email }, select: { id: true, password: true } });
   if (!user) return { message: SENT_MESSAGE };
 
-  const token = randomBytes(32).toString('base64url');
+  const token = newToken();
   const identifier = identifierFor(user.id);
   await prisma.verificationToken.deleteMany({ where: { identifier } });
   await prisma.verificationToken.create({

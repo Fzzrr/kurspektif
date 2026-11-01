@@ -7,7 +7,7 @@ const series = (prev: number, last: number) => [
   { date: '2026-10-28', rate: last },
 ];
 
-test('gerak harian dihitung dari dua hari kerja terakhir', () => {
+test('gerak harian dihitung dari dua kurs harian terakhir', () => {
   const move = dailyMove(series(18000, 18180));
   assert.ok(move);
   assert.equal(move.date, '2026-10-28');

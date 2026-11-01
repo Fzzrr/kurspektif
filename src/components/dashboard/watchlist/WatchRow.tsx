@@ -21,7 +21,7 @@ export function watchStats(row: WatchedSnapshot) {
   return { series, latest, dayPct, position };
 }
 
-// Satu pasangan di Pantauan: kurs dan perubahannya, posisi dalam 90 hari kerja
+// Satu pasangan di Pantauan: kurs dan perubahannya, posisi dalam 90 kurs harian
 // (murah atau mahal dibanding biasanya), penggerak minggu ini, lalu alertnya.
 export default function WatchRow({ row, baseName, quoteName, alerts }: Props) {
   const [base, quote] = row.pair.split('/');
@@ -55,7 +55,7 @@ export default function WatchRow({ row, baseName, quoteName, alerts }: Props) {
           {position ? (
             <>
               <div className="flex items-baseline justify-between gap-3 text-xs text-muted">
-                <span>{series.length} hari kerja terakhir</span>
+                <span>{series.length} kurs harian terakhir</span>
                 <span className="text-ink">{positionTag(position.percentile)}</span>
               </div>
               <Sparkline points={series} quote={quote} />

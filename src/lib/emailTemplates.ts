@@ -22,7 +22,7 @@ const UP = '#15803d';
 const DOWN = '#b91c1c';
 
 const DISCLAIMER =
-  'Kurs tengah referensi bank sentral yang terbit sekali per hari kerja, bukan kurs jual/beli bank atau money changer. Kurspektif adalah alat informasi, bukan nasihat keuangan.';
+  'Kurs referensi harian dari bank sentral dan lembaga resmi, bukan kurs jual/beli bank atau money changer. Kurspektif adalah alat informasi, bukan nasihat keuangan.';
 
 const dateFormatter = new Intl.DateTimeFormat('id-ID', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
 /** "2026-10-24" → "Jumat, 24 Oktober". */
@@ -100,7 +100,7 @@ export type AlertEmailData = {
   rate: number;
   /** Tanggal kurs referensi, YYYY-MM-DD. */
   date: string;
-  /** Perubahan dari hari kerja sebelumnya, persen; null kalau tidak ada data. */
+  /** Perubahan dari kurs hari sebelumnya, persen; null kalau tidak ada data. */
   dayPct: number | null;
   /** Persen hari dalam setahun yang kursnya lebih rendah dari `rate`. */
   yearPercentile: number;
@@ -398,7 +398,7 @@ export type MoveRow = {
   /** Tanggal kurs terbaru dan sebelumnya, YYYY-MM-DD. */
   date: string;
   prevDate: string;
-  /** Persen hari dalam ~90 hari kerja yang kursnya lebih rendah; null kalau riwayat kurang. */
+  /** Persen dari 90 kurs harian terakhir yang lebih rendah; null kalau riwayat kurang. */
   percentile90: number | null;
   reason: string | null;
   url: string;
@@ -436,7 +436,7 @@ export function movesEmail(data: MovesEmailData): EmailContent {
       const lines = [
         `Sebelumnya ${formatRate(row.prevRate)} pada ${formatDate(row.prevDate)}.`,
         ...(row.percentile90 !== null
-          ? [`Kini lebih tinggi dari ${row.percentile90}% hari dalam 90 hari kerja terakhir.`]
+          ? [`Kini lebih tinggi dari ${row.percentile90}% kurs harian dalam 90 hari terakhir.`]
           : []),
       ];
       return `<tr><td style="padding:16px 0;border-top:1px solid ${LINE};">
@@ -459,7 +459,7 @@ ${row.reason ? `<p style="margin:4px 0 0;font:13px/1.6 ${FONT};color:${MUTED};">
     body:
       h1(title) +
       p(
-        `${greeting}${single ? 'pasangan ini' : 'pasangan-pasangan ini'} di Pantauanmu bergerak ${threshold} atau lebih dari hari kerja sebelumnya, menurut kurs referensi terbaru.`,
+        `${greeting}${single ? 'pasangan ini' : 'pasangan-pasangan ini'} di Pantauanmu bergerak ${threshold} atau lebih dari hari sebelumnya, menurut kurs referensi terbaru.`,
       ) +
       `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;border-bottom:1px solid ${LINE};">${blocks}</table>` +
       p(`Ingin dikabari saat kurs mencapai angka tertentu? ${link(data.pantauanUrl, 'Pasang alert di Pantauan')}.`) +
@@ -470,14 +470,14 @@ ${row.reason ? `<p style="margin:4px 0 0;font:13px/1.6 ${FONT};color:${MUTED};">
   const text = [
     title,
     '',
-    `${data.name ? `Halo ${data.name}, ` : ''}${single ? 'pasangan ini' : 'pasangan-pasangan ini'} di Pantauanmu bergerak ${threshold} atau lebih dari hari kerja sebelumnya.`,
+    `${data.name ? `Halo ${data.name}, ` : ''}${single ? 'pasangan ini' : 'pasangan-pasangan ini'} di Pantauanmu bergerak ${threshold} atau lebih dari hari sebelumnya.`,
     '',
     ...data.rows.flatMap((row) => {
       const [base, quote] = row.pair.split('/');
       return [
         `${row.pair}  ${fmtPct(row.pct)} (sehari)`,
         `${formatRate(row.rate)} ${quote} per 1 ${base} · ${formatDate(row.date)}; sebelumnya ${formatRate(row.prevRate)} (${formatDate(row.prevDate)})`,
-        ...(row.percentile90 !== null ? [`Lebih tinggi dari ${row.percentile90}% hari dalam 90 hari kerja terakhir.`] : []),
+        ...(row.percentile90 !== null ? [`Lebih tinggi dari ${row.percentile90}% kurs harian dalam 90 hari terakhir.`] : []),
         ...(row.reason ? [`Minggu ini: ${row.reason}`] : []),
         '',
       ];

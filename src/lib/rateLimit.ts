@@ -45,3 +45,7 @@ export const alertLimiter = createLimiter({ limit: 20, windowMs: 60_000 });     
 export const watchlistLimiter = createLimiter({ limit: 30, windowMs: 60_000 }); // 30 aksi watchlist/menit per user
 export const exchangeLimiter = createLimiter({ limit: 20, windowMs: 60_000 });   // 20 aksi catatan tukar/menit per user
 export const passwordResetLimiter = createLimiter({ limit: 5, windowMs: 15 * 60_000 }); // 5 per 15 menit per IP
+export const publicApiLimiter = createLimiter({ limit: 60, windowMs: 60_000 }); // 60 request /api/rates & /api/movers per menit per IP
+
+/** IP pengunjung dari header proxy (di Vercel `x-forwarded-for` diisi platform, bukan klien). */
+export const clientIp = (headers: Headers) => headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';

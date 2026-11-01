@@ -78,7 +78,7 @@ export function SummaryCard({ summary, saving }: { summary: QuoteSummary; saving
       )}
 
       <p className="mt-5 text-sm leading-relaxed text-muted">
-        <span className="text-ink">Kurs tengah</span> adalah kurs acuan harian bank sentral, belum termasuk untung penukar
+        <span className="text-ink">Kurs tengah</span> adalah kurs acuan harian dari bank sentral dan lembaga resmi, belum termasuk untung penukar
         uang. Makin jauh kurs yang kamu dapat dari angka itu, makin besar biayanya. Hitungan ini juga ikut gerak kurs di
         hari itu, karena kurs tengah hanya terbit sekali sehari.
       </p>
