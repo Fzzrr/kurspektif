@@ -14,9 +14,15 @@ export type Currency = { code: string; name: string; localName: string };
 
 const localNames = new Intl.DisplayNames('id', { type: 'currency' });
 
+// Kurs referensi berubah sekali sehari, jadi cache satu jam sudah cukup segar.
+// Penting juga untuk ISR: halaman dibangun ulang pada revalidate TERKECIL di
+// antara `export const revalidate`-nya dan semua fetch di dalamnya — dengan 300
+// detik di sini, /kurs/[pair] (revalidate 3600) ikut dibangun ulang tiap 5 menit.
+const RATES_REVALIDATE = 3600;
+
 async function fetchRateRaw(base: string, quote: string): Promise<RatePoint> {
   const res = await fetch(`${FRANKFURTER_BASE}/rate/${base}/${quote}`, {
-    next: { revalidate: 300 },
+    next: { revalidate: RATES_REVALIDATE },
   });
   if (!res.ok) throw new Error(`Failed to fetch latest rate (${res.status})`);
   const data = await res.json();
@@ -25,7 +31,7 @@ async function fetchRateRaw(base: string, quote: string): Promise<RatePoint> {
 
 async function fetchRateSeriesRaw(base: string, quote: string, from: string, to: string): Promise<RatePoint[]> {
   const params = new URLSearchParams({ base, quotes: quote, from, to });
-  const res = await fetch(`${FRANKFURTER_BASE}/rates?${params}`, { next: { revalidate: 300 } });
+  const res = await fetch(`${FRANKFURTER_BASE}/rates?${params}`, { next: { revalidate: RATES_REVALIDATE } });
   if (!res.ok) throw new Error(`Failed to fetch rate series (${res.status})`);
   const data: { date: string; rate: number }[] = await res.json();
   return data.map((d) => ({ date: d.date, rate: d.rate }));
@@ -72,7 +78,7 @@ export async function fetchUsdRates(
   to: string,
 ): Promise<Map<string, Record<string, number>>> {
   const params = new URLSearchParams({ base: 'USD', quotes: quotes.join(','), from, to });
-  const res = await fetch(`${FRANKFURTER_BASE}/rates?${params}`, { next: { revalidate: 3600 } });
+  const res = await fetch(`${FRANKFURTER_BASE}/rates?${params}`, { next: { revalidate: RATES_REVALIDATE } });
   if (!res.ok) throw new Error(`Failed to fetch USD rates (${res.status})`);
   const data: { date: string; quote: string; rate: number }[] = await res.json();
   const byDate = new Map<string, Record<string, number>>();
