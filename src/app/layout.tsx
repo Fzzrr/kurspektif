@@ -13,6 +13,9 @@ export const metadata: Metadata = {
   title: { default: "Kurspektif — Pahami kenapa kurs bergerak", template: "%s — Kurspektif" },
   description:
     "Pantau nilai tukar untuk pasangan mata uang apa pun, lalu baca berita yang sudah ditandai sentimennya agar kamu paham kenapa kurs bergerak.",
+  // Gambarnya dari opengraph-image.tsx; judul & deskripsi ikut metadata tiap halaman.
+  openGraph: { siteName: "Kurspektif", locale: "id_ID", type: "website" },
+  twitter: { card: "summary_large_image" },
 };
 
 export default function RootLayout({

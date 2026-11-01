@@ -1,7 +1,10 @@
 import Link from 'next/link';
 import LegalPage from '@/components/legal/LegalPage';
 
-export const metadata = { title: 'Syarat & Ketentuan' };
+export const metadata = {
+  title: 'Syarat & Ketentuan',
+  description: 'Aturan memakai Kurspektif: bukan nasihat keuangan, akurasi data kurs, batas alert email, dan tanggung jawab atas akunmu.',
+};
 
 export default function SyaratPage() {
   return (
