@@ -9,7 +9,7 @@ import { Resend } from 'resend';
 import { prisma } from '@/lib/prisma';
 import { fetchUsdRates, toISODate } from '@/lib/frankfurter';
 import { POSITION_DAYS, describeCondition, isHit, isPositional, percentileOf, type AlertDirection } from '@/lib/alerts';
-import { EMAIL_SENDER } from '@/lib/email';
+import { EMAIL_SENDER, sendAll } from '@/lib/email';
 import { formatRate } from '@/lib/rateStats';
 import { refreshNewsArchive } from '@/lib/marketaux';
 import { fetchWeeklyMoversMany } from '@/lib/movers';
@@ -86,12 +86,7 @@ async function checkAlerts(resend: Resend, baseUrl: string): Promise<SendResult 
   const hitPairs = [...new Set(hits.map(({ alert }) => `${alert.base}/${alert.quote}`))];
   const movers = hitPairs.length > 0 ? await fetchWeeklyMoversMany(hitPairs).catch(() => new Map()) : new Map();
 
-  let triggered = 0;
-  const errors: string[] = [];
-
-  // ponytail: kirim satu per satu; free tier Resend ~2 email/detik — tambah
-  // jeda atau batch API kalau banyak alert tercapai di hari yang sama.
-  for (const { alert, rate, date, percentile, dayPct, yearHigh, yearLow } of hits) {
+  const emails = hits.map(({ alert, rate, date, percentile, dayPct, yearHigh, yearLow }) => {
     const pair = `${alert.base}/${alert.quote}`;
     const direction = alert.direction as AlertDirection;
     const week = movers.get(pair);
@@ -112,19 +107,23 @@ async function checkAlerts(resend: Resend, baseUrl: string): Promise<SendResult 
       pairUrl: `${baseUrl}/dashboard?pair=${alert.base}-${alert.quote}`,
       manageUrl: `${baseUrl}/dashboard#alert`,
     });
-    const sent = await resend.emails.send({ from: EMAIL_SENDER, to: alert.user.email, ...email });
-    // Gagal kirim → jangan tandai tercapai, supaya dicoba lagi besok.
-    if (sent.error) {
-      const reason = `${pair} (alert ${alert.id}): ${sent.error.message}`;
-      console.error('Alert email gagal:', reason);
-      errors.push(reason);
-      continue;
-    }
-    await prisma.rateAlert.update({ where: { id: alert.id }, data: { triggeredAt: new Date(), triggeredRate: rate } });
-    triggered++;
-  }
+    return { from: EMAIL_SENDER, to: alert.user.email, ...email };
+  });
+  const failed = await sendAll(resend, emails);
 
-  return { checked: alerts.length, triggered, failed: errors.length, errors };
+  // Gagal kirim → jangan tandai tercapai, supaya dicoba lagi besok.
+  const errors = [...failed].map(([index, reason]) => {
+    const { alert } = hits[index];
+    return `${alert.base}/${alert.quote} (alert ${alert.id}): ${reason}`;
+  });
+  errors.forEach((reason) => console.error('Alert email gagal:', reason));
+  const now = new Date();
+  const sent = hits.filter((_, index) => !failed.has(index));
+  await prisma.$transaction(
+    sent.map(({ alert, rate }) => prisma.rateAlert.update({ where: { id: alert.id }, data: { triggeredAt: now, triggeredRate: rate } })),
+  );
+
+  return { checked: alerts.length, triggered: sent.length, failed: errors.length, errors };
 }
 
 // Satu email per pengguna berisi semua pasangan Pantauan-nya yang bergerak
@@ -141,16 +140,13 @@ async function notifyMoves(resend: Resend, baseUrl: string): Promise<SendResult 
       watchedPairs: { orderBy: { createdAt: 'asc' }, select: { id: true, base: true, quote: true, lastMoveDate: true } },
     },
   });
-  const result = { users: 0, sent: 0, failed: 0, errors: [] as string[] };
-  if (users.length === 0) return result;
+  if (users.length === 0) return { users: 0, sent: 0, failed: 0, errors: [] };
 
   // ~90 kurs harian: dua terakhir terakhir untuk geraknya, sisanya untuk posisi.
   const pairs = [...new Set(users.flatMap((user) => user.watchedPairs.map((p) => `${p.base}/${p.quote}`)))];
   const snapshots = new Map((await watchlistSnapshot(pairs, 135)).map((row) => [row.pair, row]));
 
-  // ponytail: kirim satu per satu seperti alert; pakai batch API kalau
-  // penggunanya sudah ratusan.
-  for (const user of users) {
+  const outgoing = users.flatMap((user) => {
     const moves = user.watchedPairs.flatMap((watched) => {
       const pair = `${watched.base}/${watched.quote}`;
       const snapshot = snapshots.get(pair);
@@ -168,8 +164,7 @@ async function notifyMoves(resend: Resend, baseUrl: string): Promise<SendResult 
         },
       }];
     });
-    if (moves.length === 0) continue;
-    result.users++;
+    if (moves.length === 0) return [];
 
     const email = movesEmail({
       name: user.name,
@@ -178,29 +173,33 @@ async function notifyMoves(resend: Resend, baseUrl: string): Promise<SendResult 
       pantauanUrl: `${baseUrl}/dashboard/pantauan`,
       unsubscribeUrl: unsubscribePageUrl(baseUrl, user.id, 'gerak'),
     });
-    const sent = await resend.emails.send({
-      from: EMAIL_SENDER,
-      to: user.email,
-      headers: {
-        'List-Unsubscribe': `<${unsubscribeApiUrl(baseUrl, user.id, 'gerak')}>`,
-        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+    return [{
+      userId: user.id,
+      moves,
+      email: {
+        from: EMAIL_SENDER,
+        to: user.email,
+        headers: {
+          'List-Unsubscribe': `<${unsubscribeApiUrl(baseUrl, user.id, 'gerak')}>`,
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+        },
+        ...email,
       },
-      ...email,
-    });
-    // Gagal kirim → jangan tandai terkabar, supaya dicoba lagi besok.
-    if (sent.error) {
-      const reason = `Gerak tajam (user ${user.id}): ${sent.error.message}`;
-      console.error(reason);
-      result.failed++;
-      result.errors.push(reason);
-      continue;
-    }
-    await prisma.$transaction(
-      moves.map(({ watchedId, row }) =>
-        prisma.watchedPair.update({ where: { id: watchedId }, data: { lastMoveDate: row.date } }),
+    }];
+  });
+  const failed = await sendAll(resend, outgoing.map(({ email }) => email));
+
+  // Gagal kirim → jangan tandai terkabar, supaya dicoba lagi besok.
+  const errors = [...failed].map(([index, reason]) => `Gerak tajam (user ${outgoing[index].userId}): ${reason}`);
+  errors.forEach((reason) => console.error(reason));
+  await prisma.$transaction(
+    outgoing
+      .filter((_, index) => !failed.has(index))
+      .flatMap(({ moves }) =>
+        moves.map(({ watchedId, row }) =>
+          prisma.watchedPair.update({ where: { id: watchedId }, data: { lastMoveDate: row.date } }),
+        ),
       ),
-    );
-    result.sent++;
-  }
-  return result;
+  );
+  return { users: outgoing.length, sent: outgoing.length - failed.size, failed: failed.size, errors };
 }

@@ -4,11 +4,10 @@ import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { prisma } from '@/lib/prisma';
 import { watchlistSnapshot, type WatchedSnapshot } from '@/lib/watchlist';
-import { EMAIL_SENDER } from '@/lib/email';
+import { EMAIL_SENDER, sendAll } from '@/lib/email';
 import { digestEmail } from '@/lib/emailTemplates';
 import { unsubscribeApiUrl, unsubscribePageUrl } from '@/lib/unsubscribe';
-
-const BATCH_SIZE = 100; // batas batch API Resend
+import { todayKey } from '@/lib/timeAgo';
 
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET;
@@ -26,7 +25,7 @@ export async function GET(request: Request) {
       _count: { select: { rateAlerts: { where: { triggeredAt: null } } } },
     },
   });
-  if (users.length === 0) return NextResponse.json({ users: 0, sent: 0, failed: 0 });
+  if (users.length === 0) return NextResponse.json({ users: 0, sent: 0, failed: 0, errors: [] });
 
   const pairsOf = (user: (typeof users)[number]) => user.watchedPairs.map((p) => `${p.base}/${p.quote}`);
   // Satu snapshot untuk semua pasangan semua pengguna: kurs terbaru +
@@ -66,15 +65,11 @@ export async function GET(request: Request) {
     };
   });
 
-  const resend = new Resend(process.env.RESEND_API_KEY);
-  let sent = 0;
-  const errors: string[] = [];
-  for (let i = 0; i < emails.length; i += BATCH_SIZE) {
-    const chunk = emails.slice(i, i + BATCH_SIZE);
-    const result = await resend.batch.send(chunk);
-    if (result.error) errors.push(result.error.message);
-    else sent += chunk.length;
-  }
+  // Ringkasan tidak dicatat di database, jadi kunci idempotensi per hari yang
+  // mencegah email ganda kalau cron terpicu dua kali.
+  const failed = await sendAll(new Resend(process.env.RESEND_API_KEY), emails, `ringkasan/${todayKey()}`);
+  const errors = [...failed].map(([index, reason]) => `Ringkasan (user ${users[index].id}): ${reason}`);
+  errors.forEach((reason) => console.error(reason));
 
-  return NextResponse.json({ users: users.length, sent, failed: emails.length - sent, errors });
+  return NextResponse.json({ users: users.length, sent: emails.length - failed.size, failed: failed.size, errors });
 }
